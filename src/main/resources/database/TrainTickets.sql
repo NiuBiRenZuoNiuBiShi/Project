@@ -1,3 +1,5 @@
+CREATE DATABASE swift_travel;
+
 CREATE SCHEMA Trains;
 
 CREATE TABLE City
@@ -27,37 +29,37 @@ CREATE TABLE TrainNumbers
     arr_city     VARCHAR(50) NOT NULL,
     dep_time     DATETIME    NOT NULL,
     arr_time     DATETIME    NOT NULL,
-    number       INT(10)     NOT NULL COMMENT 'how many tickets or seats on the carriage',
 
     del          TINYINT(1)  NOT NULL DEFAULT 0
 ) COMMENT '车次表';
 
 CREATE TABLE Carriages
 (
-    id              BINARY(16)  NOT NULL PRIMARY KEY,
-    train_number_id BINARY(16)  NOT NULL COMMENT 'eg. G5151',
-    dep_station     VARCHAR(50) NOT NULL,
-    dep_city        VARCHAR(50) NOT NULL,
-    arr_station     VARCHAR(50) NOT NULL,
-    arr_city        VARCHAR(50) NOT NULL,
-    arr_time        DATETIME    NOT NULL,
-    wait_time       TIME        NOT NULL,
+    id           BINARY(16)  NOT NULL PRIMARY KEY,
+    train_number BINARY(16)  NOT NULL COMMENT 'eg. G5151',
+    dep_station  VARCHAR(50) NOT NULL,
+    dep_city     VARCHAR(50) NOT NULL,
+    arr_station  VARCHAR(50) NOT NULL,
+    arr_city     VARCHAR(50) NOT NULL,
+    arr_time     DATETIME    NOT NULL,
+    wait_time    TIME        NOT NULL,
+    number       INT(10)     NOT NULL COMMENT 'how many tickets or seats on the carriage',
 
-    del             TINYINT(1)  NOT NULL DEFAULT 0
+    del          TINYINT(1)  NOT NULL DEFAULT 0
 );
 
 CREATE TABLE Seats
 (
-    id              BINARY(16)     NOT NULL PRIMARY KEY,
-    train_number_id BINARY(16)     NOT NULL,
-    coach           INT(10)        NOT NULL,
-    seat_type       VARCHAR(10)    NOT NULL,
-    price           DECIMAL(10, 2) NOT NULL,
+    id           BINARY(16)     NOT NULL PRIMARY KEY,
+    train_number BINARY(16)     NOT NULL,
+    coach        INT(10)        NOT NULL,
+    seat_type    VARCHAR(10)    NOT NULL,
+    price        DECIMAL(10, 2) NOT NULL,
 
-    flags           BINARY(8)      NOT NULL,
+    flags        BINARY(8)      NOT NULL,
 
-    version         INT(10)        NOT NULL,
-    del             TINYINT(1)     NOT NULL DEFAULT 0
+    version      INT(10)        NOT NULL,
+    del          TINYINT(1)     NOT NULL DEFAULT 0
 );
 
 CREATE Table Traveler
