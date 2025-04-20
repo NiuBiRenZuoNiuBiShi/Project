@@ -16,7 +16,8 @@ CREATE TABLE orders (
                         order_status     ENUM('未支付', '已支付', '已取消', '已退款') DEFAULT '未支付' COMMENT '订单状态',
                         latest_payment_id BIGINT DEFAULT NULL COMMENT '最近一次成功支付ID',
                         created_time       DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                        paid_time          DATETIME DEFAULT NULL COMMENT '支付时间'
+                        paid_time          DATETIME DEFAULT NULL COMMENT '支付时间',
+                        del             TINYINT(1) DEFAULT 0
 );
 
 CREATE TABLE payment_records (
@@ -29,6 +30,8 @@ CREATE TABLE payment_records (
                                  transaction_no   VARCHAR(64) COMMENT '第三方平台支付编号',
                                  created_time       DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '发起支付时间',
                                  updated_time       DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间'
+    ,
+                                 del             TINYINT(1) DEFAULT 0
 );
 
 CREATE TABLE notifications (
@@ -41,5 +44,6 @@ CREATE TABLE notifications (
                                is_read         BOOLEAN DEFAULT FALSE COMMENT '是否已读',
                                send_status     ENUM('待发送', '已发送', '发送失败') DEFAULT '待发送' COMMENT '发送状态',
                                send_time       DATETIME DEFAULT NULL COMMENT '发送时间',
-                               created_time    DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+                               created_time    DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                               del             TINYINT(1) DEFAULT 0
 );
