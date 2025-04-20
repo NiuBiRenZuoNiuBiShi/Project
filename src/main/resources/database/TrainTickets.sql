@@ -37,28 +37,28 @@ CREATE TABLE Carriages
 (
     id           BINARY(16)  NOT NULL PRIMARY KEY,
     train_number BINARY(16)  NOT NULL COMMENT 'eg. G5151',
-    dep_station  VARCHAR(50) NOT NULL,
-    dep_city     VARCHAR(50) NOT NULL,
-    arr_station  VARCHAR(50) NOT NULL,
-    arr_city     VARCHAR(50) NOT NULL,
-    arr_time     DATETIME    NOT NULL,
-    wait_time    TIME        NOT NULL,
+    dep_station  VARCHAR(50) NOT NULL COMMENT '出发站',
+    dep_city     VARCHAR(50) NOT NULL COMMENT '出发城市',
+    arr_station  VARCHAR(50) NOT NULL COMMENT '到达站',
+    arr_city     VARCHAR(50) NOT NULL COMMENT '到达城市',
+    arr_time     DATETIME    NOT NULL COMMENT '到达时间',
+    wait_time    TIME        NOT NULL COMMENT '等候时间',
     number       INT(10)     NOT NULL COMMENT 'how many tickets or seats on the carriage',
 
     del          TINYINT(1)  NOT NULL DEFAULT 0
-);
+) COMMENT '车次';
 
 CREATE TABLE Seats
 (
     id           BINARY(16)     NOT NULL PRIMARY KEY,
     train_number BINARY(16)     NOT NULL,
-    coach        INT(10)        NOT NULL,
+    coach        INT(10)        NOT NULL COMMENT '车厢号',
     seat_type    VARCHAR(10)    NOT NULL,
     price        DECIMAL(10, 2) NOT NULL,
 
-    flags        BINARY(8)      NOT NULL,
+    flags        BINARY(8)      NOT NULL COMMENT '座位状态',
 
-    version      INT(10)        NOT NULL,
+    version      INT(10)        NOT NULL DEFAULT 0 COMMENT '乐观锁',
     del          TINYINT(1)     NOT NULL DEFAULT 0
 );
 
