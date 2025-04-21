@@ -4,7 +4,7 @@ CREATE TABLE Hotel (
     name         VARCHAR(50) NOT NULL,
     address      VARCHAR(50),
     rating       DECIMAL(2, 1),
-    description  TEXT
+    description  TEXT,
 
     del          TINYINT(1)  NOT NULL DEFAULT 0
 );
@@ -31,17 +31,6 @@ CREATE TABLE Reservation (
     checkout_date DATE,
     status        VARCHAR(50) DEFAULT 'Booked',
     booking_time  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    del          TINYINT(1)  NOT NULL DEFAULT 0
-);
-
--- 支付表
-CREATE TABLE Payment (
-    id             BINARY(16)  NOT NULL PRIMARY KEY,
-    reservation_id BINARY(16),
-    payment_status VARCHAR(50) DEFAULT 'Pending',
-    payment_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    amount         DECIMAL(10, 2),
 
     del          TINYINT(1)  NOT NULL DEFAULT 0
 );
