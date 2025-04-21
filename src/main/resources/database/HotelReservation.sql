@@ -4,7 +4,8 @@ CREATE TABLE Hotel (
     name         VARCHAR(50) NOT NULL,
     address      VARCHAR(50),
     rating       DECIMAL(2, 1),
-    description  TEXT,
+    description  VARCHAR(255),
+    pic_url      VARCHAR(255)   NOT NULL,
 
     del          TINYINT(1)  NOT NULL DEFAULT 0
 );
