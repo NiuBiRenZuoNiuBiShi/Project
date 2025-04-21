@@ -4,7 +4,7 @@ CREATE TABLE Hotel (
     name         VARCHAR(50) NOT NULL,
     address      VARCHAR(50),
     rating       DECIMAL(2, 1),
-    description  TEXT
+    description  TEXT,
 
     del          TINYINT(1)  NOT NULL DEFAULT 0
 );

@@ -47,3 +47,14 @@ CREATE TABLE notifications (
                                created_time    DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                del             TINYINT(1) DEFAULT 0
 );
+
+CREATE TABLE FoodOrders
+(
+    id          BINARY(16)     NOT NULL PRIMARY KEY,
+    order_id    BINARY(16)     NOT NULL,
+    food_id     BINARY(16)     NOT NULL,
+    food_number INT(10)        NOT NULL,
+    price       DECIMAL(10, 2) NOT NULL,
+
+    del         TINYINT(1)     NOT NULL DEFAULT 0
+);
