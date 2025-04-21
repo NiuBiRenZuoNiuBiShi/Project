@@ -15,6 +15,7 @@ CREATE TABLE Room (
     hotel_id     BINARY(16),
     room_type    VARCHAR(50),
     price        DECIMAL(10, 2),
+    room_date    DATE,
     availability BOOLEAN DEFAULT TRUE,
 
     del          TINYINT(1)  NOT NULL DEFAULT 0
