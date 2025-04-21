@@ -47,3 +47,35 @@ CREATE TABLE notifications (
                                created_time    DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                del             TINYINT(1) DEFAULT 0
 );
+
+CREATE TABLE tickets_orders
+(
+    id          BINARY(16)     NOT NULL PRIMARY KEY,
+    train_id    BINARY(16)     NOT NULL COMMENT '车次编号',
+    seat_id     BINARY(16)     NOT NULL,
+    pay_id      BINARY(16)     NOT NULL COMMENT '订单编号',
+    payment_status ENUM('已支付', '待支付', '已退款', '已取消') NOT NULL,
+
+    del         TINYINT(1)     NOT NULL DEFAULT 0
+);
+
+CREATE TABLE hotel_orders
+(
+    id          BINARY(16)     NOT NULL PRIMARY KEY,
+    reservation_id BINARY(16),
+    amount         DECIMAL(10, 2),
+    payment_status ENUM('已支付', '待支付', '已退款', '已取消') NOT NULL,
+
+    del         TINYINT(1)     NOT NULL DEFAULT 0
+);
+
+CREATE TABLE FoodOrders
+(
+    id          BINARY(16)     NOT NULL PRIMARY KEY,
+    food_id     BINARY(16)     NOT NULL,
+    food_number INT(10)        NOT NULL,
+    price       DECIMAL(10, 2) NOT NULL,
+    payment_status ENUM('已支付', '待支付', '已退款', '已取消') NOT NULL,
+
+    del         TINYINT(1)     NOT NULL DEFAULT 0
+);
