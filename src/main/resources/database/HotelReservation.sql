@@ -4,7 +4,8 @@ CREATE TABLE Hotel (
     name         VARCHAR(50) NOT NULL,
     address      VARCHAR(50),
     rating       DECIMAL(2, 1),
-    description  TEXT,
+    description  VARCHAR(255),
+    pic_url      VARCHAR(255)   NOT NULL,
 
     del          TINYINT(1)  NOT NULL DEFAULT 0
 );
@@ -15,6 +16,7 @@ CREATE TABLE Room (
     hotel_id     BINARY(16),
     room_type    VARCHAR(50),
     price        DECIMAL(10, 2),
+    room_date    DATE,
     availability BOOLEAN DEFAULT TRUE,
 
     del          TINYINT(1)  NOT NULL DEFAULT 0
