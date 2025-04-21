@@ -1,6 +1,4 @@
-CREATE DATABASE swift_travel;
-
-CREATE SCHEMA Trains;
+CREATE SCHEMA swift_travel;
 
 CREATE TABLE City
 (
@@ -62,17 +60,17 @@ CREATE TABLE Seats
     del          TINYINT(1)     NOT NULL DEFAULT 0
 );
 
-CREATE Table Traveler
-(
-    id           BINARY(16)  NOT NULL PRIMARY KEY,
-    bind_user_id BINARY(16)  NOT NULL COMMENT 'its for user to know the traveler he bind
-            & if this is 0, then this is the traveler who book it',
-    name         VARCHAR(50) NOT NULL,
-    id_card      VARCHAR(20) NOT NULL,
-    phone_number VARCHAR(20) NOT NULL,
-
-    del          TINYINT(1)  NOT NULL DEFAULT 0
-);
+#CREATE Table Traveler
+#(
+#    id           BINARY(16)  NOT NULL PRIMARY KEY,
+#    bind_user_id BINARY(16)  NOT NULL COMMENT 'it is for user to know the traveler he bind
+#            & if this is 0, then this is the traveler who book it',
+#    name         VARCHAR(50) NOT NULL,
+#    id_card      VARCHAR(20) NOT NULL,
+#    phone_number VARCHAR(20) NOT NULL,
+#
+#    del          TINYINT(1)  NOT NULL DEFAULT 0
+#);
 
 CREATE TABLE Orders
 (
@@ -80,6 +78,8 @@ CREATE TABLE Orders
     price       DECIMAL(10, 2) NOT NULL,
     seat_id     BINARY(16)     NOT NULL,
     traveler_id BINARY(16)     NOT NULL,
+
+    create_time                 TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     del         TINYINT(1)     NOT NULL DEFAULT 0
 );
@@ -95,15 +95,4 @@ CREATE TABLE Food
     pic_url   VARCHAR(255)   NOT NULL,
 
     del       TINYINT(1)     NOT NULL DEFAULT 0
-);
-
-CREATE TABLE FoodOrders
-(
-    id          BINARY(16)     NOT NULL PRIMARY KEY,
-    order_id    BINARY(16)     NOT NULL,
-    food_id     BINARY(16)     NOT NULL,
-    food_number INT(10)        NOT NULL,
-    price       DECIMAL(10, 2) NOT NULL,
-
-    del         TINYINT(1)     NOT NULL DEFAULT 0
 );

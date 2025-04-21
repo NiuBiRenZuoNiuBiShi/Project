@@ -1,4 +1,4 @@
-CREATE TABLE Auth.Contacts (
+CREATE TABLE Contacts (
     contact_id BINARY(16) NOT NULL PRIMARY KEY,     
     user_id BINARY(16) NOT NULL,                 
     contact_name VARCHAR(100) NOT NULL,             
