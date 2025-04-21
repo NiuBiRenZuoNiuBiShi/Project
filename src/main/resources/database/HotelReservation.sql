@@ -33,14 +33,3 @@ CREATE TABLE Reservation (
 
     del          TINYINT(1)  NOT NULL DEFAULT 0
 );
-
--- 支付表
-CREATE TABLE Payment (
-    id             BINARY(16)  NOT NULL PRIMARY KEY,
-    reservation_id BINARY(16),
-    payment_status VARCHAR(50) DEFAULT 'Pending',
-    payment_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    amount         DECIMAL(10, 2),
-
-    del          TINYINT(1)  NOT NULL DEFAULT 0
-);
