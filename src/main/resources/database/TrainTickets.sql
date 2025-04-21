@@ -63,7 +63,7 @@ CREATE TABLE Seats
 #CREATE Table Traveler
 #(
 #    id           BINARY(16)  NOT NULL PRIMARY KEY,
-#    bind_user_id BINARY(16)  NOT NULL COMMENT 'it is for user to know the traveler he bind
+#    bind_user_id BINARY(16)  NOT NULL COMMENT 'it is for user to know the traveler he binds
 #            & if this is 0, then this is the traveler who book it',
 #    name         VARCHAR(50) NOT NULL,
 #    id_card      VARCHAR(20) NOT NULL,
@@ -72,17 +72,17 @@ CREATE TABLE Seats
 #    del          TINYINT(1)  NOT NULL DEFAULT 0
 #);
 
-CREATE TABLE Orders
-(
-    id          BINARY(16)     NOT NULL PRIMARY KEY,
-    price       DECIMAL(10, 2) NOT NULL,
-    seat_id     BINARY(16)     NOT NULL,
-    traveler_id BINARY(16)     NOT NULL,
-
-    create_time                 TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    del         TINYINT(1)     NOT NULL DEFAULT 0
-);
+#CREATE TABLE Orders
+#(
+#    id          BINARY(16)     NOT NULL PRIMARY KEY,
+#    price       DECIMAL(10, 2) NOT NULL,
+#    seat_id     BINARY(16)     NOT NULL,
+#    traveler_id BINARY(16)     NOT NULL,
+#
+#    create_time                 TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#
+#    del         TINYINT(1)     NOT NULL DEFAULT 0
+#);
 
 CREATE TABLE Food
 (
