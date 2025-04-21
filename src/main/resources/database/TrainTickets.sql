@@ -77,7 +77,7 @@ CREATE TABLE Food
     lunch               BOOLEAN     NOT NULL DEFAULT 0 COMMENT '是否是午餐',
     dinner              BOOLEAN     NOT NULL DEFAULT 0,
 
-    pic_url   VARCHAR(255)   NOT NULL,
+    pic_url   VARCHAR(255)  ,
 
     del       TINYINT(1)     NOT NULL DEFAULT 0
 );
