@@ -92,6 +92,9 @@ CREATE TABLE Food
     food_type VARCHAR(10)    NOT NULL,
     price     DECIMAL(10, 2) NOT NULL,
 
+    lunch               BOOLEAN     NOT NULL DEFAULT 0 COMMENT '是否是午餐',
+    dinner              BOOLEAN     NOT NULL DEFAULT 0,
+
     pic_url   VARCHAR(255)   NOT NULL,
 
     del       TINYINT(1)     NOT NULL DEFAULT 0
