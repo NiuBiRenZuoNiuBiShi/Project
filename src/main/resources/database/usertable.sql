@@ -13,4 +13,3 @@ CREATE TABLE Users
     UNIQUE (username),
     UNIQUE (email)
 ) COMMENT '用户表';
-

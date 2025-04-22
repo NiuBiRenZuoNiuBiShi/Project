@@ -42,11 +42,11 @@ CREATE TABLE Carriages
     arr_time     DATETIME    NOT NULL COMMENT '到达时间',
     wait_time    TIME        NOT NULL COMMENT '等候时间',
 
-    all_number       INT(10)     NOT NULL COMMENT 'how many tickets or seats on the carriage',
-    first_number      INT(10)     NOT NULL COMMENT 'how many first class tickets or seats on the carriage',
-    second_number       INT(10)     NOT NULL ,
-    business_number         INT(10)    NOT NULL ,
-    no_seat_number         INT(10)     NOT NULL ,
+    all_number       INT    NOT NULL COMMENT 'how many tickets or seats on the carriage',
+    first_number      INT     NOT NULL COMMENT 'how many first class tickets or seats on the carriage',
+    second_number       INT     NOT NULL ,
+    business_number         INT    NOT NULL ,
+    no_seat_number         INT     NOT NULL ,
 
 
     del          TINYINT(1)  NOT NULL DEFAULT 0
@@ -56,13 +56,13 @@ CREATE TABLE Seats
 (
     id           BINARY(16)     NOT NULL PRIMARY KEY,
     train_number BINARY(16)     NOT NULL,
-    coach        INT(10)        NOT NULL COMMENT '车厢号',
+    coach        INT        NOT NULL COMMENT '车厢号',
     seat_type    VARCHAR(10)    NOT NULL,
     price        DECIMAL(10, 2) NOT NULL,
 
     flags        BINARY(8)      NOT NULL COMMENT '座位状态',
 
-    version      INT(10)        NOT NULL DEFAULT 0 COMMENT '乐观锁',
+    version      INT        NOT NULL DEFAULT 0 COMMENT '乐观锁',
     del          TINYINT(1)     NOT NULL DEFAULT 0
 );
 
