@@ -2,7 +2,15 @@ spring:
   application:
     name: SwiftTravel
 
+  datasource:
+    url: jdbc:mysql://localhost:3306/swift_travel?useSSL=false&serverTimezone=UTC
+    username: Yiki
+    password: zhangyi6324
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+
   data:
+
     redis:
       host: localhost
       port: 6379
