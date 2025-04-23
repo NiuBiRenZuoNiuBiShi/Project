@@ -7,3 +7,18 @@ spring:
       host: localhost
       port: 6379
       password: ""
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/swift_travel
+    username: root
+    password: Asdf051019@
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+server:
+  port: 8081
