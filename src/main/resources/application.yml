@@ -20,7 +20,7 @@ spring:
         logic-not-delete-value: 0
         table-prefix: swift_travel_
 
-    mapper-locations: classpath*:/mapper/**/*.xml
+    mapper-locations: classpath*:mapper/**/*.xml
     typeAliasesPackage: com.setravel.swifttravel.entities
 
 

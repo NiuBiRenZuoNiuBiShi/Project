@@ -13,10 +13,10 @@
 
 
     <select id="selectCitiesByStations" resultType="com.setravel.swifttravel.entities.City">
-        SELECT C.city_name FROM city AS C
+        SELECT * FROM city AS C
         JOIN station AS S ON S.city_id = C.id
         WHERE station_name IN
-        <foreach collection="stationLine" separator="," open="(" close=")" item="station">
+        <foreach collection="stations" separator="," open="(" close=")" item="station">
             #{station}
         </foreach>
     </select>

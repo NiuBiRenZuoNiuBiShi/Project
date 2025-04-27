@@ -134,10 +134,10 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
                         .setSecondNumber(second_seats)
                         .setBusinessNumber(business_seats)
                         .setNoSeatNumber(trainnumbers_detail.getNo_seats_num())
-                        .setBusinessPrice(trainnumbers_detail.getBusiness_price().stream().skip(i).limit(j - i + 1).reduce(BigDecimal.ZERO, BigDecimal::add))
-                        .setFirstPrice(trainnumbers_detail.getFirst_price().stream().skip(i).limit(j - i + 1).reduce(BigDecimal.ZERO, BigDecimal::add))
-                        .setSecondPrice(trainnumbers_detail.getSecond_price().stream().skip(j - i + 1).reduce(BigDecimal.ZERO, BigDecimal::add))
-                        .setNoSeatPrice(trainnumbers_detail.getNo_seat_price().stream().skip(j - i + 1).reduce(BigDecimal.ZERO, BigDecimal::add));
+                        .setBusinessPrice(trainnumbers_detail.getBusiness_price().stream().skip(i).limit(j - i).reduce(BigDecimal.ZERO, BigDecimal::add))
+                        .setFirstPrice(trainnumbers_detail.getFirst_price().stream().skip(i).limit(j - i).reduce(BigDecimal.ZERO, BigDecimal::add))
+                        .setSecondPrice(trainnumbers_detail.getSecond_price().stream().skip(j - i).reduce(BigDecimal.ZERO, BigDecimal::add))
+                        .setNoSeatPrice(trainnumbers_detail.getNo_seat_price().stream().skip(j - i).reduce(BigDecimal.ZERO, BigDecimal::add));
 
                 carriages.add(carriage);
             }
@@ -163,41 +163,36 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
         if (trainnumbers_detail.getTrainNumber() == null)
             return Result.error("车次号不能为空");
 
-        // 检查车厢、座位和票价数量是否一致
-        if (!checkConsistency(trainnumbers_detail.getBusiness_coach().size(),
-                trainnumbers_detail.getBusiness_seats_num().size(),
-                trainnumbers_detail.getBusiness_price().size())) {
-            return Result.error("商务车厢、商务座位、商务票价数量不一致");
-        }
-
-        if (!checkConsistency(trainnumbers_detail.getFirst_coach().size(),
-                trainnumbers_detail.getFirst_seats_num().size(),
-                trainnumbers_detail.getFirst_price().size())) {
-            return Result.error("一等车厢、一等座位、一等票价数量不一致");
-        }
-
-        if (!checkConsistency(trainnumbers_detail.getSecond_coach().size(),
-                trainnumbers_detail.getSecond_seats_num().size(),
-                trainnumbers_detail.getSecond_price().size())) {
-            return Result.error("二等车厢、二等座位、二等票价数量不一致");
-        }
-
-        // 检查发车站、发车时间和车厢总数是否一致
-        int totalCoaches = trainnumbers_detail.getBusiness_coach().size() +
-                trainnumbers_detail.getFirst_coach().size() +
-                trainnumbers_detail.getSecond_coach().size();
-
-        if (!checkConsistency(trainnumbers_detail.getStationLine().size(),
+        if (!checkConsistency(List.of(
                 trainnumbers_detail.getStationLine().size(),
-                totalCoaches)) {
-            return Result.error("发车站、发车时间和车厢总数数量不一致");
-        }
+                trainnumbers_detail.getTimeLine().size(),
+                trainnumbers_detail.getWaitingTimeLine().size(),
+                trainnumbers_detail.getBusiness_price().size(),
+                trainnumbers_detail.getFirst_price().size(),
+                trainnumbers_detail.getSecond_price().size(),
+                trainnumbers_detail.getNo_seat_price().size()
+        ))) return Result.error("The Line length is not same");
+
+        if (trainnumbers_detail.getBusiness_coach().size() != trainnumbers_detail.getBusiness_seats_num().size())
+            return  Result.error("Business coach length is not same");
+
+        if (trainnumbers_detail.getFirst_coach().size() != trainnumbers_detail.getFirst_seats_num().size())
+            return  Result.error("First coach length is not same");
+
+        if (trainnumbers_detail.getSecond_coach().size() != trainnumbers_detail.getSecond_seats_num().size())
+            return  Result.error("Second coach length is not same");
 
         return Result.success();
     }
 
     // 提取的检查方法
-    private boolean checkConsistency(int size0, int size2, int size3) {
-        return size0 == size2 && size2 == size3;
+    private static <T> boolean checkConsistency(List<T> list) {
+        if (list == null || list.isEmpty()) {
+            return true;
+        }
+        T first = list.getFirst();
+        return list.stream().allMatch(e ->
+                Objects.equals(first, e)
+        );
     }
 }

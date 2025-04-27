@@ -1,5 +1,6 @@
 package com.setravel.swifttravel.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -16,7 +17,11 @@ public class TrainNumberDetail {
 
     private String trainNumber;
     private List<String> stationLine;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private List<LocalDateTime> timeLine;
+
+    @JsonFormat(pattern = "HH:mm:ss")
     private List<LocalTime> waitingTimeLine;
 
     private List<Integer> business_coach;
