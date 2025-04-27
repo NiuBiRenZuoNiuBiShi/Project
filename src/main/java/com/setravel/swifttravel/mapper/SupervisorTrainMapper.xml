@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.setravel.swifttravel.mapper.SupervisorTrainMapper">
+
+    <insert id="insertTrainNumber">
+        INSERT INTO trainnumbers
+            (id, train_number, dep_station, dep_city, arr_station, arr_city, dep_time, arr_time)
+        VALUES
+            (#{id}, #{trainNumber}, #{firstStation}, #{firstCity}, #{lastStation}, #{lastCity}, #{depTime}, #{arrTime})
+    </insert>
+
+
+    <select id="selectCitiesByStations" resultType="com.setravel.swifttravel.entities.City">
+        SELECT C.city_name FROM city AS C
+        JOIN station AS S ON S.city_id = C.id
+        WHERE station_name IN
+        <foreach collection="stationLine" separator="," open="(" close=")" item="station">
+            #{station}
+        </foreach>
+    </select>
+
+</mapper>
