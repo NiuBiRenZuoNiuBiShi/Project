@@ -44,9 +44,6 @@ public class Seats extends Model<Seats> {
     @TableField("seat_type")
     private String seatType;
 
-    @TableField("price")
-    private BigDecimal price;
-
     /**
      * 座位状态
      */
