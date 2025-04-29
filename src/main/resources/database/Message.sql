@@ -13,7 +13,7 @@ CREATE TABLE payment_records (
 );
 
 CREATE TABLE notifications (
-                               message_id      BINARY(16) PRIMARY KEY AUTO_INCREMENT COMMENT '消息ID',
+                               message_id      BINARY(16) PRIMARY KEY COMMENT '消息ID',
                                user_id         BINARY(16) NOT NULL COMMENT '接收用户ID',
                                order_id        BINARY(16) DEFAULT NULL COMMENT '关联订单ID',
                                message_type    VARCHAR(20) NOT NULL COMMENT '消息类型',
