@@ -1,6 +1,7 @@
 package com.setravel.swifttravel.service.impl;
 
 import com.setravel.swifttravel.entities.*;
+import com.setravel.swifttravel.exception.TrainNumberDetailInfoException;
 import com.setravel.swifttravel.mapper.CarriagesMapper;
 import com.setravel.swifttravel.mapper.SeatsMapper;
 import com.setravel.swifttravel.mapper.SupervisorTrainMapper;
@@ -31,9 +32,11 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
 
     @Override
     public Result addTrainNumber(TrainNumberDetail trainnumbers_detail) {
-        Result result = check(trainnumbers_detail);
-        if (result.isError())
-            return result;
+        try {
+            check(trainnumbers_detail);
+        } catch (TrainNumberDetailInfoException e) {
+            return Result.error(e.getMessage());
+        }
 
         List<City> cityList = getCityList(trainnumbers_detail);
 
@@ -157,11 +160,11 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
 
     }
 
-    private Result check(TrainNumberDetail trainnumbers_detail) {
+    private void check(TrainNumberDetail trainnumbers_detail) throws TrainNumberDetailInfoException {
         if (trainnumbers_detail == null)
-            return Result.error("车次信息不能为空");
+            throw new TrainNumberDetailInfoException("TrainNumberDetail is null");
         if (trainnumbers_detail.getTrainNumber() == null)
-            return Result.error("车次号不能为空");
+            throw new TrainNumberDetailInfoException("车次号不能为空");
 
         if (!checkConsistency(List.of(
                 trainnumbers_detail.getStationLine().size(),
@@ -171,18 +174,16 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
                 trainnumbers_detail.getFirst_price().size(),
                 trainnumbers_detail.getSecond_price().size(),
                 trainnumbers_detail.getNo_seat_price().size()
-        ))) return Result.error("The Line length is not same");
+        ))) throw new TrainNumberDetailInfoException("The Line length is not same");
 
         if (trainnumbers_detail.getBusiness_coach().size() != trainnumbers_detail.getBusiness_seats_num().size())
-            return  Result.error("Business coach length is not same");
+            throw new TrainNumberDetailInfoException("Business coach length is not same");
 
         if (trainnumbers_detail.getFirst_coach().size() != trainnumbers_detail.getFirst_seats_num().size())
-            return  Result.error("First coach length is not same");
+            throw new TrainNumberDetailInfoException("First coach length is not same");
 
         if (trainnumbers_detail.getSecond_coach().size() != trainnumbers_detail.getSecond_seats_num().size())
-            return  Result.error("Second coach length is not same");
-
-        return Result.success();
+            throw new TrainNumberDetailInfoException("Second coach length is not same");
     }
 
     // 提取的检查方法
