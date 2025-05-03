@@ -83,7 +83,7 @@ public class Carriages extends Model<Carriages> {
     private Integer allNumber;
 
     /**
-     * how many first class tickets or seats on the carriage
+     * how many first-class tickets or seats on the carriage
      */
     @TableField("first_number")
     private Integer firstNumber;
@@ -96,6 +96,18 @@ public class Carriages extends Model<Carriages> {
 
     @TableField("no_seat_number")
     private Integer noSeatNumber;
+
+    @TableField
+    private Double businessPrice;
+
+    @TableField
+    private Double firstPrice;
+
+    @TableField
+    private Double secondPrice;
+
+    @TableField
+    private Double noSeatPrice;
 
     @TableField("del")
     private Boolean del;
@@ -149,6 +161,14 @@ public class Carriages extends Model<Carriages> {
     public static final String BUSINESS_NUMBER = "business_number";
 
     public static final String NO_SEAT_NUMBER = "no_seat_number";
+
+    public static final String BUSINESS_PRICE = "business_price";
+
+    public static final String FIRST_PRICE = "first_price";
+
+    public static final String SECOND_PRICE = "second_price";
+
+    public static final String NO_SEAT_PRICE = "no_seat_price";
 
     public static final String DEL = "del";
 

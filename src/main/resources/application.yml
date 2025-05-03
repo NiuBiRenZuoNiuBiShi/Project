@@ -4,8 +4,8 @@ spring:
 
   datasource:
     url: jdbc:mysql://localhost:3306/swift_travel?useSSL=false&serverTimezone=UTC
-    username: Yiki
-    password: zhangyi6324
+    username: xxx # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
+    password: xxx # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   mybatis-plus:
