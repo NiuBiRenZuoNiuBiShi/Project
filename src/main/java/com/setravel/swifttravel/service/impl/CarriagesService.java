@@ -1,5 +1,6 @@
-package com.setravel.swifttravel.trainSale;
+package com.setravel.swifttravel.service.impl;
 
+import com.setravel.swifttravel.mapper.CarriagesMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.setravel.swifttravel.entities.Carriages;
 import jakarta.annotation.Resource;

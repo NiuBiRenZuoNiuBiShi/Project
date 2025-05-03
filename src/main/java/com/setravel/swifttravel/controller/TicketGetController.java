@@ -1,6 +1,7 @@
-package com.setravel.swifttravel.trainSale;
+package com.setravel.swifttravel.controller;
 
 import com.setravel.swifttravel.entities.Carriages;
+import com.setravel.swifttravel.service.impl.CarriagesService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +16,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("api/ticket")
-public class ticketGet {
+public class TicketGetController {
 
     @Resource
     private CarriagesService carriagesService;
