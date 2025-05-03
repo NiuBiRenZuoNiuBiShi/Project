@@ -1,6 +1,8 @@
 package com.setravel.swifttravel.controller;
 
+import com.setravel.swifttravel.entities.City;
 import com.setravel.swifttravel.entities.Result;
+import com.setravel.swifttravel.entities.Station;
 import com.setravel.swifttravel.entities.TrainNumberDetail;
 import com.setravel.swifttravel.mapper.SupervisorTrainMapper;
 import com.setravel.swifttravel.service.impl.SupervisorTrainService;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 public class SupervisorTrainController {
@@ -33,5 +37,15 @@ public class SupervisorTrainController {
     @PostMapping("/api/sup/addTrainNumber")
     public Result addTrainNumber(@RequestBody TrainNumberDetail trainnumbers_detail){
         return supervisorTrainService.addTrainNumber(trainnumbers_detail);
+    }
+
+    @PostMapping("/api/sup/addCities")
+    public Result addCities(@RequestBody List<City> cityList){
+        return supervisorTrainService.addCities(cityList);
+    }
+
+    @PostMapping("/api/sup/addStations")
+    public Result addStations(@RequestBody List<Station> stations){
+
     }
 }

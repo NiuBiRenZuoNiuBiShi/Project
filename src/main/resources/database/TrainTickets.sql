@@ -91,4 +91,9 @@ ALTER TABLE Carriages
          first_price DECIMAL(10, 2) NOT NULL DEFAULT 0 COMMENT '一等座票价',
          second_price DECIMAL(10, 2) NOT NULL DEFAULT 0 COMMENT '二等座票价',
          no_seat_price DECIMAL(10, 2) NOT NULL DEFAULT 0 COMMENT '无座票价'
-        )
+        );
+
+
+ALTER TABLE Carriages
+    ADD COLUMN
+        (dep_time DATETIME NOT NULL COMMENT '这个Carriage出发时间');

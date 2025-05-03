@@ -2,12 +2,9 @@ package com.setravel.swifttravel.service.impl;
 
 import com.setravel.swifttravel.entities.*;
 import com.setravel.swifttravel.exception.TrainNumberDetailInfoException;
-import com.setravel.swifttravel.mapper.CarriagesMapper;
-import com.setravel.swifttravel.mapper.SeatsMapper;
-import com.setravel.swifttravel.mapper.SupervisorTrainMapper;
-import com.setravel.swifttravel.mapper.TrainNumberMapper;
+import com.setravel.swifttravel.mapper.*;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.Reference;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -30,6 +27,12 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
     @Resource
     private SeatsMapper seatsMapper;
 
+    @Resource
+    private CityMapper cityMapper;
+
+    @Resource
+    private StationMapper stationMapper;
+
     @Override
     public Result addTrainNumber(TrainNumberDetail trainnumbers_detail) {
         try {
@@ -47,6 +50,26 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
 
         seatsMapper.insert(convertToSeats(trainnumbers_detail, cityList, trainnumbers));
 
+        return Result.success();
+    }
+
+    @Override
+    public Result addCities(List<City> cities) {
+        try {
+            cityMapper.insert(cities);
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+        return Result.success();
+    }
+
+    @Override
+    public Result addStations(List<Station> stations) {
+        try {
+            stationMapper.insert(stations);
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
         return Result.success();
     }
 
@@ -103,7 +126,7 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
     }
 
     private List<City> getCityList(TrainNumberDetail trainnumbers_detail) {
-        List<City> cityList = new ArrayList<>();
+        List<City> cityList;
         cityList = supervisorTrainMapper
                 .selectCitiesByStations(trainnumbers_detail.getStationLine());
         Map<String, City> cityMap = cityList.stream()
@@ -139,8 +162,8 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
                         .setNoSeatNumber(trainnumbers_detail.getNo_seats_num())
                         .setBusinessPrice(trainnumbers_detail.getBusiness_price().stream().skip(i).limit(j - i).reduce(BigDecimal.ZERO, BigDecimal::add))
                         .setFirstPrice(trainnumbers_detail.getFirst_price().stream().skip(i).limit(j - i).reduce(BigDecimal.ZERO, BigDecimal::add))
-                        .setSecondPrice(trainnumbers_detail.getSecond_price().stream().skip(j - i).reduce(BigDecimal.ZERO, BigDecimal::add))
-                        .setNoSeatPrice(trainnumbers_detail.getNo_seat_price().stream().skip(j - i).reduce(BigDecimal.ZERO, BigDecimal::add));
+                        .setSecondPrice(trainnumbers_detail.getSecond_price().stream().skip(i).limit(j - i).reduce(BigDecimal.ZERO, BigDecimal::add))
+                        .setNoSeatPrice(trainnumbers_detail.getNo_seat_price().stream().skip(i).limit(j - i).reduce(BigDecimal.ZERO, BigDecimal::add));
 
                 carriages.add(carriage);
             }

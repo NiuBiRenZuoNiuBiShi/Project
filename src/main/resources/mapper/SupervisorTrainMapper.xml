@@ -15,7 +15,7 @@
     <select id="selectCitiesByStations" resultType="com.setravel.swifttravel.entities.City">
         SELECT * FROM city AS C
         JOIN station AS S ON S.city_id = C.id
-        WHERE station_name IN
+        WHERE S.station_name IN
         <foreach collection="stations" separator="," open="(" close=")" item="station">
             #{station}
         </foreach>
