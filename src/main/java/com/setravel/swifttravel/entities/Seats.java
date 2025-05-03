@@ -4,13 +4,12 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-
-import java.io.Serial;
-import java.io.Serializable;
-import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -18,15 +17,15 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author Swift_Travel_Team
- * @since 2024-01-01
+ * @since 2025-04-23
  */
 @Getter
 @Setter
-@Accessors(chain = true)
+@ToString
 @TableName("seats")
+@Accessors(chain = true)
 public class Seats extends Model<Seats> {
 
-    @Serial
     private static final long serialVersionUID = 1L;
 
     @TableId("id")
@@ -66,8 +65,6 @@ public class Seats extends Model<Seats> {
     public static final String COACH = "coach";
 
     public static final String SEAT_TYPE = "seat_type";
-
-    public static final String PRICE = "price";
 
     public static final String FLAGS = "flags";
 

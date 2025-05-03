@@ -57,14 +57,14 @@
         <!-- MyBatis Plus -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
             <version>3.5.11</version>
         </dependency>
 
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-generator</artifactId>
-            <version>3.5.7</version>
+            <version>3.5.11</version>
         </dependency>
 
         <dependency>

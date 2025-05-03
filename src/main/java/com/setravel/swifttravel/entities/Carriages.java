@@ -4,14 +4,15 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 /**
  * <p>
@@ -19,15 +20,15 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author Swift_Travel_Team
- * @since 2024-01-01
+ * @since 2025-04-23
  */
 @Getter
 @Setter
-@Accessors(chain = true)
+@ToString
 @TableName("carriages")
+@Accessors(chain = true)
 public class Carriages extends Model<Carriages> {
 
-    @Serial
     private static final long serialVersionUID = 1L;
 
     @TableId("id")
@@ -111,6 +112,30 @@ public class Carriages extends Model<Carriages> {
     @TableField("del")
     private Boolean del;
 
+    /**
+     * 商务座票价
+     */
+    @TableField("business_price")
+    private BigDecimal businessPrice;
+
+    /**
+     * 一等座票价
+     */
+    @TableField("first_price")
+    private BigDecimal firstPrice;
+
+    /**
+     * 二等座票价
+     */
+    @TableField("second_price")
+    private BigDecimal secondPrice;
+
+    /**
+     * 无座票价
+     */
+    @TableField("no_seat_price")
+    private BigDecimal noSeatPrice;
+
     public static final String ID = "id";
 
     public static final String TRAIN_NUMBER = "train_number";
@@ -146,6 +171,14 @@ public class Carriages extends Model<Carriages> {
     public static final String NO_SEAT_PRICE = "no_seat_price";
 
     public static final String DEL = "del";
+
+    public static final String BUSINESS_PRICE = "business_price";
+
+    public static final String FIRST_PRICE = "first_price";
+
+    public static final String SECOND_PRICE = "second_price";
+
+    public static final String NO_SEAT_PRICE = "no_seat_price";
 
     @Override
     public Serializable pkVal() {

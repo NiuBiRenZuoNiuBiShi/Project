@@ -2,27 +2,20 @@ package com.setravel.swifttravel;
 
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.DataSourceConfig;
-import jakarta.annotation.Resource;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-import javax.sql.DataSource;
-
-@SpringBootTest
-class SwiftTravelApplicationTests {
-
-    @Resource
-    DataSource source;
-
-    @Test
-    void contextLoads() {
+public class GenerateEntity {
+    public static void main(String[] args) {
         FastAutoGenerator
-                .create(new DataSourceConfig.Builder(source))
+                .create(new DataSourceConfig.Builder(
+                        "jdbc:mysql://localhost:3306/swift_travel?serverTimezone=UTC",
+                        "Yiki",
+                        "zhangyi6324"
+                ))
                 .globalConfig(builder -> {
                     builder.author("Swift_Travel_Team");
                     builder.commentDate("2025-04-23");
                     builder.outputDir("src\\main\\java"); // 设置生成的目录
-                    builder.enableSpringdoc();
+                   //builder.enableSpringdoc();
                 })
                 .packageConfig(builder -> {
                     builder.parent("com.setravel.swifttravel")
@@ -34,6 +27,7 @@ class SwiftTravelApplicationTests {
                             .enableTableFieldAnnotation()  // 启用字段注解（@TableField 等）
                             .enableChainModel()  // 启用链式编程风格
                             .enableRemoveIsPrefix()  // 移除字段的 is 前缀
+                            .enableFileOverride()
                             .enableColumnConstant()  // 生成常量字段
                             .enableActiveRecord();  // 启用 ActiveRecord 风格
                     builder.mapperBuilder().disable();  // 禁用 Mapper 生成
@@ -42,5 +36,4 @@ class SwiftTravelApplicationTests {
                 })
                 .execute();
     }
-
 }
