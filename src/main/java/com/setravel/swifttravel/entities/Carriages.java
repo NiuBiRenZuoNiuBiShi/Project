@@ -112,30 +112,6 @@ public class Carriages extends Model<Carriages> {
     @TableField("del")
     private Boolean del;
 
-    /**
-     * 商务座票价
-     */
-    @TableField("business_price")
-    private BigDecimal businessPrice;
-
-    /**
-     * 一等座票价
-     */
-    @TableField("first_price")
-    private BigDecimal firstPrice;
-
-    /**
-     * 二等座票价
-     */
-    @TableField("second_price")
-    private BigDecimal secondPrice;
-
-    /**
-     * 无座票价
-     */
-    @TableField("no_seat_price")
-    private BigDecimal noSeatPrice;
-
     public static final String ID = "id";
 
     public static final String TRAIN_NUMBER = "train_number";
@@ -171,14 +147,6 @@ public class Carriages extends Model<Carriages> {
     public static final String NO_SEAT_PRICE = "no_seat_price";
 
     public static final String DEL = "del";
-
-    public static final String BUSINESS_PRICE = "business_price";
-
-    public static final String FIRST_PRICE = "first_price";
-
-    public static final String SECOND_PRICE = "second_price";
-
-    public static final String NO_SEAT_PRICE = "no_seat_price";
 
     @Override
     public Serializable pkVal() {
