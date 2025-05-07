@@ -12,5 +12,5 @@ public interface SupervisorTrainService {
 
     Result addCities(List<City> cities);
 
-    Result addStations(List<Station> stations);
+    Result addStations(List<Station> stations,  List<String> cities);
 }

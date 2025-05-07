@@ -98,16 +98,16 @@ public class Carriages extends Model<Carriages> {
     private Integer noSeatNumber;
 
     @TableField
-    private Double businessPrice;
+    private BigDecimal businessPrice;
 
     @TableField
-    private Double firstPrice;
+    private BigDecimal firstPrice;
 
     @TableField
-    private Double secondPrice;
+    private BigDecimal secondPrice;
 
     @TableField
-    private Double noSeatPrice;
+    private BigDecimal noSeatPrice;
 
     @TableField("del")
     private Boolean del;
