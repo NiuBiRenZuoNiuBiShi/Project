@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.setravel.swifttravel.entities.*;
 import com.setravel.swifttravel.exception.TrainNumberDetailInfoException;
 import com.setravel.swifttravel.mapper.*;
+import com.setravel.swifttravel.service.SupervisorTrainService;
 import com.setravel.swifttravel.utils.UUIDUtil;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,8 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
             check(trainnumbers_detail);
         } catch (TrainNumberDetailInfoException e) {
             return Result.error(e.getMessage());
+        } catch (Exception e) {
+            return Result.error("Unknown Error: " + e.getMessage());
         }
 
         List<City> cityList = getCityList(trainnumbers_detail);
@@ -74,8 +77,7 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
         }
 
         List<City> cityList = cityMapper.selectList(
-                new QueryWrapper<City>().lambda().in(City::getCityName, cityNameList)
-        );
+                new QueryWrapper<City>().lambda().in(City::getCityName, cityNameList));
         Map<String, City> cityMap = cityList.stream()
                 .collect(Collectors.toMap(City::getCityName, Function.identity()));
         for (int i = 0; i < stations.size(); i++) {
@@ -94,7 +96,8 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
         return Result.success();
     }
 
-    private List<Seats> convertToSeats(TrainNumberDetail trainnumbers_detail, List<City> cityList, Trainnumbers trainnumbers) {
+    private List<Seats> convertToSeats(TrainNumberDetail trainnumbers_detail, List<City> cityList,
+            Trainnumbers trainnumbers) {
         List<Seats> seats = new ArrayList<>();
         byte[] flag = new byte[8];
         Arrays.fill(flag, (byte) 0xFF);
@@ -134,12 +137,12 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
             }
         }
 
-
         for (int i = 0; i < trainnumbers_detail.getNo_seats_num(); i++) {
             Seats seat = new Seats()
                     .setId(UUIDUtil.generateUUIDBytes())
                     .setTrainNumber(trainnumbers.getId())
                     .setSeatType("NoSeat")
+                    .setCoach(-1)
                     .setFlags(flag);
             seats.add(seat);
         }
@@ -158,7 +161,8 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
         return cityList;
     }
 
-    private List<Carriages> convertToCarriages(TrainNumberDetail trainnumbers_detail, List<City> cityList, Trainnumbers trainnumbers) {
+    private List<Carriages> convertToCarriages(TrainNumberDetail trainnumbers_detail, List<City> cityList,
+            Trainnumbers trainnumbers) {
         int business_seats = trainnumbers_detail.getBusiness_seats_num().stream().reduce(0, Integer::sum);
         int first_seats = trainnumbers_detail.getFirst_seats_num().stream().reduce(0, Integer::sum);
         int second_seats = trainnumbers_detail.getSecond_seats_num().stream().reduce(0, Integer::sum);
@@ -175,16 +179,21 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
                         .setDepStation(trainnumbers_detail.getStationLine().get(i))
                         .setArrStation(trainnumbers_detail.getStationLine().get(j))
                         .setArrTime(trainnumbers_detail.getTimeLine().get(j))
+                        .setDepTime(trainnumbers_detail.getTimeLine().get(j - 1))
                         .setWaitTime(trainnumbers_detail.getWaitingTimeLine().get(j))
                         .setAllNumber(all_seats)
                         .setFirstNumber(first_seats)
                         .setSecondNumber(second_seats)
                         .setBusinessNumber(business_seats)
                         .setNoSeatNumber(trainnumbers_detail.getNo_seats_num())
-                        .setBusinessPrice(trainnumbers_detail.getBusiness_price().stream().skip(i).limit(j - i).reduce(BigDecimal.ZERO, BigDecimal::add))
-                        .setFirstPrice(trainnumbers_detail.getFirst_price().stream().skip(i).limit(j - i).reduce(BigDecimal.ZERO, BigDecimal::add))
-                        .setSecondPrice(trainnumbers_detail.getSecond_price().stream().skip(i).limit(j - i).reduce(BigDecimal.ZERO, BigDecimal::add))
-                        .setNoSeatPrice(trainnumbers_detail.getNo_seat_price().stream().skip(i).limit(j - i).reduce(BigDecimal.ZERO, BigDecimal::add));
+                        .setBusinessPrice(trainnumbers_detail.getBusiness_price().stream().skip(i + 1).limit(j - i)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add))
+                        .setFirstPrice(trainnumbers_detail.getFirst_price().stream().skip(i + 1).limit(j - i)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add))
+                        .setSecondPrice(trainnumbers_detail.getSecond_price().stream().skip(i + 1).limit(j - i)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add))
+                        .setNoSeatPrice(trainnumbers_detail.getNo_seat_price().stream().skip(i + 1).limit(j - i)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add));
 
                 carriages.add(carriage);
             }
@@ -217,8 +226,8 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
                 trainnumbers_detail.getBusiness_price().size(),
                 trainnumbers_detail.getFirst_price().size(),
                 trainnumbers_detail.getSecond_price().size(),
-                trainnumbers_detail.getNo_seat_price().size()
-        ))) throw new TrainNumberDetailInfoException("The Line length is not same");
+                trainnumbers_detail.getNo_seat_price().size())))
+            throw new TrainNumberDetailInfoException("The Line length is not same");
 
         if (trainnumbers_detail.getBusiness_coach().size() != trainnumbers_detail.getBusiness_seats_num().size())
             throw new TrainNumberDetailInfoException("Business coach length is not same");
@@ -236,8 +245,6 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
             return true;
         }
         T first = list.getFirst();
-        return list.stream().allMatch(e ->
-                Objects.equals(first, e)
-        );
+        return list.stream().allMatch(e -> Objects.equals(first, e));
     }
 }

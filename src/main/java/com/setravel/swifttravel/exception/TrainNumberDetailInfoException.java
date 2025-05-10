@@ -1,6 +1,6 @@
 package com.setravel.swifttravel.exception;
 
-public class TrainNumberDetailInfoException extends Exception{
+public class TrainNumberDetailInfoException extends Exception {
     public TrainNumberDetailInfoException() {
         super();
     }

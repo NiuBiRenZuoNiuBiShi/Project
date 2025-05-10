@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * 火车购票
+ * 
  * @author Tengpaz
  */
 @RestController
@@ -23,8 +24,8 @@ public class TicketGetController {
 
     @GetMapping("/getCarriages")
     public List<Carriages> getCarriages(@RequestParam String depStation, @RequestParam String depCity,
-                                        @RequestParam String arrStation, @RequestParam String arrCity,
-                                        @RequestParam String depDate) {
+            @RequestParam String arrStation, @RequestParam String arrCity,
+            @RequestParam String depDate) {
         if (depStation != null && arrStation != null) {
             return carriagesService.getCarriagesBySS(depStation, arrStation, depDate);
         } else if (depCity != null && arrCity != null) {

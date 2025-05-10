@@ -28,15 +28,13 @@ public class RedisConfig {
         poolConfig.setMinIdle(4);
         poolConfig.setMaxTotal(3000);
 
-        LettucePoolingClientConfiguration poolingClientConfig =
-                        LettucePoolingClientConfiguration.builder().
-                        commandTimeout(Duration.ofMillis(3000))
-                        .poolConfig(poolConfig)
-                        .build();
+        LettucePoolingClientConfiguration poolingClientConfig = LettucePoolingClientConfiguration.builder()
+                .commandTimeout(Duration.ofMillis(3000))
+                .poolConfig(poolConfig)
+                .build();
 
         return new LettuceConnectionFactory(config, poolingClientConfig);
     }
-
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {

@@ -1,4 +1,4 @@
-package com.setravel.swifttravel.service.impl;
+package com.setravel.swifttravel.service;
 
 import com.setravel.swifttravel.entities.City;
 import com.setravel.swifttravel.entities.Result;
@@ -12,5 +12,5 @@ public interface SupervisorTrainService {
 
     Result addCities(List<City> cities);
 
-    Result addStations(List<Station> stations,  List<String> cities);
+    Result addStations(List<Station> stations, List<String> cities);
 }

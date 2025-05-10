@@ -71,6 +71,12 @@ public class Carriages extends Model<Carriages> {
     private LocalDateTime arrTime;
 
     /**
+     * Time to Start this Carriage
+     */
+    @TableField("dep_time")
+    private LocalDateTime depTime;
+
+    /**
      * 等候时间
      */
     @TableField("wait_time")
