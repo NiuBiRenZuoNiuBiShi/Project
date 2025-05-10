@@ -5,6 +5,7 @@ import com.setravel.swifttravel.entities.*;
 import com.setravel.swifttravel.exception.TrainNumberDetailInfoException;
 import com.setravel.swifttravel.mapper.*;
 import com.setravel.swifttravel.service.SupervisorTrainService;
+import com.setravel.swifttravel.utils.BitMapUtil;
 import com.setravel.swifttravel.utils.UUIDUtil;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -193,7 +194,8 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
                         .setSecondPrice(trainnumbers_detail.getSecond_price().stream().skip(i + 1).limit(j - i)
                                 .reduce(BigDecimal.ZERO, BigDecimal::add))
                         .setNoSeatPrice(trainnumbers_detail.getNo_seat_price().stream().skip(i + 1).limit(j - i)
-                                .reduce(BigDecimal.ZERO, BigDecimal::add));
+                                .reduce(BigDecimal.ZERO, BigDecimal::add))
+                        .setFlag(BitMapUtil.rangeBitsSet(i, j, 16));
 
                 carriages.add(carriage);
             }

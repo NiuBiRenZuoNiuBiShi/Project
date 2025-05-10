@@ -98,7 +98,7 @@ $box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
     display: flex;
     width: 100%;
     margin-top: 1.5rem;
-    
+
     .form-wrapper {
       width: 100%;
       padding: 1rem;
@@ -112,6 +112,7 @@ $box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

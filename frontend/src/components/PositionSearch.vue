@@ -5,13 +5,7 @@
       <div class="icon-left">
         <i class="fas fa-map-marker-alt"></i>
       </div>
-      <input 
-        type="text" 
-        class="input" 
-        id="input" 
-        :placeholder="placeholder" 
-        v-model="searchValue"
-      />
+      <input type="text" class="input" id="input" :placeholder="placeholder" v-model="searchValue" />
       <div class="input-icon" v-if="searchValue">
         <i class="fas fa-times-circle" @click.stop="clearSearch"></i>
       </div>
@@ -79,7 +73,7 @@ const selectItem = (item) => {
   .input-container {
     position: relative;
     height: 60px; // 固定高度
-    
+
     .icon-left {
       position: absolute;
       left: 15px;
@@ -89,7 +83,7 @@ const selectItem = (item) => {
       z-index: 1;
       font-size: 3rem;
     }
-    
+
     .input {
       width: 100%;
       height: 100%;
@@ -112,7 +106,7 @@ const selectItem = (item) => {
         font-weight: 400;
       }
     }
-    
+
     .input-icon {
       position: absolute;
       right: 15px;
@@ -122,7 +116,7 @@ const selectItem = (item) => {
       cursor: pointer;
       transition: color 0.2s ease;
       font-size: 2rem;
-      
+
       &:hover {
         color: #3498db;
       }
@@ -134,7 +128,7 @@ const selectItem = (item) => {
       color: #3498db;
     }
   }
-  
+
   .search-results {
     position: absolute;
     top: 100%;
@@ -148,7 +142,7 @@ const selectItem = (item) => {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     z-index: 100;
     margin-top: 2px;
-    
+
     .search-result-item {
       display: flex;
       align-items: center;
@@ -156,12 +150,12 @@ const selectItem = (item) => {
       padding: 0.8rem 1rem;
       cursor: pointer;
       transition: background-color 0.2s;
-      
+
       i {
         color: #3498db;
         font-size: 1.2rem;
       }
-      
+
       &:hover {
         background-color: #f0f8ff;
       }

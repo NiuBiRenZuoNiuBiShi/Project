@@ -97,3 +97,7 @@ ALTER TABLE Carriages
 ALTER TABLE Carriages
     ADD COLUMN
         (dep_time DATETIME NOT NULL COMMENT '这个Carriage出发时间');
+
+ALTER TABLE carriages
+    ADD COLUMN
+        (flag BINARY(8) NOT NULL COMMENT '方便Seats的修改')

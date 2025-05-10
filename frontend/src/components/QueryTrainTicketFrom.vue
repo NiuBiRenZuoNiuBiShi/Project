@@ -10,8 +10,16 @@
       </div>
       <TimeSelectForm />
     </div>
-    <div class="search-button-container">
-      <SearchButton />
+    <div class="options-enter-warpper">
+      <div class="transfer-option-wrapper">
+        <label for="transfer-option" class="transfer-option-label">
+          是否需要中转
+        </label>
+        <input type="checkbox" v-model="transfer_option" id="transfer-option" />
+      </div>
+      <div class="search-button-container">
+        <SearchButton />
+      </div>
     </div>
   </div>
 </template>
@@ -21,6 +29,8 @@ import { ref } from 'vue';
 import PositionSearch from '@/components/PositionSearch.vue';
 import TimeSelectForm from '@/components/TimeSelectForm.vue';
 import SearchButton from '@/components/SearchButton.vue';
+
+const transfer_option = ref(false);
 </script>
 
 <style lang="scss" scoped>
@@ -29,24 +39,37 @@ import SearchButton from '@/components/SearchButton.vue';
   flex-direction: column;
   width: 100%;
   gap: 2rem;
-  
+
   .inputs-container {
     display: flex;
     gap: 1.5rem;
     width: 100%;
     align-items: flex-start;
-    
+
     @media (max-width: 992px) {
       flex-direction: column;
     }
   }
-  
+
+  .options-enter-warpper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 1rem;
+
+    @media (max-width: 992px) {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
   .locations-container {
     display: flex;
     align-items: flex-start;
     flex: 2;
     gap: 0.5rem;
-    
+
     .exchange-icon {
       display: flex;
       justify-content: center;
@@ -62,7 +85,7 @@ import SearchButton from '@/components/SearchButton.vue';
 
       margin-top: 2.8rem;
       padding: 0 0.5rem;
-      
+
       &:hover {
         background-color: #3498db;
         color: white;
@@ -70,13 +93,37 @@ import SearchButton from '@/components/SearchButton.vue';
       }
     }
   }
-  
+
+  .transfer-option-wrapper {
+    display: flex;
+    align-items: center;
+    width: 40%;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 1.5rem;
+    border-radius: 10px;
+
+    .transfer-option-label {
+      font-size: 1.2rem;
+      color: #333;
+    }
+
+    input {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      border: 2px solid #999;
+      border-radius: 4px;
+      position: relative;
+    }
+  }
+
   .search-button-container {
     width: 100%;
     display: flex;
     justify-content: flex-end;
     margin-top: 0.5rem;
-    
+
     @media (max-width: 992px) {
       justify-content: center;
     }

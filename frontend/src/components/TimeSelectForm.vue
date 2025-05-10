@@ -11,12 +11,8 @@
       </div>
     </div>
     <div class="date-options">
-      <span 
-        v-for="(day, index) in nextDays" 
-        :key="index" 
-        @click="setDate(day.date)"
-        :class="{ 'selected': isSelected(day.date) }"
-      >
+      <span v-for="(day, index) in nextDays" :key="index" @click="setDate(day.date)"
+        :class="{ 'selected': isSelected(day.date) }">
         {{ day.label }}
       </span>
     </div>
@@ -33,24 +29,24 @@ const nextDays = computed(() => {
   const days = [];
   const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
   const today = new Date();
-  
+
   days.push({
     label: '今天',
     date: new Date().toISOString().split('T')[0]
   });
-  
+
   for (let i = 1; i <= 4; i++) {
     const date = new Date();
     date.setDate(today.getDate() + i);
     const dateString = date.toISOString().split('T')[0];
     const weekday = weekdays[date.getDay()];
-    
+
     days.push({
       label: i === 1 ? '明天' : weekday,
       date: dateString
     });
   }
-  
+
   return days;
 });
 
@@ -81,7 +77,7 @@ const isSelected = (date) => {
   .date-input-container {
     position: relative;
     height: 60px; // 固定高度，与其他输入框一致
-    
+
     .icon-left {
       position: absolute;
       left: 15px;
@@ -91,7 +87,7 @@ const isSelected = (date) => {
       z-index: 1;
       font-size: 3rem;
     }
-    
+
     .date-input {
       width: 100%;
       height: 100%;
@@ -122,7 +118,7 @@ const isSelected = (date) => {
         box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
       }
     }
-    
+
     .date-icon {
       position: absolute;
       right: 15px;
@@ -133,13 +129,13 @@ const isSelected = (date) => {
       font-size: 3rem;
     }
   }
-  
+
   .date-options {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
     margin-top: 0.5rem;
-    
+
     span {
       padding: 0.3rem 0.8rem;
       border-radius: 20px;
@@ -147,18 +143,18 @@ const isSelected = (date) => {
       background-color: #f0f8ff;
       cursor: pointer;
       transition: all 0.2s ease;
-      
+
       &:hover {
         background-color: #d6ebfc;
       }
-      
+
       &.selected {
         background-color: #3498db;
         color: white;
       }
     }
   }
-  
+
   &:focus-within {
     .label {
       color: #3498db;
