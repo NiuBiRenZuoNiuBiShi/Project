@@ -1,6 +1,6 @@
 <template>
   <div class="button-container">
-    <button class="search-button">
+    <button class="search-button" @click="emit('search')">
       <i class="fas fa-search"></i>
       <span class="button-text">查询</span>
     </button>
@@ -8,7 +8,9 @@
 </template>
 
 <script setup>
-// No additional script needed
+import { ref } from 'vue';
+const emit = defineEmits(['search']);
+
 </script>
 
 <style lang="scss" scoped>

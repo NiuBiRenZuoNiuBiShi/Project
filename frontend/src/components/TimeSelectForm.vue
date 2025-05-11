@@ -22,7 +22,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 
-const selectedDate = ref(new Date().toISOString().split('T')[0]);
+const selectedDate = defineModel();
 
 // 生成未来5天的日期选项
 const nextDays = computed(() => {

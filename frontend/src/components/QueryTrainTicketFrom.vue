@@ -2,13 +2,13 @@
   <div class="form-box">
     <div class="inputs-container">
       <div class="locations-container">
-        <PositionSearch label="出发地" placeholder="请输入出发城市" />
+        <PositionSearch label="出发地" placeholder="请输入出发城市" v-model="departure"/>
         <div class="exchange-icon">
           <i class="fas fa-exchange-alt"></i>
         </div>
-        <PositionSearch label="目的地" placeholder="请输入到达城市" />
+        <PositionSearch label="目的地" placeholder="请输入到达城市" v-model="destination"/>
       </div>
-      <TimeSelectForm />
+      <TimeSelectForm v-model="selectedTime"/>
     </div>
     <div class="options-enter-warpper">
       <div class="transfer-option-wrapper">
@@ -18,19 +18,25 @@
         <input type="checkbox" v-model="transfer_option" id="transfer-option" />
       </div>
       <div class="search-button-container">
-        <SearchButton />
+        <SearchButton @search="emit('search')"/>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from 'vue'; 
 import PositionSearch from '@/components/PositionSearch.vue';
 import TimeSelectForm from '@/components/TimeSelectForm.vue';
 import SearchButton from '@/components/SearchButton.vue';
 
-const transfer_option = ref(false);
+const emit = defineEmits(['search']);
+
+const departure = defineModel('departure');
+const destination = defineModel('destination');
+const selectedTime = defineModel('selectedTime');
+const transfer_option = defineModel('transfer_option');
+
 </script>
 
 <style lang="scss" scoped>
@@ -38,7 +44,7 @@ const transfer_option = ref(false);
   display: flex;
   flex-direction: column;
   width: 100%;
-  gap: 2rem;
+  gap: 1rem;
 
   .inputs-container {
     display: flex;

@@ -32,9 +32,9 @@ const props = defineProps({
     default: '请输入城市'
   }
 });
+const searchValue = defineModel();
 
 const showSearchResult = ref(false);
-const searchValue = ref('');
 
 // 模拟搜索结果
 const mockResults = ref(['北京', '上海', '广州', '深圳', '杭州']);
@@ -64,7 +64,7 @@ const selectItem = (item) => {
 
   .label {
     padding-left: 0.5rem;
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 600;
     color: #555;
     transition: color 0.2s ease;

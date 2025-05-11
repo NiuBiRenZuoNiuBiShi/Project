@@ -2,6 +2,17 @@
 import { ref } from 'vue';
 import QueryTrainTicketForm from '@/components/QueryTrainTicketFrom.vue'
 const currentForm = ref('Train');
+
+const trainFormData = ref({
+  departure: '',
+  destination: '',
+  selectedTime: new Date().toISOString().split('T')[0],
+  transfer_option: false,
+});
+
+const handleTrainSearch = () => {
+  console.log(trainFormData.value);
+};
 </script>
 
 <template>
@@ -16,7 +27,13 @@ const currentForm = ref('Train');
     </div>
     <div class="select-form">
       <div v-if="currentForm === 'Train'" class="form-wrapper">
-        <QueryTrainTicketForm />
+        <QueryTrainTicketForm
+          v-model:departure="trainFormData.departure"
+          v-model:destination="trainFormData.destination"
+          v-model:selectedTime="trainFormData.selectedTime"
+          v-model:transfer_option="trainFormData.transfer_option"
+          @search="handleTrainSearch"
+        />
       </div>
       <div v-else-if="currentForm === 'Hotel'" class="form-wrapper">
         <h2>酒店预订</h2>
