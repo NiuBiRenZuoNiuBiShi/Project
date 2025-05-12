@@ -14,6 +14,16 @@ const routes = [
         path: '/trains/:pathMatch(.*)*',
         name: 'trains',
         component: () => import('@/views/TrainListView.vue')
+    },
+    {
+        path: '/trainfood/:id',
+        name: 'orderFood',
+        component: () => import('@/views/FoodOrderView.vue')
+    },
+    {
+        path: '/test',
+        name: 'test',
+        component: () => import('@/views/TestView.vue')
     }
 ];
 
@@ -21,6 +31,8 @@ const router = createRouter({
     routes,
     history: createWebHistory()
 });
+
+
 
 // router.beforeEach(async (to, form) => {
 //     const token = localStorage.getItem('Authentication');
