@@ -92,6 +92,7 @@ public class JWTUtils {
      *
      * @param token JWT Token
      */
+    @SuppressWarnings("unused")
     private void addTokenToBlockList(String token) {
         redisTemplate.opsForValue().set(TOKEN_BLACKLIST_PREFIX + token, "true", EXPIRE_TIME, TimeUnit.MILLISECONDS);
     }

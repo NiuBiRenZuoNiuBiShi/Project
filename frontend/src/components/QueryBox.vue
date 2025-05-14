@@ -1,7 +1,12 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import QueryTrainTicketForm from '@/components/QueryTrainTicketFrom.vue'
-const currentForm = ref('Train');
+const route = useRoute();
+const router = useRouter();
+
+
+const currentForm = ref(route.query.form || 'Train');
 
 const trainFormData = ref({
   departure: '',
@@ -13,27 +18,46 @@ const trainFormData = ref({
 const handleTrainSearch = () => {
   console.log(trainFormData.value);
 };
+
+
+watch(
+  () => route.query.form,
+  (newValue) => {
+    if (newValue === 'Train' || newValue === 'Hotel')
+      currentForm.value = newValue;
+  }
+)
+
+const switchFormType = (type) => {
+  console.log(type);
+  
+  if (type === 'Train' || type === 'Hotel')
+    currentForm.value = type;
+
+  router.replace({
+    query: {
+      ...route.query,
+      form: type,
+    }
+  })
+}
 </script>
 
 <template>
   <div class="query-box">
     <div class="select-container">
-      <a @click="currentForm = 'Train'" href="#" :class="{ active: currentForm === 'Train' }">
+      <a @click="switchFormType('Train')" href="#" :class="{ active: currentForm === 'Train' }">
         <i class="fas fa-train"></i> 火车票
       </a>
-      <a @click="currentForm = 'Hotel'" href="#" :class="{ active: currentForm === 'Hotel' }">
+      <a @click="switchFormType('Hotel')" href="#" :class="{ active: currentForm === 'Hotel' }">
         <i class="fas fa-hotel"></i> 酒店预订
       </a>
     </div>
     <div class="select-form">
       <div v-if="currentForm === 'Train'" class="form-wrapper">
-        <QueryTrainTicketForm
-          v-model:departure="trainFormData.departure"
-          v-model:destination="trainFormData.destination"
-          v-model:selectedTime="trainFormData.selectedTime"
-          v-model:transfer_option="trainFormData.transfer_option"
-          @search="handleTrainSearch"
-        />
+        <QueryTrainTicketForm v-model:departure="trainFormData.departure"
+          v-model:destination="trainFormData.destination" v-model:selectedTime="trainFormData.selectedTime"
+          v-model:transfer_option="trainFormData.transfer_option" @search="handleTrainSearch" />
       </div>
       <div v-else-if="currentForm === 'Hotel'" class="form-wrapper">
         <h2>酒店预订</h2>

@@ -10,7 +10,9 @@ import com.setravel.swifttravel.mapper.TrainNumberMapper;
 import com.setravel.swifttravel.service.BuyTicketsService;
 import com.setravel.swifttravel.utils.BitMapUtil;
 import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
 
+@Service
 public class BuyTicketsServiceImpl implements BuyTicketsService {
 
     @Resource

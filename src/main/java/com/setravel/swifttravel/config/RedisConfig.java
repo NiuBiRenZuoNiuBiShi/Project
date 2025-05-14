@@ -12,6 +12,7 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import java.time.Duration;
 
 @Configurable
+@SuppressWarnings("all")
 public class RedisConfig {
 
     @Bean

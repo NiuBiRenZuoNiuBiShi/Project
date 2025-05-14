@@ -3,7 +3,7 @@
     <div class="inputs-container">
       <div class="locations-container">
         <PositionSearch label="出发地" placeholder="请输入出发城市" v-model="departure"/>
-        <div class="exchange-icon">
+        <div class="exchange-icon" @click="exchangeLocations">
           <i class="fas fa-exchange-alt"></i>
         </div>
         <PositionSearch label="目的地" placeholder="请输入到达城市" v-model="destination"/>
@@ -18,7 +18,7 @@
         <input type="checkbox" v-model="transfer_option" id="transfer-option" />
       </div>
       <div class="search-button-container">
-        <SearchButton @search="emit('search')"/>
+        <SearchButton @search="handleSearch"/>
       </div>
     </div>
   </div>
@@ -37,6 +37,24 @@ const destination = defineModel('destination');
 const selectedTime = defineModel('selectedTime');
 const transfer_option = defineModel('transfer_option');
 
+// 交换出发地和目的地
+const exchangeLocations = () => {
+  const temp = departure.value;
+  departure.value = destination.value;
+  destination.value = temp;
+};
+
+// 处理搜索事件
+const handleSearch = () => {
+  // 验证必填字段
+  if (!departure.value || !destination.value || !selectedTime.value) {
+    alert('请填写完整的出发地、目的地和出发日期');
+    return;
+  }
+  
+  // 触发父组件的搜索事件
+  emit('search');
+};
 </script>
 
 <style lang="scss" scoped>

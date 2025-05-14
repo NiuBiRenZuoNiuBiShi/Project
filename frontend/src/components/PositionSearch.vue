@@ -1,19 +1,33 @@
 <template>
-  <div class="search-input" @click="toggleSearchResult">
+  <div class="search-input">
     <label for="input" class="label">{{ label }}</label>
     <div class="input-container">
       <div class="icon-left">
         <i class="fas fa-map-marker-alt"></i>
       </div>
-      <input type="text" class="input" id="input" :placeholder="placeholder" v-model="searchValue" />
+      <input 
+        type="text" 
+        class="input" 
+        id="input" 
+        :placeholder="placeholder" 
+        v-model="searchValue" 
+        @input="handleSearch"
+        @focus="showSearchResult = true"
+        @blur="handleBlur"
+      />
       <div class="input-icon" v-if="searchValue">
         <i class="fas fa-times-circle" @click.stop="clearSearch"></i>
       </div>
     </div>
-    <div class="search-results" v-if="showSearchResult">
-      <div class="search-result-item" v-for="(item, index) in mockResults" :key="index" @click.stop="selectItem(item)">
+    <div class="search-results" v-if="showSearchResult && searchResults.length > 0">
+      <div 
+        class="search-result-item" 
+        v-for="(item, index) in searchResults" 
+        :key="index" 
+        @mousedown.prevent="selectItem(item)"
+      >
         <i class="fas fa-map-marker-alt"></i>
-        <span>{{ item }}</span>
+        <span>{{ item.cityName }}</span>
       </div>
     </div>
   </div>
@@ -21,6 +35,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import axios from 'axios';
 
 const props = defineProps({
   label: {
@@ -32,26 +47,78 @@ const props = defineProps({
     default: '请输入城市'
   }
 });
+
 const searchValue = defineModel();
-
 const showSearchResult = ref(false);
+const searchResults = ref([]);
+const isLoading = ref(false);
+const searchTimeout = ref(null);
 
-// 模拟搜索结果
-const mockResults = ref(['北京', '上海', '广州', '深圳', '杭州']);
-
-const toggleSearchResult = () => {
-  showSearchResult.value = !showSearchResult.value;
+// 搜索城市
+const handleSearch = async () => {
+  // 清除之前的延时
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value);
+  }
+  
+  // 如果输入为空，清空结果
+  if (!searchValue.value || searchValue.value.trim() === '') {
+    searchResults.value = [];
+    return;
+  }
+  
+  // 设置延时，防止频繁请求
+  searchTimeout.value = setTimeout(async () => {
+    try {
+      isLoading.value = true;
+      const response = await axios.get('/api/city/search', {
+        params: {
+          keyword: searchValue.value
+        }
+      });
+      searchResults.value = response.data;
+      showSearchResult.value = true;
+    } catch (error) {
+      console.error('获取城市列表失败:', error);
+    } finally {
+      isLoading.value = false;
+    }
+  }, 300); // 300ms延迟
 };
 
+// 处理失去焦点事件
+const handleBlur = () => {
+  // 使用延时，允许点击事件先执行
+  setTimeout(() => {
+    showSearchResult.value = false;
+  }, 200);
+};
+
+// 清除搜索
 const clearSearch = () => {
   searchValue.value = '';
+  searchResults.value = [];
   showSearchResult.value = false;
 };
 
+// 选择城市项
 const selectItem = (item) => {
-  searchValue.value = item;
+  searchValue.value = item.cityName;
   showSearchResult.value = false;
 };
+
+// 初始加载一些热门城市
+const loadInitialCities = async () => {
+  try {
+    const response = await axios.get('/api/city/search');
+    searchResults.value = response.data;
+  } catch (error) {
+    console.error('获取热门城市失败:', error);
+  }
+};
+
+// 组件挂载时加载初始城市列表
+loadInitialCities();
 </script>
 
 <style lang="scss" scoped>
