@@ -12,6 +12,7 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import java.time.Duration;
 
 @Configurable
+@SuppressWarnings("all")
 public class RedisConfig {
 
     @Bean
@@ -28,15 +29,13 @@ public class RedisConfig {
         poolConfig.setMinIdle(4);
         poolConfig.setMaxTotal(3000);
 
-        LettucePoolingClientConfiguration poolingClientConfig =
-                        LettucePoolingClientConfiguration.builder().
-                        commandTimeout(Duration.ofMillis(3000))
-                        .poolConfig(poolConfig)
-                        .build();
+        LettucePoolingClientConfiguration poolingClientConfig = LettucePoolingClientConfiguration.builder()
+                .commandTimeout(Duration.ofMillis(3000))
+                .poolConfig(poolConfig)
+                .build();
 
         return new LettuceConnectionFactory(config, poolingClientConfig);
     }
-
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {

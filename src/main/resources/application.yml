@@ -3,15 +3,30 @@ spring:
     name: SwiftTravel
 
   datasource:
-    url: jdbc:mysql://localhost:3306/swift_travel?useSSL=false&serverTimezone=UTC
-    username: Yiki
-    password: zhangyi6324
+    url: jdbc:mysql://localhost:3306/swift_travel?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+    username: ${SWIFT_TRAVEL_DB_USERNAME} # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
+    password: ${SWIFT_TRAVEL_DB_PASSWORD} # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+  mybatis-plus:
+    configuration:
+      map-underscore-to-camel-case: true
+
+    global-config:
+      enable-sql-runner: true
+      db-config:
+        logic-delete-field: deleted
+        logic-delete-value: 1
+        logic-not-delete-value: 0
+        table-prefix: swift_travel_
+
+    mapper-locations: classpath*:mapper/**/*.xml
+    typeAliasesPackage: com.setravel.swifttravel.entities
 
 
   data:
-
     redis:
       host: localhost
       port: 6379
       password: ""
+

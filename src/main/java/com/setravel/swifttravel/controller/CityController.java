@@ -1,0 +1,28 @@
+package com.setravel.swifttravel.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.setravel.swifttravel.entities.Result;
+import com.setravel.swifttravel.service.CityService;
+
+import jakarta.annotation.Resource;
+
+@RestController
+public class CityController {
+
+
+    @Resource
+    CityService cityService;
+
+    /**
+     * @param input 城市名称
+     * @return 城市列表
+     */
+    @GetMapping("/api/city/search")
+    public Result getCityList(@RequestParam("keyword") String input) {
+        System.out.println("input: " + input);
+        return Result.success(cityService.searchCity(input));
+    }
+}
