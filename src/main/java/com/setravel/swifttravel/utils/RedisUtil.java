@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Component
+@SuppressWarnings("all")
 public class RedisUtil {
 
     @Resource
