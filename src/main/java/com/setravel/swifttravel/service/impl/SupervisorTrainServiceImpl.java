@@ -1,13 +1,13 @@
 package com.setravel.swifttravel.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.setravel.swifttravel.entities.*;
 import com.setravel.swifttravel.exception.TrainNumberDetailInfoException;
-import com.setravel.swifttravel.mapper.CarriagesMapper;
-import com.setravel.swifttravel.mapper.SeatsMapper;
-import com.setravel.swifttravel.mapper.SupervisorTrainMapper;
-import com.setravel.swifttravel.mapper.TrainNumberMapper;
+import com.setravel.swifttravel.mapper.*;
+import com.setravel.swifttravel.service.SupervisorTrainService;
+import com.setravel.swifttravel.utils.BitMapUtil;
+import com.setravel.swifttravel.utils.UUIDUtil;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -30,12 +30,20 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
     @Resource
     private SeatsMapper seatsMapper;
 
+    @Resource
+    private CityMapper cityMapper;
+
+    @Resource
+    private StationMapper stationMapper;
+
     @Override
     public Result addTrainNumber(TrainNumberDetail trainnumbers_detail) {
         try {
             check(trainnumbers_detail);
         } catch (TrainNumberDetailInfoException e) {
             return Result.error(e.getMessage());
+        } catch (Exception e) {
+            return Result.error("Unknown Error: " + e.getMessage());
         }
 
         List<City> cityList = getCityList(trainnumbers_detail);
@@ -50,14 +58,54 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
         return Result.success();
     }
 
-    private List<Seats> convertToSeats(TrainNumberDetail trainnumbers_detail, List<City> cityList, Trainnumbers trainnumbers) {
+    @Override
+    public Result addCities(List<City> cities) {
+        cities.forEach((city) -> {
+            city.setId(UUIDUtil.generateUUIDBytes());
+        });
+        try {
+            cityMapper.insert(cities);
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+        return Result.success();
+    }
+
+    @Override
+    public Result addStations(List<Station> stations, List<String> cityNameList) {
+        if (stations == null || stations.isEmpty() || cityNameList == null || cityNameList.isEmpty()) {
+            return Result.error("NO Data");
+        }
+
+        List<City> cityList = cityMapper.selectList(
+                new QueryWrapper<City>().lambda().in(City::getCityName, cityNameList));
+        Map<String, City> cityMap = cityList.stream()
+                .collect(Collectors.toMap(City::getCityName, Function.identity()));
+        for (int i = 0; i < stations.size(); i++) {
+            Station station = stations.get(i);
+            station.setCityId(cityMap.get(cityNameList.get(i)).getId());
+        }
+
+        stations.forEach(station -> {
+            station.setId(UUIDUtil.generateUUIDBytes());
+        });
+        try {
+            stationMapper.insert(stations);
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+        return Result.success();
+    }
+
+    private List<Seats> convertToSeats(TrainNumberDetail trainnumbers_detail, List<City> cityList,
+            Trainnumbers trainnumbers) {
         List<Seats> seats = new ArrayList<>();
         byte[] flag = new byte[8];
         Arrays.fill(flag, (byte) 0xFF);
         for (int i = 0; i < trainnumbers_detail.getBusiness_coach().size(); i++) {
             for (int j = 0; j < trainnumbers_detail.getBusiness_seats_num().get(i); j++) {
                 Seats seat = new Seats()
-                        .setId(UUID.randomUUID().toString().getBytes())
+                        .setId(UUIDUtil.generateUUIDBytes())
                         .setTrainNumber(trainnumbers.getId())
                         .setCoach(trainnumbers_detail.getBusiness_coach().get(i))
                         .setSeatType("Business")
@@ -69,7 +117,7 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
         for (int i = 0; i < trainnumbers_detail.getFirst_coach().size(); i++) {
             for (int j = 0; j < trainnumbers_detail.getFirst_seats_num().get(i); j++) {
                 Seats seat = new Seats()
-                        .setId(UUID.randomUUID().toString().getBytes())
+                        .setId(UUIDUtil.generateUUIDBytes())
                         .setTrainNumber(trainnumbers.getId())
                         .setCoach(trainnumbers_detail.getFirst_coach().get(i))
                         .setSeatType("First")
@@ -81,7 +129,7 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
         for (int i = 0; i < trainnumbers_detail.getSecond_coach().size(); i++) {
             for (int j = 0; j < trainnumbers_detail.getSecond_seats_num().get(i); j++) {
                 Seats seat = new Seats()
-                        .setId(UUID.randomUUID().toString().getBytes())
+                        .setId(UUIDUtil.generateUUIDBytes())
                         .setTrainNumber(trainnumbers.getId())
                         .setCoach(trainnumbers_detail.getSecond_coach().get(i))
                         .setSeatType("Second")
@@ -90,12 +138,12 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
             }
         }
 
-
         for (int i = 0; i < trainnumbers_detail.getNo_seats_num(); i++) {
             Seats seat = new Seats()
-                    .setId(UUID.randomUUID().toString().getBytes())
+                    .setId(UUIDUtil.generateUUIDBytes())
                     .setTrainNumber(trainnumbers.getId())
                     .setSeatType("NoSeat")
+                    .setCoach(-1)
                     .setFlags(flag);
             seats.add(seat);
         }
@@ -103,7 +151,7 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
     }
 
     private List<City> getCityList(TrainNumberDetail trainnumbers_detail) {
-        List<City> cityList = new ArrayList<>();
+        List<City> cityList;
         cityList = supervisorTrainMapper
                 .selectCitiesByStations(trainnumbers_detail.getStationLine());
         Map<String, City> cityMap = cityList.stream()
@@ -114,7 +162,8 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
         return cityList;
     }
 
-    private List<Carriages> convertToCarriages(TrainNumberDetail trainnumbers_detail, List<City> cityList, Trainnumbers trainnumbers) {
+    private List<Carriages> convertToCarriages(TrainNumberDetail trainnumbers_detail, List<City> cityList,
+            Trainnumbers trainnumbers) {
         int business_seats = trainnumbers_detail.getBusiness_seats_num().stream().reduce(0, Integer::sum);
         int first_seats = trainnumbers_detail.getFirst_seats_num().stream().reduce(0, Integer::sum);
         int second_seats = trainnumbers_detail.getSecond_seats_num().stream().reduce(0, Integer::sum);
@@ -124,23 +173,29 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
         for (int i = 0; i < trainnumbers_detail.getStationLine().size() - 1; i++) {
             for (int j = i + 1; j < trainnumbers_detail.getStationLine().size(); j++) {
                 Carriages carriage = new Carriages()
-                        .setId(UUID.randomUUID().toString().getBytes())
+                        .setId(UUIDUtil.generateUUIDBytes())
                         .setTrainNumber(trainnumbers.getId())
                         .setDepCity(cityList.get(i).getCityName())
                         .setArrCity(cityList.get(j).getCityName())
                         .setDepStation(trainnumbers_detail.getStationLine().get(i))
                         .setArrStation(trainnumbers_detail.getStationLine().get(j))
                         .setArrTime(trainnumbers_detail.getTimeLine().get(j))
+                        .setDepTime(trainnumbers_detail.getTimeLine().get(j - 1))
                         .setWaitTime(trainnumbers_detail.getWaitingTimeLine().get(j))
                         .setAllNumber(all_seats)
                         .setFirstNumber(first_seats)
                         .setSecondNumber(second_seats)
                         .setBusinessNumber(business_seats)
                         .setNoSeatNumber(trainnumbers_detail.getNo_seats_num())
-                        .setBusinessPrice(trainnumbers_detail.getBusiness_price().stream().skip(i).limit(j - i).reduce(BigDecimal.ZERO, BigDecimal::add))
-                        .setFirstPrice(trainnumbers_detail.getFirst_price().stream().skip(i).limit(j - i).reduce(BigDecimal.ZERO, BigDecimal::add))
-                        .setSecondPrice(trainnumbers_detail.getSecond_price().stream().skip(j - i).reduce(BigDecimal.ZERO, BigDecimal::add))
-                        .setNoSeatPrice(trainnumbers_detail.getNo_seat_price().stream().skip(j - i).reduce(BigDecimal.ZERO, BigDecimal::add));
+                        .setBusinessPrice(trainnumbers_detail.getBusiness_price().stream().skip(i + 1).limit(j - i)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add))
+                        .setFirstPrice(trainnumbers_detail.getFirst_price().stream().skip(i + 1).limit(j - i)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add))
+                        .setSecondPrice(trainnumbers_detail.getSecond_price().stream().skip(i + 1).limit(j - i)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add))
+                        .setNoSeatPrice(trainnumbers_detail.getNo_seat_price().stream().skip(i + 1).limit(j - i)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add))
+                        .setFlag(BitMapUtil.rangeBitsSet(i, j, 16));
 
                 carriages.add(carriage);
             }
@@ -149,7 +204,7 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
     }
 
     private Trainnumbers convertToTrainNumber(TrainNumberDetail trainnumbers_detail, List<City> cityList) {
-        return new Trainnumbers().setId(UUID.randomUUID().toString().getBytes())
+        return new Trainnumbers().setId(UUIDUtil.generateUUIDBytes())
                 .setDepCity(cityList.getFirst().getCityName())
                 .setArrCity(cityList.getLast().getCityName())
                 .setTrainNumber(trainnumbers_detail.getTrainNumber())
@@ -173,8 +228,8 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
                 trainnumbers_detail.getBusiness_price().size(),
                 trainnumbers_detail.getFirst_price().size(),
                 trainnumbers_detail.getSecond_price().size(),
-                trainnumbers_detail.getNo_seat_price().size()
-        ))) throw new TrainNumberDetailInfoException("The Line length is not same");
+                trainnumbers_detail.getNo_seat_price().size())))
+            throw new TrainNumberDetailInfoException("The Line length is not same");
 
         if (trainnumbers_detail.getBusiness_coach().size() != trainnumbers_detail.getBusiness_seats_num().size())
             throw new TrainNumberDetailInfoException("Business coach length is not same");
@@ -192,8 +247,6 @@ public class SupervisorTrainServiceImpl implements SupervisorTrainService {
             return true;
         }
         T first = list.getFirst();
-        return list.stream().allMatch(e ->
-                Objects.equals(first, e)
-        );
+        return list.stream().allMatch(e -> Objects.equals(first, e));
     }
 }

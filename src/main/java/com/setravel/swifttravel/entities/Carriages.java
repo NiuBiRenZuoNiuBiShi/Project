@@ -44,19 +44,11 @@ public class Carriages extends Model<Carriages> {
     @TableField("train_number")
     private byte[] trainNumber;
 
-    public byte[] getTrainNumber() {
-        return trainNumber;
-    }
-
     /**
      * 出发站
      */
     @TableField("dep_station")
     private String depStation;
-
-    public String getDepStation() {
-        return depStation;
-    }
 
     /**
      * 出发城市
@@ -64,19 +56,11 @@ public class Carriages extends Model<Carriages> {
     @TableField("dep_city")
     private String depCity;
 
-    public String getDepCity() {
-        return depCity;
-    }
-
     /**
      * 到达站
      */
     @TableField("arr_station")
     private String arrStation;
-
-    public String getArrStation() {
-        return arrStation;
-    }
 
     /**
      * 到达城市
@@ -84,29 +68,17 @@ public class Carriages extends Model<Carriages> {
     @TableField("arr_city")
     private String arrCity;
 
-    public String getArrCity() {
-        return arrCity;
-    }
-
-    /**
-     * 出发时间
-     */
-    @TableField("dep_time")
-    private LocalDateTime depTime;
-
-    public LocalDateTime getDepTime() {
-        return depTime;
-    }
-
     /**
      * 到达时间
      */
     @TableField("arr_time")
     private LocalDateTime arrTime;
 
-    public LocalDateTime getArrTime() {
-        return arrTime;
-    }
+    /**
+     * Time to Start this Carriage
+     */
+    @TableField("dep_time")
+    private LocalDateTime depTime;
 
     /**
      * 等候时间
@@ -114,19 +86,11 @@ public class Carriages extends Model<Carriages> {
     @TableField("wait_time")
     private LocalTime waitTime;
 
-    public LocalTime getWaitTime() {
-        return waitTime;
-    }
-
     /**
      * how many tickets or seats on the carriage
      */
     @TableField("all_number")
     private Integer allNumber;
-
-    public Integer getAllNumber() {
-        return allNumber;
-    }
 
     /**
      * how many first-class tickets or seats on the carriage
@@ -134,65 +98,31 @@ public class Carriages extends Model<Carriages> {
     @TableField("first_number")
     private Integer firstNumber;
 
-    public Integer getFirstNumber() {
-        return firstNumber;
-    }
-
     @TableField("second_number")
     private Integer secondNumber;
-
-    public Integer getSecondNumber() {
-        return secondNumber;
-    }
 
     @TableField("business_number")
     private Integer businessNumber;
 
-    public Integer getBusinessNumber() {
-        return businessNumber;
-    }
-
     @TableField("no_seat_number")
     private Integer noSeatNumber;
-
-    public Integer getNoSeatNumber() {
-        return noSeatNumber;
-    }
 
     @TableField("business_price")
     private BigDecimal businessPrice;
 
-    public BigDecimal getBusinessPrice() {
-        return businessPrice;
-    }
-
     @TableField("first_price")
     private BigDecimal firstPrice;
-
-    public BigDecimal getFirstPrice() {
-        return firstPrice;
-    }
 
     @TableField("second_price")
     private BigDecimal secondPrice;
 
-    public BigDecimal getSecondPrice() {
-        return secondPrice;
-    }
-
     @TableField("no_seat_price")
     private BigDecimal noSeatPrice;
 
-    public BigDecimal getNoSeatPrice() {
-        return noSeatPrice;
-    }
-
+    @TableField("flag")
+    private byte[] flag;
     @TableField("del")
     private Boolean del;
-
-    public Boolean getDel() {
-        return del;
-    }
 
     public static final String ID = "id";
 
@@ -234,6 +164,4 @@ public class Carriages extends Model<Carriages> {
     public Serializable pkVal() {
         return this.id;
     }
-    
-    
 }
