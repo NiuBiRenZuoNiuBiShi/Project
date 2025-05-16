@@ -1,10 +1,22 @@
-const searchTrainTicket = async (from, to, date) => {
-    const response = await fetch(
-        `https://api.example.com/train-tickets?from=${from}&to=${to}&date=${date}`
-    );
-    if (!response.ok) {
-        throw new Error('Network response was not ok');
-    }
-    const data = await response.json();
-    return data;
-}
+import axios from "axios";
+/** @typedef {import('@/types/formType').TrainSearchForm} TrainSearchForm */
+
+/**
+ * @param {TrainSearchForm} formData
+ */
+export const searchTrainTicketsApi = async (formData) => {
+    const params = {
+        time: formData.selectedTime,
+        depCity: formData.departureType === 'city' ? formData.departure : null,
+        depStation: formData.departureType === 'station' ? formData.departure : null,
+        arrCity: formData.destinationType === 'city' ? formData.destination : null,
+        arrStation: formData.destinationType === 'station' ? formData.destination : null,
+        transfer: formData.transfer_option
+    };
+
+    const response = await axios.get("http://localhost:8080/api/apigetCarriages", {
+        params,
+    });
+
+    return response.data;
+};

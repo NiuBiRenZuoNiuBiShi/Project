@@ -54,62 +54,67 @@ const changeFilter = (filterName) => {
   filter.value = filterName;
 };
 
-const ticketList = ref([
-  {
-    departTime: '06:27',
-    arriveTime: '13:12',
-    departStation: '上海虹橋',
-    arriveStation: '北京南',
-    trainNumber: 'G104',
-    duration: '6小時45分',
-    price: '641.44'
-  },
-  {
-    departTime: '06:37',
-    arriveTime: '12:38',
-    departStation: '上海虹橋',
-    arriveStation: '北京南',
-    trainNumber: 'G102',
-    duration: '6小時1分',
-    price: '618.87'
-  },
-  {
-    departTime: '07:00',
-    arriveTime: '11:36',
-    departStation: '上海',
-    arriveStation: '北京南',
-    trainNumber: 'G2',
-    duration: '4小時36分',
-    price: '717.72'
-  },
-  {
-    departTime: '07:22',
-    arriveTime: '13:22',
-    departStation: '上海虹橋',
-    arriveStation: '北京南',
-    trainNumber: 'G106',
-    duration: '6小時',
-    price: '618.87'
-  },
-  {
-    departTime: '07:27',
-    arriveTime: '13:36',
-    departStation: '上海虹橋',
-    arriveStation: '北京南',
-    trainNumber: 'G108',
-    duration: '6小時9分',
-    price: '618.87'
-  },
-  {
-    departTime: '07:38',
-    arriveTime: '13:32',
-    departStation: '上海虹橋',
-    arriveStation: '北京南',
-    trainNumber: 'G110',
-    duration: '5小時54分',
-    price: '618.87'
-  }
-]);
+
+import { useCarriageStore } from '@/repo/carriageStore';
+const store = useCarriageStore();
+const ticketList = store.carriages;
+
+// const ticketList = ref([
+//   {
+//     departTime: '06:27',
+//     arriveTime: '13:12',
+//     departStation: '上海虹橋',
+//     arriveStation: '北京南',
+//     trainNumber: 'G104',
+//     duration: '6小時45分',
+//     price: '641.44'
+//   },
+//   {
+//     departTime: '06:37',
+//     arriveTime: '12:38',
+//     departStation: '上海虹橋',
+//     arriveStation: '北京南',
+//     trainNumber: 'G102',
+//     duration: '6小時1分',
+//     price: '618.87'
+//   },
+//   {
+//     departTime: '07:00',
+//     arriveTime: '11:36',
+//     departStation: '上海',
+//     arriveStation: '北京南',
+//     trainNumber: 'G2',
+//     duration: '4小時36分',
+//     price: '717.72'
+//   },
+//   {
+//     departTime: '07:22',
+//     arriveTime: '13:22',
+//     departStation: '上海虹橋',
+//     arriveStation: '北京南',
+//     trainNumber: 'G106',
+//     duration: '6小時',
+//     price: '618.87'
+//   },
+//   {
+//     departTime: '07:27',
+//     arriveTime: '13:36',
+//     departStation: '上海虹橋',
+//     arriveStation: '北京南',
+//     trainNumber: 'G108',
+//     duration: '6小時9分',
+//     price: '618.87'
+//   },
+//   {
+//     departTime: '07:38',
+//     arriveTime: '13:32',
+//     departStation: '上海虹橋',
+//     arriveStation: '北京南',
+//     trainNumber: 'G110',
+//     duration: '5小時54分',
+//     price: '618.87'
+//   }
+// ]);
 </script>
 
 <style lang="scss" scoped>

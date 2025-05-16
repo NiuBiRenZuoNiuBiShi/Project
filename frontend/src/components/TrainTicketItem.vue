@@ -24,7 +24,7 @@
 
             <div class="ticket-price-container">
                 <div class="price-label">起</div>
-                <div class="price"><i class="fa-solid fa-coins" style="margin-right: 5px;"></i>{{ ticket.price }}</div>
+                <div class="price"><i class="fa-solid fa-coins" style="margin-right: 5px;"></i>{{ ticket.secondPrice }}</div>
                 <button class="select-button" @click="emit('BuyTicket', ticket)">
                     选择
                     <span class="arrow-down">▼</span>
@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { defineProps } from 'vue';
+import { ref } from 'vue';
 
 const emit = defineEmits(['BuyTicket']);
 

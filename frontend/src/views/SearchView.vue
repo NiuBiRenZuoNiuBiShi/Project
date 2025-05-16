@@ -5,6 +5,29 @@ import BrandingSection from '@/components/BrandingSection.vue';
 import PopularDestinations from '@/components/PopularDestinations.vue';
 import ServiceFeatures from '@/components/ServiceFeatures.vue';
 import FooterSection from '@/components/FooterSection.vue';
+
+import router from '@/router/router';
+
+import { searchTrainTicketsApi } from '@/api/TrainTicketApi';
+import { useCarriageStore } from '@/repo/carriageStore';
+const carriageStore = useCarriageStore();
+
+const handleSearch = (formData) => {
+  console.log(formData);
+  searchTrainTicketsApi(formData)
+    .then((response) => {
+      console.log('搜索结果:', response.data);
+      carriageStore.setCarriages(response.data);
+    })
+    .catch((error) => {
+      console.error('搜索失败:', error);
+      carriageStore.setCarriages([]);
+    })
+    .finally(() => {
+      // 跳转到车票列表页面
+      router.push({ name: 'trains' })
+    });
+}
 </script>
 
 <template>
@@ -22,7 +45,7 @@ import FooterSection from '@/components/FooterSection.vue';
 
       <!-- 搜索框区域 -->
       <div class="query-box-container">
-        <QueryBox />
+        <QueryBox @search="handleSearch" />
       </div>
 
       <!-- 热门目的地区域 -->

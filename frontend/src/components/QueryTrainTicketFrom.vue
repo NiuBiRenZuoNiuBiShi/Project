@@ -2,13 +2,15 @@
   <div class="form-box">
     <div class="inputs-container">
       <div class="locations-container">
-        <PositionSearch label="出发地" placeholder="请输入出发城市" v-model="departure"/>
+        <PositionSearch label="出发地" placeholder="请输入出发城市" v-model:selectedItem="departure"
+          v-model:selectType="departureType" />
         <div class="exchange-icon" @click="exchangeLocations">
           <i class="fas fa-exchange-alt"></i>
         </div>
-        <PositionSearch label="目的地" placeholder="请输入到达城市" v-model="destination"/>
+        <PositionSearch label="目的地" placeholder="请输入到达城市" v-model:selectedItem="destination"
+          v-model:selectType="destinationType" />
       </div>
-      <TimeSelectForm v-model="selectedTime"/>
+      <TimeSelectForm v-model="selectedTime" />
     </div>
     <div class="options-enter-warpper">
       <div class="transfer-option-wrapper">
@@ -18,14 +20,14 @@
         <input type="checkbox" v-model="transfer_option" id="transfer-option" />
       </div>
       <div class="search-button-container">
-        <SearchButton @search="handleSearch"/>
+        <SearchButton @search="handleSearch" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'; 
+import { ref } from 'vue';
 import PositionSearch from '@/components/PositionSearch.vue';
 import TimeSelectForm from '@/components/TimeSelectForm.vue';
 import SearchButton from '@/components/SearchButton.vue';
@@ -36,6 +38,8 @@ const departure = defineModel('departure');
 const destination = defineModel('destination');
 const selectedTime = defineModel('selectedTime');
 const transfer_option = defineModel('transfer_option');
+const departureType = defineModel('departureType');
+const destinationType = defineModel('destinationType');
 
 // 交换出发地和目的地
 const exchangeLocations = () => {
@@ -51,7 +55,7 @@ const handleSearch = () => {
     alert('请填写完整的出发地、目的地和出发日期');
     return;
   }
-  
+
   // 触发父组件的搜索事件
   emit('search');
 };
