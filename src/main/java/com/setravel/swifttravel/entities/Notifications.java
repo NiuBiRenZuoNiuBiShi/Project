@@ -114,6 +114,17 @@ public class Notifications extends Model<Notifications> {
 
     public static final String DEL = "del";
 
+    public static final String INBOX = "站内信";
+    public static final String NOTE = "短信";
+    public static final String MAIL = "邮件";
+
+    public static final String SENT = "已发送";
+    public static final String SENT_FAILED = "发送失败";
+
+    public static final String PAY_SUCCESS = "支付成功";
+    public static final String ORDER_CANCEL = "订单取消";
+    public static final String DEP_REMINDER = "发车提醒";
+
     @Override
     public Serializable pkVal() {
         return this.messageId;
