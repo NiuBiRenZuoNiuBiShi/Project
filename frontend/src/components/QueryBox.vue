@@ -18,6 +18,10 @@ const trainFormData = ref({
 });
 
 const handleTrainSearch = () => {
+  // console.log('departureType', trainFormData.value.departureType);
+  // console.log('destinationType', trainFormData.value.destinationType);
+  
+  
   emit('search', {
     formType: currentForm.value,
     departure: trainFormData.value.departure,

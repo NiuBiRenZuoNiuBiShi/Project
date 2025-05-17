@@ -21,6 +21,7 @@ public class CityController {
      */
     @GetMapping("/api/city/search")
     public Result getCityList(@RequestParam("input") String input) {
+        System.out.println(input);
         try {
             if (input.isEmpty() || input.isBlank())
                 return Result.success(cityService.getRandomCities());

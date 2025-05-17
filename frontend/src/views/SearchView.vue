@@ -10,22 +10,60 @@ import router from '@/router/router';
 
 import { searchTrainTicketsApi } from '@/api/TrainTicketApi';
 import { useCarriageStore } from '@/repo/carriageStore';
+
+import { ElLoading, ElMessage } from 'element-plus';
 const carriageStore = useCarriageStore();
 
+/**
+ * 处理搜索请求
+ * @param formData 表单数据
+ */
 const handleSearch = (formData) => {
+  // 显示加载状态
+  const loading = ElLoading.service({
+    lock: true,
+    text: '正在搜索车票...',
+    background: 'rgba(255, 255, 255, 0.7)',
+  });
+  
   console.log(formData);
+  
   searchTrainTicketsApi(formData)
     .then((response) => {
-      console.log('搜索结果:', response.data);
-      carriageStore.setCarriages(response.data);
+      if (response.code === 200) {
+        // 检查是否有数据
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          carriageStore.setCarriages(response.data);
+          // 跳转到车票列表页面
+          router.push({ name: 'trains' });
+        } else {
+          // 没有找到车票
+          ElMessage({
+            type: 'warning',
+            message: '未找到符合条件的车票，请尝试其他日期或路线',
+          });
+          carriageStore.setCarriages([]);
+        }
+      } else {
+        // 服务器返回错误
+        ElMessage({
+          type: 'error',
+          message: response.message || '搜索失败，请稍后重试',
+        });
+        carriageStore.setCarriages([]);
+      }
     })
     .catch((error) => {
       console.error('搜索失败:', error);
+      ElMessage({
+        type: 'error',
+        message: '网络错误，请检查网络连接并重试',
+      });
       carriageStore.setCarriages([]);
     })
     .finally(() => {
-      // 跳转到车票列表页面
-      router.push({ name: 'trains' })
+      // 关闭加载状态
+      loading.close();
     });
 }
 </script>

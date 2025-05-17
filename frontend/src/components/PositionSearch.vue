@@ -148,12 +148,15 @@ const clearSearch = () => {
 const selectItem = (item, type) => {
   if (type === 'city') {
     inputValue.value = item.cityName;
+    selectedItem.value = item.cityName;
   } else {
     inputValue.value = item.stationName;
+    selectedItem.value = item.stationName;
   }
   
-  selectedItem.value = item;
   selectedType.value = type;
+  // console.log(selectedType.value); Good
+  
   showSearchResult.value = false;
 };
 

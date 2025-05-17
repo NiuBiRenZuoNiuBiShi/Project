@@ -25,9 +25,8 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public List<City> getRandomCities() {
-        LambdaQueryWrapper<City> queryWrapper = new LambdaQueryWrapper<City>()
-                    .ne(City::getDel, true)
-                    .last("ORDER BY RAND() LIMIT 5");
+        LambdaQueryWrapper<City> queryWrapper = new LambdaQueryWrapper<City>().ne(City::getDel, true)
+                .select(City::getCityName).last("ORDER BY RAND() LIMIT 5");
         return cityMapper.selectList(queryWrapper);
     }
 }
