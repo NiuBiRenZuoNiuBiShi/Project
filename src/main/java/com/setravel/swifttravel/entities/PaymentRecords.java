@@ -107,6 +107,10 @@ public class PaymentRecords extends Model<PaymentRecords> {
 
     public static final String DEL = "del";
 
+    public static final String PAY_FAILED = "支付失败";
+    public static final String PAY_SUCCESS = "支付成功";
+    public static final String TO_BE_PAID = "待支付";
+
     @Override
     public Serializable pkVal() {
         return this.paymentId;

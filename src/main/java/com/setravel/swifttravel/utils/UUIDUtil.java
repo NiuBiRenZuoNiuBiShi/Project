@@ -28,4 +28,22 @@ public class UUIDUtil {
         buffer.putLong(uuid.getLeastSignificantBits());
         return buffer.array();
     }
+
+    /**
+     * UUID → byte[]（写入数据库）
+     */
+    public static byte[] uuidToBytes(UUID uuid) {
+        ByteBuffer buffer = ByteBuffer.allocate(16);
+        buffer.putLong(uuid.getMostSignificantBits());
+        buffer.putLong(uuid.getLeastSignificantBits());
+        return buffer.array();
+    }
+
+    /**
+     * byte[] → UUID（从数据库读取）
+     */
+    public static UUID bytesToUUID(byte[] bytes) {
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        return new UUID(buffer.getLong(), buffer.getLong());
+    }
 }
