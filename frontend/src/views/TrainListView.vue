@@ -13,7 +13,7 @@
                     v-model:arriveTime="filterForm.arriveTime" />
             </div>
             <div class="list-container">
-                <TrainList @buy-ticket="buyTicket" />
+                <TrainList @buy-ticket="buyTicket" :filterConditions="filterForm"/>
             </div>
         </div>
     </div>

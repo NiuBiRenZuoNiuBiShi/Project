@@ -15,22 +15,12 @@
       </div>
       <template v-else>
         <!-- 直达车票 -->
-        <TrainTicketItem 
-          v-for="(ticket, index) in ticketList" 
-          :key="index" 
-          :ticket="ticket"
-          @buy-ticket="(ticket) => emit('buyTicket', ticket)" 
-          v-if="!store.isTransfer"
-        />
-        
+        <TrainTicketItem v-for="(ticket, index) in ticketList" :key="index" :ticket="ticket"
+          @buy-ticket="(ticket) => emit('buyTicket', ticket)" v-if="!store.isTransfer" />
+
         <!-- 中转车票 -->
-        <TrainTicketTransferItem 
-          v-for="(ticket, index) in ticketList" 
-          :key="index" 
-          :ticket="ticket"
-          @buy-ticket="(ticket) => emit('buyTicket', ticket)" 
-          v-if="store.isTransfer"
-        />
+        <TrainTicketTransferItem v-for="(ticket, index) in ticketList" :key="index" :ticket="ticket"
+          @buy-ticket="(ticket) => emit('buyTicket', ticket)" v-if="store.isTransfer" />
       </template>
     </div>
   </div>
@@ -44,6 +34,17 @@ import { useCarriageStore } from '@/repo/carriageStore';
 
 const emit = defineEmits(['buyTicket']);
 const store = useCarriageStore();
+
+const props = defineProps({
+  filterConditions: {
+    type: Object,
+    default: () => ({
+      seatType: [],
+      departTime: [],
+      arriveTime: []
+    })
+  }
+});
 
 const orderByList = ref([
   {
@@ -70,17 +71,49 @@ onMounted(() => {
   applyFilter('最早');
 });
 
-// 监听车票数据变化
-watch(() => store.carriages, (newCarriages) => {
+watch([() => store.carriages, () => props.filterConditions], ([newCarriages, newFilters]) => {
   originalList.value = [...newCarriages];
   applyFilter(filter.value);
 }, { deep: true });
 
-// 监听过滤条件变化
-watch(filter, (newFilter) => {
-  console.log('筛选条件变化:', newFilter);
-  applyFilter(newFilter);
-});
+const timeInRange = (time, ranges) => {
+  if (!ranges || ranges.length === 0) return true;
+  const minutes = timeStrToMinutes(time);
+  return ranges.some(range => {
+    const [start, end] = range.split('-');
+    const startMinutes = timeStrToMinutes(start);
+    const endMinutes = timeStrToMinutes(end);
+    return minutes >= startMinutes && minutes <= endMinutes;
+  });
+};
+
+const hasSeatType = (ticket, seatTypes) => {
+  if (!seatTypes || seatTypes.length === 0) return true;
+
+  if (store.isTransfer) {
+    // 中转车票的座位检查逻辑
+    return seatTypes.some(type => {
+      switch (type) {
+        case '商务座': return ticket.businessPrice1 > 0 && ticket.businessPrice2 > 0;
+        case '一等座': return ticket.firstPrice1 > 0 && ticket.firstPrice2 > 0;
+        case '二等座': return ticket.secondPrice1 > 0 && ticket.secondPrice2 > 0;
+        case '无座': return ticket.noSeatPrice1 > 0 && ticket.noSeatPrice2 > 0;
+        default: return false;
+      }
+    });
+  } else {
+    // 直达车票的座位检查逻辑
+    return seatTypes.some(type => {
+      switch (type) {
+        case '商务座': return ticket.businessPrice > 0;
+        case '一等座': return ticket.firstPrice > 0;
+        case '二等座': return ticket.secondPrice > 0;
+        case '无座': return ticket.noSeatPrice > 0;
+        default: return false;
+      }
+    });
+  }
+};
 
 const timeStrToMinutes = (timeStr) => {
   if (!timeStr) return 0;
@@ -94,23 +127,38 @@ const applyFilter = (filterName) => {
     return;
   }
 
+  let filteredList = originalList.value.filter(ticket => {
+    let departTimeMatch = true;
+    let arriveTimeMatch = true;
+    let seatTypeMatch = true;
+
+    if (props.filterConditions.departTime.length > 0)
+      departTimeMatch = timeInRange(ticket.departTime, props.filterConditions.departTime);
+    if (props.filterConditions.arriveTime.length > 0)
+      arriveTimeMatch = timeInRange(ticket.arriveTime, props.filterConditions.arriveTime);
+    if (props.filterConditions.seatType.length > 0)
+      seatTypeMatch = hasSeatType(ticket, props.filterConditions.seatType);
+
+    return departTimeMatch && arriveTimeMatch && seatTypeMatch;
+  });
+
   if (filterName === '只限高铁') {
     // 根据是否为中转车票采用不同的过滤逻辑
     if (store.isTransfer) {
-      ticketList.value = originalList.value.filter(ticket => ticket.type1 === 'G' && ticket.type2 === 'G');
+      ticketList.value = filteredList.filter(ticket => ticket.type1 === 'G' && ticket.type2 === 'G');
     } else {
-      ticketList.value = originalList.value.filter(ticket => ticket.trainNumber?.startsWith('G'));
+      ticketList.value = filteredList.filter(ticket => ticket.trainNumber?.startsWith('G'));
     }
   } else if (filterName === '最早') {
     // 按出发时间排序
-    ticketList.value = [...originalList.value].sort((a, b) => {
-      const timeA = store.isTransfer ? timeStrToMinutes(a.departTime) : timeStrToMinutes(a.departTime);
-      const timeB = store.isTransfer ? timeStrToMinutes(b.departTime) : timeStrToMinutes(b.departTime);
+    ticketList.value = [...filteredList].sort((a, b) => {
+      const timeA = timeStrToMinutes(a.departTime);
+      const timeB = timeStrToMinutes(b.departTime);
       return timeA - timeB;
     });
   } else if (filterName === '最快') {
     // 提取数字部分并按用时排序
-    ticketList.value = [...originalList.value].sort((a, b) => {
+    ticketList.value = [...filteredList].sort((a, b) => {
       // 从格式化的时间字符串中提取时间
       const extractMinutes = (durationStr) => {
         if (!durationStr) return 0;
@@ -125,12 +173,12 @@ const applyFilter = (filterName) => {
         }
         return total;
       };
-      
+
       return extractMinutes(a.duration) - extractMinutes(b.duration);
     });
   } else {
     // 没有匹配到任何过滤条件，重置为原始列表
-    ticketList.value = [...originalList.value];
+    ticketList.value = [...filteredList];
   }
 };
 
@@ -258,18 +306,18 @@ $glass-bg: rgba(255, 255, 255, 0.6);
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  
+
   .no-tickets-icon {
     font-size: 3rem;
     margin-bottom: 0.5rem;
   }
-  
+
   .no-tickets-text {
     font-size: 1.5rem;
     font-weight: 600;
     color: $text;
   }
-  
+
   .no-tickets-subtext {
     font-size: 1rem;
     color: $text-light;
