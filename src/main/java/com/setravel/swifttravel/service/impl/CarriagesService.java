@@ -12,6 +12,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Base64;
 
 @Service
 public class CarriagesService {
@@ -19,14 +20,17 @@ public class CarriagesService {
     @Resource
     private CarriagesMapper carriagesMapper;
 
+    @Resource
+    private TrainNumberService trainNumberService;
+
     public List<Carriages> getCarriagesByCC(String depCity, String arrCity, String depDate) {
         QueryWrapper<Carriages> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("dep_city", depCity)
                 .eq("arr_city", arrCity)
-                .ge("dep_date", depDate + " 00:00:00")
-                .le("dep_date", depDate + " 23:59:59")
+                .ge("dep_time", depDate + " 00:00:00")
+                .le("dep_time", depDate + " 23:59:59")
                 .eq("del", false) // 查询未删除的记录
-                .orderByAsc("dep_date"); // 按照出发时间升序排列
+                .orderByAsc("dep_time"); // 按照出发时间升序排列
 
         return carriagesMapper.selectList(queryWrapper);
     }
@@ -35,10 +39,10 @@ public class CarriagesService {
         QueryWrapper<Carriages> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("dep_station", depStation)
                 .eq("arr_station", arrStation)
-                .ge("dep_date", depDate + " 00:00:00")
-                .le("dep_date", depDate + " 23:59:59")
+                .ge("dep_time", depDate + " 00:00:00")
+                .le("dep_time", depDate + " 23:59:59")
                 .eq("del", false) // 查询未删除的记录
-                .orderByAsc("dep_date"); // 按照出发时间升序排列
+                .orderByAsc("dep_time"); // 按照出发时间升序排列
 
         return carriagesMapper.selectList(queryWrapper);
     }
@@ -47,10 +51,10 @@ public class CarriagesService {
         QueryWrapper<Carriages> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("dep_city", depCity)
                 .eq("arr_station", arrStation)
-                .ge("dep_date", depDate + " 00:00:00")
-                .le("dep_date", depDate + " 23:59:59")
+                .ge("dep_time", depDate + " 00:00:00")
+                .le("dep_time", depDate + " 23:59:59")
                 .eq("del", false) // 查询未删除的记录
-                .orderByAsc("dep_date"); // 按照出发时间升序排列
+                .orderByAsc("dep_time"); // 按照出发时间升序排列
 
         return carriagesMapper.selectList(queryWrapper);
     }
@@ -59,10 +63,10 @@ public class CarriagesService {
         QueryWrapper<Carriages> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("dep_station", depStation)
                 .eq("arr_city", arrCity)
-                .ge("dep_date", depDate + " 00:00:00")
-                .le("dep_date", depDate + " 23:59:59")
+                .ge("dep_time", depDate + " 00:00:00")
+                .le("dep_time", depDate + " 23:59:59")
                 .eq("del", false) // 查询未删除的记录
-                .orderByAsc("dep_date"); // 按照出发时间升序排列
+                .orderByAsc("dep_time"); // 按照出发时间升序排列
 
         return carriagesMapper.selectList(queryWrapper);
     }
@@ -102,6 +106,7 @@ public class CarriagesService {
     
     public CarriageThrough carriages2carriageThrough(Carriages carriages) {
         CarriageThrough carriageThrough = new CarriageThrough();
+        carriageThrough.setId(carriages.getId());
         carriageThrough.setDepCity(carriages.getDepCity());
         carriageThrough.setArrCity(carriages.getArrCity());
         carriageThrough.setDepTime(carriages.getDepTime());
@@ -109,7 +114,7 @@ public class CarriagesService {
         carriageThrough.setCostTime(LocalDate.ofEpochDay(Duration.between(carriages.getDepTime().toLocalTime(), carriages.getArrTime().toLocalTime()).toHours())); // 不确定是否正确
         carriageThrough.setDepStation(carriages.getDepStation());
         carriageThrough.setArrStation(carriages.getArrStation());
-        carriageThrough.setTrainNumber(new String(carriages.getTrainNumber()));
+        carriageThrough.setTrainNumber(trainNumberService.getTrainNumberById(carriages.getTrainNumber()));
         carriageThrough.setSecondNumber(carriages.getSecondNumber());
         carriageThrough.setFirstNumber(carriages.getFirstNumber());
         carriageThrough.setBusinessNumber(carriages.getBusinessNumber());
@@ -139,10 +144,10 @@ public class CarriagesService {
     public List<Carriages> getCarriagesByStartCity(String depCity, String depDate) {
         QueryWrapper<Carriages> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("dep_city", depCity)
-                .ge("dep_date", depDate + " 00:00:00")
-                .le("dep_date", depDate + " 23:59:59")
+                .ge("dep_time", depDate + " 00:00:00")
+                .le("dep_time", depDate + " 23:59:59")
                 .eq("del", false) // 查询未删除的记录
-                .orderByAsc("dep_date"); // 按照出发时间升序排列
+                .orderByAsc("dep_time"); // 按照出发时间升序排列
 
         return carriagesMapper.selectList(queryWrapper);
     }
@@ -150,10 +155,10 @@ public class CarriagesService {
     public List<Carriages> getCarriagesByEndCity(String arrCity, String depDate) {
         QueryWrapper<Carriages> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("arr_city", arrCity)
-                .ge("dep_date", depDate + " 00:00:00")
-                .le("dep_date", depDate + " 23:59:59")
+                .ge("dep_time", depDate + " 00:00:00")
+                .le("dep_time", depDate + " 23:59:59")
                 .eq("del", false) // 查询未删除的记录
-                .orderByAsc("dep_date"); // 按照出发时间升序排列
+                .orderByAsc("dep_time"); // 按照出发时间升序排列
 
         return carriagesMapper.selectList(queryWrapper);
     }
