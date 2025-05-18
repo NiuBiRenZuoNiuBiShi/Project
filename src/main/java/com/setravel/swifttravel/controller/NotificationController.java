@@ -3,6 +3,7 @@ package com.setravel.swifttravel.controller;
 import com.setravel.swifttravel.entities.Notifications;
 import com.setravel.swifttravel.entities.Result;
 import com.setravel.swifttravel.mapper.NotificationsMapper;
+import com.setravel.swifttravel.service.NotificationService;
 import com.setravel.swifttravel.utils.UUIDUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,8 @@ public class NotificationController {
 
     @Autowired
     private NotificationsMapper notificationsMapper;
+    @Autowired
+    private NotificationService notificationService;
 
     /**
      * 根据用户ID查询该用户的所有通知（按时间倒序）
@@ -33,6 +36,20 @@ public class NotificationController {
         }
     }
 
+    @GetMapping("/{userId}/ubread")
+    public Result getUnread(@PathVariable("userId") String userIdStr){
+        try {
+            byte[] userId = UUIDUtil.uuidToBytes(UUID.fromString(userIdStr));
+            List<Notifications> list = notificationService.getUnreadNotifications(userId);
+            return Result.success("查询成功", list);
+        }catch (Exception e){
+            return Result.error("查询失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 标记消息为已读
+     */
     @PostMapping("/read/{messageId}")
     public Result markRead(@PathVariable("messageId") String messageIdStr) {
         try{

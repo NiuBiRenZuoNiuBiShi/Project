@@ -1,16 +1,16 @@
 package com.setravel.swifttravel.service.impl;
 
-import com.setravel.swifttravel.entities.Notifications;
-import com.setravel.swifttravel.entities.TicketsOrders;
-import com.setravel.swifttravel.entities.Trainnumbers;
-import com.setravel.swifttravel.mapper.NotificationsMapper;
-import com.setravel.swifttravel.mapper.TrainNumberMapper;
+import com.setravel.swifttravel.entities.*;
+import com.setravel.swifttravel.mapper.*;
 import com.setravel.swifttravel.service.NotificationService;
 import com.setravel.swifttravel.utils.UUIDUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.function.ToDoubleBiFunction;
 
 import static com.setravel.swifttravel.entities.Notifications.*;
@@ -23,6 +23,20 @@ public class NotificationServiceImpl implements NotificationService {
     private NotificationsMapper notificationsMapper;
     @Autowired
     private TrainNumberMapper trainNumberMapper;
+    @Autowired
+    private FoodMapper foodMapper;
+    @Autowired
+    private FoodOrdersMapper foodOrdersMapper;
+    @Autowired
+    private FoodOrderItemsMapper foodOrderItemsMapper;
+    @Autowired
+    private HotelMapper hotelMapper;
+    @Autowired
+    private HotelOrderMapper hotelOrderMapper;
+    @Autowired
+    private RoomMapper roomMapper;
+    @Autowired
+    private ReservationMapper reservationMapper;
 
     /**
      * 发送支付成功消息
@@ -59,6 +73,64 @@ public class NotificationServiceImpl implements NotificationService {
         insertNotification(ticketsOrder.getUserId(), ticketsOrder.getId(), DEP_REMINDER, content);
     }
 
+    /**
+     * 获取所有未读消息
+     * @param userId
+     * @return
+     */
+    @Override
+    public List<Notifications> getUnreadNotifications(byte[] userId) {
+        return notificationsMapper.selectUnreadByUserId(userId);
+    }
+
+    /**
+     * 发送餐食预订成功消息
+     * @param foodOrder
+     */
+    @Override
+    public void sendFoodOrderPaySuccessMessage(FoodOrders foodOrder) {
+        String content = buildFoodContent(foodOrder, "您的餐食已预订成功，我们将准时为您配送");
+        insertNotification(foodOrder.getUserId(), foodOrder.getId(), PAY_SUCCESS, content);
+    }
+
+    /**
+     * 发送餐食取消消息
+     * @param foodOrder
+     */
+    @Override
+    public void sendFoodOrderCancelMessage(FoodOrders foodOrder) {
+        String content = buildFoodContent(foodOrder, "您的餐食已取消，欢迎下次订购");
+        insertNotification(foodOrder.getUserId(), foodOrder.getId(), ORDER_CANCEL, content);
+    }
+
+    /**
+     * 发送酒店预订成功消息
+     * @param hotelOrder
+     */
+    @Override
+    public void sendHotelOrderPaySuccessMessage(HotelOrders hotelOrder) {
+        String content = buildHotelOrderContent(hotelOrder, "酒店预订成功，祝您入住愉快！");
+        insertNotification(hotelOrder.getUserId(), hotelOrder.getId(), PAY_SUCCESS, content);
+    }
+
+    /**
+     * 发送酒店订单取消消息
+     * @param hotelOrder
+     */
+    @Override
+    public void sendHotelOrderCancelMessage(HotelOrders hotelOrder) {
+        String content = buildHotelOrderContent(hotelOrder, "您的酒店订单已取消，如有疑问请联系客服。");
+        insertNotification(hotelOrder.getUserId(), hotelOrder.getId(), ORDER_CANCEL, content);
+    }
+
+
+    /**
+     * 插入一条消息
+     * @param userId
+     * @param orderId
+     * @param type
+     * @param content
+     */
     private void insertNotification(byte[] userId, byte[] orderId, String type, String content) {
         Notifications notification = new Notifications()
             .setMessageId(UUIDUtil.generateUUIDBytes())
@@ -77,6 +149,13 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("已发送通知：{}", content);
     }
 
+    /**
+     * 车票的具体消息
+     * @param ticketsOrder
+     * @param train
+     * @param tailNote
+     * @return
+     */
     private String buildTicketContent(TicketsOrders ticketsOrder, Trainnumbers train, String tailNote) {
         return String.format("您的车票信息如下：%s，%s %s开，%s-%s，%s次列车，座位：待补充，%s。%s",
             train.getTrainNumber(),
@@ -87,5 +166,63 @@ public class NotificationServiceImpl implements NotificationService {
             train.getTrainNumber(),
             "成人票", //票类型、座位、车厢号等由seat补充
             tailNote);
+    }
+
+    /**
+     * 餐食的具体消息
+     * @param foodOrders
+     * @param tailNote
+     * @return
+     */
+    private String buildFoodContent(FoodOrders foodOrders, String tailNote){
+        List<FoodOrderItems> items = foodOrderItemsMapper.selectByOrderId(foodOrders.getId());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("您订购的餐食如下：\n");
+
+        for(FoodOrderItems item : items){
+            Food food = foodMapper.selectById(item.getFoodId());
+            if(food != null){
+                sb.append(String.format("- %s × %d份（¥%s）\\n",
+                    food.getFoodName(),
+                    item.getFoodNumber(),
+                    food.getPrice().multiply(BigDecimal.valueOf(item.getFoodNumber()))));
+            }
+        }
+        sb.append(tailNote);
+        return sb.toString();
+    }
+
+    /**
+     * 酒店消息内容
+     * @param hotelOrder
+     * @param tailNote
+     * @return
+     */
+    private String buildHotelOrderContent(HotelOrders hotelOrder, String tailNote) {
+        Reservation res = reservationMapper.selectById(hotelOrder.getReservationId());
+        if (res == null) return "未找到预订信息";
+
+        Hotel hotel = hotelMapper.selectById(res.getHotelId());
+        Room room = roomMapper.selectById(res.getRoomId());
+
+        return String.format("""
+        您预订的酒店信息如下：
+        - 酒店：%s
+        - 地址：%s
+        - 房型：%s
+        - 入住时间：%s
+        - 离店时间：%s
+        - 预订状态：%s
+        %s
+        """,
+            hotel != null ? hotel.getName() : "未知酒店",
+            hotel != null ? hotel.getAddress() : "未知地址",
+            room != null ? room.getRoomType() : "未知房型",
+            res.getCheckinDate(),
+            res.getCheckoutDate(),
+            res.getStatus(),
+            tailNote
+        );
     }
 }
