@@ -4,14 +4,16 @@
             <div class="form-container">
                 <QueryTrainTicketFrom v-model:departure="searchForm.departure"
                     v-model:destination="searchForm.destination" v-model:selectedTime="searchForm.selectedTime"
-                    v-model:transfer_option="searchForm.transfer_option" @search="search" />
+                    v-model:transfer_option="searchForm.transfer_option"
+                    v-model:departureType="searchForm.departureType"
+                    v-model:destinationType="searchForm.destinationType" @search="search" />
             </div>
             <div class="filter-container">
                 <FilterForm v-model:seatType="filterForm.seatType" v-model:departTime="filterForm.departTime"
                     v-model:arriveTime="filterForm.arriveTime" />
             </div>
             <div class="list-container">
-                <TrainList v-model:orderBy="orderBy" @buy-ticket="buyTicket"/>
+                <TrainList @buy-ticket="buyTicket" :filterConditions="filterForm"/>
             </div>
         </div>
     </div>
@@ -34,12 +36,23 @@ const searchForm = ref({
     destination: '',
     selectedTime: new Date().toISOString().split('T')[0],
     transfer_option: false,
+    departureType: '',
+    destinationType: ''
 });
 
-const orderBy = ref('最早');
-
 const search = () => {
-    console.log(searchForm.value);
+    searchTrainTicketsApi(searchForm.value)
+        .then((response) => {
+            console.log('搜索结果:', response.data);
+            carriageStore.setCarriages(response.data);
+        })
+        .catch((error) => {
+            console.error('搜索失败:', error);
+            carriageStore.setCarriages([]);
+        })
+        .finally(() => {
+            router.push({ name: 'trains' })
+        });
 };
 
 const buyTicket = (ticket) => {

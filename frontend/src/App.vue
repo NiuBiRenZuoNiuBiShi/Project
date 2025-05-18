@@ -1,45 +1,71 @@
 <template>
-    <div class="app-container">
-        <SideBar />
-        <router-view />
+    <div class="app-container" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
+        <SideBar @sidebar-toggle="handleSidebarToggle" />
+        <main class="content-area">
+            <router-view />
+        </main>
     </div>
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import SideBar from '@/components/SideBar.vue';
-// App.vue 只负责整体布局和 SideBar 的引入
+
+const isSidebarCollapsed = ref(window.innerWidth <= 768);
+
+const handleSidebarToggle = (collapsed) => {
+    isSidebarCollapsed.value = collapsed;
+};
 </script>
 
 <style lang="scss" scoped>
-// Modern Color Scheme (matching sidebar)
+// Modern Color Scheme
 $primary: #4a8eff;
 $primary-light: #6ba3ff;
 $primary-dark: #3270e9;
 $text: #2c3e50;
 $text-light: #5d7290;
-$bg-light: #fafbff; // App.vue 控制整体背景色
+$bg-light: #fafbff;
 $border: #e6eaf0;
 $shadow: rgba(50, 112, 233, 0.08);
 
+// Media query breakpoints
+$breakpoint-sm: 768px;
+$breakpoint-xs: 480px;
+
 .app-container {
-    display: grid;
-    grid-template-columns: auto 1fr; /* 侧边栏宽度自适应，内容区域填充剩余空间 */
+    display: flex;
+    width: 100%;
     min-height: 100vh;
     background-color: $bg-light;
-    // 这里不再包含 content-area 的具体样式
+    position: relative;
+    
+    &.sidebar-collapsed {
+        .content-area {
+            margin-left: 70px; /* Width of collapsed sidebar */
+        }
+    }
 }
 
+.content-area {
+    flex: 1;
+    min-height: 100vh;
+    margin-left: 240px; /* Width of expanded sidebar */
+    transition: margin-left 0.3s ease;
+    width: calc(100% - 240px);
+    background-color: $bg-light;
+    overflow-x: hidden;
+}
 
-@media (max-width: 768px) {
-    .app-container {
-        grid-template-columns: 1fr; /* 小屏幕下内容区域独占一行 */
-
-        // 当侧边栏收起时，给内容区域一个左 padding，避免被侧边栏遮挡
-        // 注意：这里需要根据侧边栏的收起宽度来调整 padding
-        // 这部分逻辑可能需要根据 SideBar 的状态动态添加样式类
-         > :deep(.content-area) { // 使用 :deep() 穿透作用域样式
-             padding-left: 90px; // 假设收起后侧边栏宽度为 70px + 一些间距
-         }
+// Mobile styles
+@media (max-width: $breakpoint-sm) {
+    .content-area {
+        margin-left: 70px; /* Always use collapsed sidebar width on mobile */
+        width: calc(100% - 70px);
+    }
+    
+    .app-container.sidebar-collapsed .content-area {
+        margin-left: 70px;
     }
 }
 </style>

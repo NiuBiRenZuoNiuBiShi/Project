@@ -3,7 +3,6 @@ package com.setravel.swifttravel.utils;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
@@ -20,7 +19,6 @@ public class JWTUtils {
 
     private final StringRedisTemplate redisTemplate;
 
-    @Autowired
     public JWTUtils(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
@@ -28,19 +26,15 @@ public class JWTUtils {
     /**
      * 生成JWT Token
      * <p>
-     * 该方法根据用户名生成一个JWT Token，并设置有效期为1天。
-     * 使用HMAC256算法加密Token，并将用户名作为Subject保存到Token中。
+     * 该方法根据用户名生成一个JWT Token，并设置有效期为1天。 使用HMAC256算法加密Token，并将用户名作为Subject保存到Token中。
      *
      * @param username 用户名
      * @return 生成的JWT Token
      */
     public String generateToken(String username) {
         Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
-        return JWT.create()
-                .withSubject(username)
-                .withIssuedAt(new Date(System.currentTimeMillis()))
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME))
-                .sign(algorithm);
+        return JWT.create().withSubject(username).withIssuedAt(new Date(System.currentTimeMillis()))
+                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME)).sign(algorithm);
     }
 
     /**
@@ -66,8 +60,7 @@ public class JWTUtils {
     /**
      * 检查JWT Token是否快过期，并进行续签
      * <p>
-     * 该方法检查传入的Token是否接近过期（距离过期时间小于10分钟）。如果是，则生成一个新的Token并返回，
-     * 否则返回原始Token。
+     * 该方法检查传入的Token是否接近过期（距离过期时间小于10分钟）。如果是，则生成一个新的Token并返回， 否则返回原始Token。
      *
      * @param token JWT Token
      * @return 返回一个Pair，包含新的Token（如果需要续签），以及是否进行续签的标志
@@ -118,9 +111,7 @@ public class JWTUtils {
      * @return 从Token中提取的用户名
      */
     public String getUsernameByToken(String token) {
-        return JWT
-                .decode(token)
-                .getSubject();
+        return JWT.decode(token).getSubject();
     }
 
     /**
@@ -132,8 +123,6 @@ public class JWTUtils {
      * @return 解码后的DecodedJWT对象
      */
     private DecodedJWT decodeToken(String token) {
-        return JWT.require(Algorithm.HMAC256(SECRET_KEY))
-                .build()
-                .verify(token);
+        return JWT.require(Algorithm.HMAC256(SECRET_KEY)).build().verify(token);
     }
 }

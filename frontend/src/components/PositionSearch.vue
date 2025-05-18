@@ -10,24 +10,46 @@
         class="input" 
         id="input" 
         :placeholder="placeholder" 
-        v-model="searchValue" 
+        v-model="inputValue" 
         @input="handleSearch"
         @focus="showSearchResult = true"
         @blur="handleBlur"
       />
-      <div class="input-icon" v-if="searchValue">
+      <div class="selection-badge" v-if="selectedType">
+        <i :class="selectedType === 'city' ? 'fas fa-city' : 'fas fa-train'"></i>
+        <span>{{ selectedType === 'city' ? '城市' : '车站' }}</span>
+      </div>
+      <div class="input-icon" v-if="inputValue">
         <i class="fas fa-times-circle" @click.stop="clearSearch"></i>
       </div>
     </div>
-    <div class="search-results" v-if="showSearchResult && searchResults.length > 0">
-      <div 
-        class="search-result-item" 
-        v-for="(item, index) in searchResults" 
-        :key="index" 
-        @mousedown.prevent="selectItem(item)"
-      >
-        <i class="fas fa-map-marker-alt"></i>
-        <span>{{ item.cityName }}</span>
+    <div class="search-results" v-if="showSearchResult && (cityResults.length > 0 || stationResults.length > 0)">
+      <!-- 城市搜索结果 -->
+      <div v-if="cityResults.length > 0" class="result-category">
+        <div class="category-title">城市</div>
+        <div 
+          class="search-result-item" 
+          v-for="(item, index) in cityResults" 
+          :key="`city-${index}`" 
+          @mousedown.prevent="selectItem(item, 'city')"
+        >
+          <i class="fas fa-city"></i>
+          <span>{{ item.cityName }}</span>
+        </div>
+      </div>
+      
+      <!-- 车站搜索结果 -->
+      <div v-if="stationResults.length > 0" class="result-category">
+        <div class="category-title">车站</div>
+        <div 
+          class="search-result-item" 
+          v-for="(item, index) in stationResults" 
+          :key="`station-${index}`" 
+          @mousedown.prevent="selectItem(item, 'station')"
+        >
+          <i class="fas fa-train"></i>
+          <span>{{ item.stationName }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -44,17 +66,23 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: '请输入城市'
+    default: '请输入城市或车站'
   }
 });
 
-const searchValue = defineModel();
+// 使用 defineModel
+const inputValue = defineModel('modelValue');
+const selectedItem = defineModel('selectedItem', { default: null });
+const selectedType = defineModel('selectedType', { default: '' });
+
+// 搜索相关状态
 const showSearchResult = ref(false);
-const searchResults = ref([]);
+const cityResults = ref([]);
+const stationResults = ref([]);
 const isLoading = ref(false);
 const searchTimeout = ref(null);
 
-// 搜索城市
+// 搜索城市和车站
 const handleSearch = async () => {
   // 清除之前的延时
   if (searchTimeout.value) {
@@ -62,8 +90,9 @@ const handleSearch = async () => {
   }
   
   // 如果输入为空，清空结果
-  if (!searchValue.value || searchValue.value.trim() === '') {
-    searchResults.value = [];
+  if (!inputValue.value || inputValue.value.trim() === '') {
+    cityResults.value = [];
+    stationResults.value = [];
     return;
   }
   
@@ -71,15 +100,26 @@ const handleSearch = async () => {
   searchTimeout.value = setTimeout(async () => {
     try {
       isLoading.value = true;
-      const response = await axios.get('/api/city/search', {
-        params: {
-          keyword: searchValue.value
-        }
-      });
-      searchResults.value = response.data;
+      
+      // 并行请求城市和车站数据
+      const [cityResponse, stationResponse] = await Promise.all([
+        axios.get('/api/city/search', {
+          params: {
+            input: inputValue.value
+          }
+        }),
+        axios.get('/api/station/search', {
+          params: {
+            input: inputValue.value
+          }
+        })
+      ]);
+      
+      cityResults.value = cityResponse.data.data || [];
+      stationResults.value = stationResponse.data.data || [];
       showSearchResult.value = true;
     } catch (error) {
-      console.error('获取城市列表失败:', error);
+      console.error('搜索失败:', error);
     } finally {
       isLoading.value = false;
     }
@@ -96,29 +136,47 @@ const handleBlur = () => {
 
 // 清除搜索
 const clearSearch = () => {
-  searchValue.value = '';
-  searchResults.value = [];
+  inputValue.value = '';
+  cityResults.value = [];
+  stationResults.value = [];
+  showSearchResult.value = false;
+  selectedItem.value = null;
+  selectedType.value = '';
+};
+
+// 选择项目
+const selectItem = (item, type) => {
+  if (type === 'city') {
+    inputValue.value = item.cityName;
+    selectedItem.value = item.cityName;
+  } else {
+    inputValue.value = item.stationName;
+    selectedItem.value = item.stationName;
+  }
+  
+  selectedType.value = type;
+  // console.log(selectedType.value); Good
+  
   showSearchResult.value = false;
 };
 
-// 选择城市项
-const selectItem = (item) => {
-  searchValue.value = item.cityName;
-  showSearchResult.value = false;
-};
-
-// 初始加载一些热门城市
-const loadInitialCities = async () => {
+// 初始加载一些热门城市和车站
+const loadInitialData = async () => {
   try {
-    const response = await axios.get('/api/city/search');
-    searchResults.value = response.data;
+    const [cityResponse, stationResponse] = await Promise.all([
+      axios.get('/api/city/search', { params: { input: '' } }),
+      axios.get('/api/station/search', { params: { input: '' } })
+    ]);
+    
+    cityResults.value = cityResponse.data.data || [];
+    stationResults.value = stationResponse.data.data || [];
   } catch (error) {
-    console.error('获取热门城市失败:', error);
+    console.error('获取初始数据失败:', error);
   }
 };
 
-// 组件挂载时加载初始城市列表
-loadInitialCities();
+// 组件挂载时加载初始数据
+loadInitialData();
 </script>
 
 <style lang="scss" scoped>
@@ -145,10 +203,10 @@ loadInitialCities();
       position: absolute;
       left: 15px;
       top: 50%;
-      transform: translateY(-60%);
+      transform: translateY(-50%);
       color: #3498db;
       z-index: 1;
-      font-size: 3rem;
+      font-size: 2rem;
     }
 
     .input {
@@ -171,6 +229,26 @@ loadInitialCities();
         color: #aaa;
         font-size: 1.5rem;
         font-weight: 400;
+      }
+    }
+
+    .selection-badge {
+      position: absolute;
+      right: 50px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      padding: 4px 8px;
+      background-color: #e6f7ff;
+      border: 1px solid #91d5ff;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      color: #1890ff;
+      
+      i {
+        margin-right: 4px;
+        font-size: 0.9rem;
       }
     }
 
@@ -201,7 +279,7 @@ loadInitialCities();
     top: 100%;
     left: 0;
     width: 100%;
-    max-height: 200px;
+    max-height: 300px;
     overflow-y: auto;
     background-color: white;
     border: 1px solid #e0e0e0;
@@ -209,6 +287,18 @@ loadInitialCities();
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     z-index: 100;
     margin-top: 2px;
+
+    .result-category {
+      padding: 0.5rem 0;
+
+      .category-title {
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #777;
+        background-color: #f8f9fa;
+      }
+    }
 
     .search-result-item {
       display: flex;
