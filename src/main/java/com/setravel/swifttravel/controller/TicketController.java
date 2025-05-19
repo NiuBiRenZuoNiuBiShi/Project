@@ -95,4 +95,9 @@ public class TicketController {
     public Result deleteTicketOrder(@RequestParam String orderId) {
         return new Result(200, "成功删除订单", ticketOrdersService.deleteTicketOrder(orderId));
     }
+
+    @PostMapping("/makeTicketOrder")
+    public Result makeTicketOrder(@RequestParam Integer carriagesId, @RequestParam Integer seatId, @RequestParam Integer contactId) {
+        return new Result(200, "成功创建订单", ticketOrdersService.makeTicketOrder(carriagesId, seatId, contactId));
+    }
 }

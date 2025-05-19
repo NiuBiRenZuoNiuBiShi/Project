@@ -16,7 +16,8 @@ public class BuyTrainTicketsController {
     @PostMapping("/api/buyTickets")
     public Result buyTrainTickets (@RequestParam("carriageID") Integer carriageId
         , @RequestParam("seatType") String seatType
-        , @RequestParam("seatNum") Integer seatNum) {
-        return buyTicketsService.buyTickets(carriageId, seatType, seatNum);
+        , @RequestParam("seatNum") Integer seatNum
+        , @RequestParam("contact_id") Integer contactId) {
+        return buyTicketsService.buyTickets(carriageId, seatType, seatNum, contactId);
     }
 }

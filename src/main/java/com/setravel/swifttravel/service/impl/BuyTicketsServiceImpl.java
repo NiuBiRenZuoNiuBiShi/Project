@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.setravel.swifttravel.entities.Carriages;
 import com.setravel.swifttravel.entities.Result;
 import com.setravel.swifttravel.entities.Seats;
+import com.setravel.swifttravel.entities.TicketsOrders;
 import com.setravel.swifttravel.mapper.CarriagesMapper;
 import com.setravel.swifttravel.mapper.SeatsMapper;
 import com.setravel.swifttravel.mapper.TrainNumberMapper;
@@ -25,8 +26,8 @@ public class BuyTicketsServiceImpl implements BuyTicketsService {
     private CarriagesMapper carriagesMapper;
 
     @Override
-    public Result buyTickets(Integer carriageId, String seatType, Integer seatNum) {
-        Carriages carriage = carriagesMapper.selectById(carriageId);
+    public Result buyTickets(Integer carriageID, String seatType, Integer seatID, Integer contactID) {
+        Carriages carriage = carriagesMapper.selectById(carriageID);
         synchronized (BuyTicketsServiceImpl.class) {
             Seats seat = seatsMapper.selectOne(new QueryWrapper<Seats>().lambda()
                 .eq(Seats::getSeatType, seatType)
