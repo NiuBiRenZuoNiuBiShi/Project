@@ -100,7 +100,8 @@ public class BuyTicketsServiceImpl implements BuyTicketsService {
         return Result.success(
                 new BuyTicketsOutput().setCarriageId(request.getCarriageId()).setSeatId(request.getSeatIdList())
                         .setTrainNumber(trainNumberMapper.selectById(carriageId).getTrainNumber())
-                        .setMessage("Purchase successful, total amount: " + totalMoney));
+                        .setMessage("Purchase successful, total amount: " + totalMoney)
+                        .setContactIdList(request.getContactIdList()));
     }
 
 }

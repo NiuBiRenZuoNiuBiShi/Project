@@ -18,4 +18,5 @@ public class BuyTicketsOutput {
     private List<String> seatId;
     private String carriageId;
     private String trainNumber;
+    private List<String> contactIdList;
 }

@@ -18,12 +18,12 @@ import jakarta.annotation.Resource;
 public class ContactServiceImpl implements ContactService {
 
     @Resource
-    private ContactMapper contactsMapper;
+    private ContactMapper contactMapper;
 
     @Override
     public Result addContact(Contacts contact) {
         try {
-            contactsMapper.insert(contact);
+            contactMapper.insert(contact);
         } catch (Exception e) {
             return Result.error("Failed to add contact: " + e.getMessage(), e);
         }
@@ -33,7 +33,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public Result addContacts(List<Contacts> contactList) {
         try {
-            contactsMapper.insert(contactList);
+            contactMapper.insert(contactList);
         } catch (Exception e) {
             return Result.error("Failed to add contacts: " + e.getMessage(), e);
         }
@@ -43,7 +43,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public Result deleteContact(Contacts entity) {
         try {
-            contactsMapper.deleteById(entity.getContactId());
+            contactMapper.deleteById(entity.getContactId());
         } catch (Exception e) {
             return Result.error("Failed to delete contact: " + e.getMessage(), e);
         }
@@ -55,8 +55,8 @@ public class ContactServiceImpl implements ContactService {
         LambdaQueryWrapper<Contacts> deleteWrapper = new LambdaQueryWrapper<Contacts>().eq(Contacts::getContactId,
                 entity.getContactId());
         try {
-            contactsMapper.delete(deleteWrapper);
-            contactsMapper.insert(entity);
+            contactMapper.delete(deleteWrapper);
+            contactMapper.insert(entity);
         } catch (Exception e) {
             return Result.error("Failed to update contact: " + e.getMessage(), e);
         }
@@ -67,6 +67,6 @@ public class ContactServiceImpl implements ContactService {
     public Result getContactsByID(String contactID) {
         QueryWrapper<Contacts> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("contact_id", Base64.getDecoder().decode(contactID)).eq("del", false);
-        return new Result(200, "成功获取到相关数据", contactsMapper.selectOne(queryWrapper));
+        return new Result(200, "成功获取到相关数据", contactMapper.selectOne(queryWrapper));
     }
 }

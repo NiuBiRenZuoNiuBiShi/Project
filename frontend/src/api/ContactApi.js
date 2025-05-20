@@ -1,7 +1,9 @@
 import axios from 'axios';
+import api from './Api';
+
 export const getContacts = async () => {
     try {
-        const response = await axios.get('/api/contacts');
+        const response = await api.get('/contacts');
         return response.data;
     } catch (error) {
         console.error('Error fetching contacts:', error);
@@ -11,7 +13,7 @@ export const getContacts = async () => {
 
 export const addContact = async (contact) => {
     try {
-        const response = await axios.post('/api/contacts/add', contact);
+        const response = await api.post('/contacts/add', contact);
         return response.data;
     } catch (error) {
         console.error('Error adding contact:', error);
@@ -21,7 +23,7 @@ export const addContact = async (contact) => {
 
 export const addContactList = async (contactList) => {
     try {
-        const response = await axios.post('/api/contacts/adds', contactList);
+        const response = await api.post('/contacts/adds', contactList);
         return response.data;
     } catch (error) {
         console.error('Error adding contact list:', error);
@@ -31,7 +33,7 @@ export const addContactList = async (contactList) => {
 
 export const updateContact = async (contact) => {
     try {
-        const response = await axios.put('/api/contacts/update', contact);
+        const response = await api.put('/contacts/update', contact);
         return response.data;
     } catch (error) {
         console.error('Error updating contact:', error);
@@ -41,7 +43,7 @@ export const updateContact = async (contact) => {
 
 export const deleteContact = async (contact) => {
     try {
-        const response = await axios.delete('/api/contacts/delete', { data: contact });
+        const response = await api.delete('/contacts/delete', { data: contact });
         return response.data;
     } catch (error) {
         console.error('Error deleting contact:', error);
