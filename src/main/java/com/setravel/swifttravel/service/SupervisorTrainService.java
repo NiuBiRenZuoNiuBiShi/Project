@@ -3,7 +3,7 @@ package com.setravel.swifttravel.service;
 import com.setravel.swifttravel.entities.City;
 import com.setravel.swifttravel.entities.Result;
 import com.setravel.swifttravel.entities.Station;
-import com.setravel.swifttravel.entities.TrainNumberDetail;
+import com.setravel.swifttravel.entities.request.TrainNumberDetail;
 
 import java.util.List;
 

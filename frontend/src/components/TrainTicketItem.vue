@@ -42,6 +42,10 @@
                         <span class="seat-type">商务座</span>
                         <span class="price">¥{{ ticket.businessPrice }}</span>
                     </div>
+                    <div v-if="ticket.noSeatPrice" class="price-item">
+                        <span class="seat-type">无座</span>
+                        <span class="price">¥{{ ticket.noSeatPrice }}</span>
+                    </div>
                 </div>
                 <button class="select-button" @click="handleBuyTicket">
                     选择
@@ -150,7 +154,7 @@ $glass-bg: rgba(255, 255, 255, 0.6);
     text-align: center;
 
     .time {
-        font-size: 1.8rem;
+        font-size: 2rem;
         font-weight: 700;
         color: $text;
         margin-bottom: 0.3rem;
@@ -158,7 +162,7 @@ $glass-bg: rgba(255, 255, 255, 0.6);
     }
 
     .station {
-        font-size: 0.9rem;
+        font-size: 1.1rem;
         color: $text-light;
         max-width: 100px;
         margin: 0 auto;
@@ -178,11 +182,11 @@ $glass-bg: rgba(255, 255, 255, 0.6);
     align-items: center;
 
     .duration {
-        font-size: 0.8rem;
+        font-size: 1.2rem;
         color: $text-light;
-        background-color: rgba($primary-light, 0.1);
+        background-color: rgba($primary-light, 0.2);
         padding: 0.2rem 0.6rem;
-        border-radius: 12px;
+        border-radius: 10px;
         position: absolute;
         top: -16px;
         z-index: 1;
@@ -259,7 +263,7 @@ $glass-bg: rgba(255, 255, 255, 0.6);
     }
 
     .seat-info {
-        font-size: 0.85rem;
+        font-size: 1.2rem;
         
         .seat-available {
             color: $primary;
@@ -301,16 +305,21 @@ $glass-bg: rgba(255, 255, 255, 0.6);
         justify-content: space-between;
         align-items: center;
         
+        
         .seat-type {
-            font-size: 0.8rem;
+            font-size: 1.2rem;
             color: $text-light;
         }
         
         .price {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: $accent;
         }
+    }
+    
+    .price-item + .price-item {
+        border-top: 1px solid #ccc;
     }
 
     .select-button {
@@ -319,7 +328,7 @@ $glass-bg: rgba(255, 255, 255, 0.6);
         border: none;
         border-radius: 12px;
         padding: 0.8rem 1.2rem;
-        font-size: 1rem;
+        font-size: 1.2rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;

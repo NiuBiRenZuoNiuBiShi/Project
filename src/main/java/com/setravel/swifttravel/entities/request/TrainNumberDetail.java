@@ -1,4 +1,4 @@
-package com.setravel.swifttravel.entities;
+package com.setravel.swifttravel.entities.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

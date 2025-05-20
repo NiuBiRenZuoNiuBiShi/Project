@@ -13,24 +13,33 @@
                     v-model:arriveTime="filterForm.arriveTime" />
             </div>
             <div class="list-container">
-                <TrainList @buy-ticket="buyTicket" :filterConditions="filterForm"/>
+                <TrainList @buy-ticket="buyTicket" :filterConditions="filterForm" />
             </div>
         </div>
+
+        <!-- 添加座位选择模态框 -->
+        <SeatSelectionModel v-model:is-visible="seatSelectionVisible" :ticket="selectedTicket" v-if="seatSelectionVisible"
+            @confirm="confirmSeatSelection" />
     </div>
 </template>
-
 <script setup>
 import { ref } from 'vue';
 import QueryTrainTicketFrom from '@/components/QueryTrainTicketFrom.vue';
 import TrainList from '@/components/TrainList.vue';
 import FilterForm from '@/components/FilterForm.vue';
+import SeatSelectionModel from '@/components/SeatSelectionModel.vue'; // 导入座位选择组件
+import { searchTrainTicketsApi, orderTicketApi } from '@/api/TrainTicketApi';
+import { useCarriageStore } from '@/repo/carriageStore';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus'; // 假设使用Element Plus提供消息提示
 
+const carriageStore = useCarriageStore();
+const router = useRouter();
 const filterForm = ref({
     seatType: [],
     departTime: [],
     arriveTime: [],
 });
-
 const searchForm = ref({
     departure: '',
     destination: '',
@@ -39,6 +48,10 @@ const searchForm = ref({
     departureType: '',
     destinationType: ''
 });
+
+// 添加座位选择相关状态
+const seatSelectionVisible = ref(false);
+const selectedTicket = ref(null);
 
 const search = () => {
     searchTrainTicketsApi(searchForm.value)
@@ -55,10 +68,44 @@ const search = () => {
         });
 };
 
+// 修改原来的buyTicket方法，打开座位选择模态框
 const buyTicket = (ticket) => {
-    console.log('购买车票:', ticket);
+    console.log('选择车票:', ticket);
+    selectedTicket.value = ticket;
+    seatSelectionVisible.value = true;
 };
 
+// 确认选座并提交订单
+const confirmSeatSelection = (selectionData) => {
+    console.log('确认选座:', selectionData);
+
+    // 构造订票请求
+    const orderRequest = {
+        ticketId: selectionData.ticket.id,
+        seats: selectionData.selectedSeats,
+        totalPrice: selectionData.totalPrice,
+        departDate: searchForm.value.selectedTime,
+        // 添加是否为中转票信息
+        isTransfer: carriageStore.isTransfer,
+        // 如果是中转票，添加额外信息
+        transferSegment: selectionData.transferSegment
+    };
+
+    // 调用API提交订单
+    orderTicketApi(orderRequest)
+        .then(response => {
+            if (response.data && response.data.code === 200) {
+                ElMessage.success('订票成功！');
+                router.push({ name: 'orders' });
+            } else {
+                ElMessage.error(response.data?.message || '订票失败，请重试');
+            }
+        })
+        .catch(error => {
+            console.error('订票失败:', error);
+            ElMessage.error('订票失败，请检查网络连接或重试');
+        });
+};
 </script>
 
 <style lang="scss" scoped>
@@ -77,10 +124,10 @@ const buyTicket = (ticket) => {
     justify-content: space-between;
     justify-items: start;
     align-items: start;
-    column-gap: 1rem;
+    column-gap: 1.5rem;
     row-gap: 1rem;
 
-    width: 90%;
+    width: 95%;
     margin: 0 auto;
 }
 

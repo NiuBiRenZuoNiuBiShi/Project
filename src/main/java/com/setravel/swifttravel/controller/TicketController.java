@@ -7,6 +7,7 @@ import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Base64;
 import java.util.List;
 
 /**
@@ -94,5 +95,19 @@ public class TicketController {
     @DeleteMapping("/deleteTicketOrder")
     public Result deleteTicketOrder(@RequestParam String orderId) {
         return new Result(200, "成功删除订单", ticketOrdersService.deleteTicketOrder(orderId));
+    }
+
+    
+
+    /**
+     * 获取座位信息
+     * @param trainId 列车ID
+     * @return 座位信息
+     */
+    @GetMapping("/getSeatsInfo")
+    public Result getSeatsInfo(@RequestParam("trainId") String trainId) {
+        System.out.println("trainId = " + trainId);
+        byte[] id =  Base64.getDecoder().decode(trainId);
+        return new Result(200, "成功获取到座位信息", ticketOrdersService.getSeatsInfo(id));
     }
 }
