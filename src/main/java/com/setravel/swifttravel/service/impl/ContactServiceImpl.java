@@ -64,9 +64,9 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public Contacts getContactsByID(Integer contactID) {
+    public Result getContactsByID(String contactID) {
         QueryWrapper<Contacts> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("contact_id", Base64.getDecoder().decode(String.valueOf(contactID))).eq("del", false);
-        return contactsMapper.selectOne(queryWrapper);
+        queryWrapper.eq("contact_id", Base64.getDecoder().decode(contactID)).eq("del", false);
+        return new Result(200, "成功获取到相关数据", contactsMapper.selectOne(queryWrapper));
     }
 }
