@@ -3,14 +3,17 @@ package com.setravel.swifttravel.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.setravel.swifttravel.entities.Carriages;
+import com.setravel.swifttravel.entities.Contacts;
 import com.setravel.swifttravel.entities.Seats;
 import com.setravel.swifttravel.entities.TicketsOrders;
+import com.setravel.swifttravel.mapper.ContactsMapper;
 import com.setravel.swifttravel.mapper.SeatsMapper;
 import com.setravel.swifttravel.mapper.TicketOrdersMapper;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -18,8 +21,15 @@ public class TicketOrdersService {
 
     @Resource
     private TicketOrdersMapper ticketOrdersMapper;
+
     @Autowired
     private SeatsMapper seatsMapper;
+
+    @Resource
+    private CarriagesService carriagesService;
+
+    @Resource
+    private ContactsMapper contactsMapper;
 
     public List<TicketsOrders> getTicketOrders(String userId) {
         QueryWrapper<TicketsOrders> queryWrapper = new QueryWrapper<>();
@@ -98,5 +108,20 @@ public class TicketOrdersService {
         LambdaQueryWrapper<Seats> queryWrapper = new LambdaQueryWrapper<Seats>().eq(Seats::getTrainNumber, trainId)
                 .eq(Seats::getDel, false);
         return seatsMapper.selectList(queryWrapper);
+    }
+    
+    public TicketsOrders makeTicketOrder(Integer carriageID, Integer seatID, Integer contactID) {
+        TicketsOrders ticketOrder = new TicketsOrders();
+        Carriages carriages = carriagesService.getCarriageByTrainId(String.valueOf(carriageID));
+        Contacts contacts = contactsMapper.selectById(contactID);
+        ticketOrder.setContactsId(Base64.getDecoder().decode(String.valueOf(contactID))); // debug
+        ticketOrder.setTrainId(ticketOrder.getTrainId());
+        ticketOrder.setPayId(null);
+        ticketOrder.setContactsId(contacts.getContactId());
+        ticketOrder.setUserId(contacts.getUserId());
+        ticketOrder.setDel(false);
+        ticketOrder.setSeatId(Base64.getDecoder().decode(String.valueOf(seatID)));
+        ticketOrdersMapper.insert(ticketOrder);
+        return ticketOrder;
     }
 }

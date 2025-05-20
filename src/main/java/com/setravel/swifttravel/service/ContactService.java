@@ -14,4 +14,6 @@ public interface ContactService {
     Result deleteContact(Contacts entity);
 
     Result updateContact(Contacts entity);
+
+    Result getContactsByID(String contactId);
 }
