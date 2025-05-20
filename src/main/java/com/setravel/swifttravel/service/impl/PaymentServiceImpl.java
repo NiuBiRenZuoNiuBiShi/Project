@@ -36,8 +36,8 @@ public class PaymentServiceImpl
 
             PaymentRecords record = new PaymentRecords()
                 .setPaymentId(paymentId)
-                .setOrderId(request.getOrderId())
-                .setUserId(request.getUserId())
+                .setOrderId(UUIDUtil.uuidToBytes(UUID.fromString(request.getOrderId())))
+                .setUserId(UUIDUtil.uuidToBytes(UUID.fromString(request.getUserId())))
                 .setPayType(request.getPayType())
                 .setAmount(request.getAmount())
                 .setMethod(request.getMethod())
@@ -70,31 +70,32 @@ public class PaymentServiceImpl
      */
     @Override
     public Result completePay(String id) {
-        try{
+        try {
             UUID uuid = UUID.fromString(id);
             byte[] paymentId = UUIDUtil.uuidToBytes(uuid);
 
-            PaymentRecords record = getById(paymentId);
-            if(record == null){
+            PaymentRecords record = paymentRecordsMapper.findByPaymentId(paymentId);
+
+            if (record == null) {
                 return Result.error("支付记录不存在");
             }
-            if(PaymentRecords.PAY_SUCCESS.equals(record.getStatus())){
+            if (PaymentRecords.PAY_SUCCESS.equals(record.getStatus())) {
                 return Result.success("该订单已完成支付", record);
             }
 
             record.setStatus(PAY_SUCCESS);
             record.setUpdatedTime(LocalDateTime.now());
 
-            boolean updated = updateById(record);
-            if(updated){
+            int result = paymentRecordsMapper.updateById(record);
+            if (result > 0) {
                 return Result.success("支付成功", record);
-            }else{
+            } else {
                 return Result.error("支付记录更新失败");
             }
-        }catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return Result.error("无效的支付 ID");
-        }catch (Exception e){
-            return Result.error("支付异常：", e.getMessage());
+        } catch (Exception e) {
+            return Result.error("支付异常：" + e.getMessage());
         }
     }
 }

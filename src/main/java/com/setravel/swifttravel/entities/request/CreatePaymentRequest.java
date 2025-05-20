@@ -9,8 +9,8 @@ import java.math.BigDecimal;
  */
 @Data
 public class CreatePaymentRequest {
-    private byte[] orderId;
-    private byte[] userId;
+    private String  orderId;
+    private String userId;
     private String payType;     //TICKET  HOTEL  MEAL
     private BigDecimal amount;
     private String method;  //WECHAT  ALIPAY  BANK

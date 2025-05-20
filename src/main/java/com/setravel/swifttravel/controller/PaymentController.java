@@ -30,11 +30,11 @@ public class PaymentController {
 
     /**
      * 完成支付，修改支付状态
-     * @param id
+     * @param paymentId
      * @return
      */
-    @PostMapping("/complete/{id}")
-    public Result completePayment(@PathVariable String id){
-        return paymentService.completePay(id);
+    @PostMapping("/complete/{paymentId}")
+    public Result completePayment(@PathVariable String paymentId){
+        return paymentService.completePay(paymentId);
     }
 }

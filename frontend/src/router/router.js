@@ -37,6 +37,23 @@ const routes = [
         path: '/test',
         name: 'test',
         component: () => import('@/views/TestView.vue')
+    },
+    {
+        path: '/payment/select',
+        name: 'PaymentSelect',
+        component: () => import('@/views/PaymentSelect.vue'),
+        props: route => ({
+            orderId: route.query.orderId,
+            userId: route.query.userId,
+            payType: route.query.payType,
+            amount: parseFloat(route.query.amount)
+        })
+    },
+    {
+        path: '/payment/simulate/:paymentId/:method',
+        name: 'PaymentSimulate',
+        component: () => import('@/views/PaymentSimulate.vue'),
+        props: true
     }
 ];
 
