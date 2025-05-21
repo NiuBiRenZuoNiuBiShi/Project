@@ -100,4 +100,18 @@ ALTER TABLE Carriages
 
 ALTER TABLE carriages
     ADD COLUMN
-        (flag BINARY(8) NOT NULL COMMENT '方便Seats的修改')
+        (flag BINARY(8) NOT NULL COMMENT '方便Seats的修改');
+
+
+ALTER TABLE seats
+    ADD COLUMN
+        (seat_number VARCHAR(10) NOT NULL COMMENT '座位号'
+        );
+
+/*
+2025-05-20
+*/
+ALTER TABLE Carriages
+    ADD COLUMN
+        (version INT NOT NULL DEFAULT 0 COMMENT '乐观锁'
+        );

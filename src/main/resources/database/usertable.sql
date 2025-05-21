@@ -13,3 +13,6 @@ CREATE TABLE Users
     UNIQUE (username),
     UNIQUE (email)
 ) COMMENT '用户表';
+
+ALTER TABLE users
+    MODIFY COLUMN  password CHAR(60) NOT NULL;

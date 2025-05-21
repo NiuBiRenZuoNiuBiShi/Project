@@ -14,7 +14,8 @@
 
         <div class="menu-container">
             <div v-for="(item, index) in menuItems" :key="item.text"
-                :class="['sidebar-item', { active: activeItem === index }]" @click="activateItem(index)">
+                :class="['sidebar-item', { active: activeItem === index }]" 
+                @click.prevent="activateItem(index)">
                 <a :href="item.href">
                     <div class="item-icon">
                         <i :class="item.icon"></i>
@@ -29,10 +30,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
+const route = useRoute();
+const router = useRouter();
 const isExpanded = ref(window.innerWidth > 768);
-const activeItem = ref(0); // 默认值，将在页面加载时更新
+const activeItem = ref(null); // Start with null to avoid initial flashing
+
+const emit = defineEmits(['sidebar-toggle']);
+
+watch(isExpanded, (newValue) => {
+    emit('sidebar-toggle', !newValue);
+});
 
 const toggleSidebar = () => {
     isExpanded.value = !isExpanded.value;
@@ -43,43 +53,122 @@ const expandSidebar = () => {
 };
 
 const activateItem = (index) => {
-    activeItem.value = index;
+    const item = menuItems[index];
+    if (item.href && item.href !== '#') {
+        // Immediately set active item for smoother transition
+        activeItem.value = index;
+        
+        // Use router.push instead of link navigation when possible
+        if (item.href.startsWith('/')) {
+            // Prevent default navigation and use router instead
+            router.push(item.href);
+        }
+    } else {
+        activeItem.value = index;
+    }
+    
     if (!isExpanded.value) isExpanded.value = true;
 };
 
 const menuItems = [
     { icon: 'fa-solid fa-house', text: 'Home', href: '/home' },
-    { icon: 'fa-solid fa-train', text: 'Travel', href: '/search?form=Train' },
+    { icon: 'fa-solid fa-train', text: 'Travel', href: '/search?form=Train'},
     { icon: 'fa-solid fa-hotel', text: 'Hotel', href: '/search?form=Hotel' },
-    { icon: 'fa-solid fa-user', text: 'Profile', href: '#' },
+    { icon: 'fa-solid fa-user', text: 'Profile', href: '/user' },
     { icon: 'fa-solid fa-circle-info', text: 'Support', href: '/home' },
     { icon: 'fa-solid fa-right-from-bracket', text: 'Logout', href: '#' },
 ];
 
-// 更新当前活动项基于当前URL
-const updateActiveItemFromUrl = () => {
-    const currentPath = window.location.pathname;
-    const currentSearch = window.location.search;
-    const fullPath = currentPath + currentSearch;
-    
-    // 查找匹配当前URL的菜单项
-    const index = menuItems.findIndex(item => {
-        // 对于 href 只有 # 的项目，跳过
-        if (item.href === '#') return false;
-        
-        // 如果 href 包含参数，尝试完整匹配
-        if (item.href.includes('?')) {
-            return fullPath === item.href;
+// Enhanced mapping from URL patterns to menu indices
+const urlToMenuItemMap = {
+    // Exact paths
+    'home': 0,
+    'Home': 0,
+    'search': {
+        default: 1,
+        params: {
+            'form=Train': 1,
+            'form=Hotel': 2
         }
-        // 否则只匹配路径部分
-        return currentPath === item.href;
-    });
+    },
+    // Named routes
+    'trains': 1,
+    'orderFood': 1,
+    // Path prefixes (without leading slash)
+    'train': 1,
+    'trainfood': 1
+};
+
+// Update active item based on current route
+const updateActiveItemFromRoute = () => {
+    const currentRouteName = route.name;
+    const currentPath = route.path.toLowerCase(); // Normalize path to lowercase
+    const currentQuery = route.query;
+    let matched = false;
     
-    // 如果找到匹配项，则设置活动项
-    if (index !== -1) {
-        activeItem.value = index;
+    // First check for exact route name matches
+    if (currentRouteName && urlToMenuItemMap[currentRouteName]) {
+        const mapping = urlToMenuItemMap[currentRouteName];
+        
+        // If it's an object with params mapping
+        if (typeof mapping === 'object' && mapping.params) {
+            // Check for query parameters match
+            for (const [paramPattern, menuIndex] of Object.entries(mapping.params)) {
+                const [paramKey, paramValue] = paramPattern.split('=');
+                if (currentQuery[paramKey] === paramValue) {
+                    activeItem.value = menuIndex;
+                    matched = true;
+                    break;
+                }
+            }
+            // If no specific parameter match but has a default
+            if (!matched && mapping.default !== undefined) {
+                activeItem.value = mapping.default;
+                matched = true;
+            }
+        } else {
+            // Direct numeric index
+            activeItem.value = mapping;
+            matched = true;
+        }
+    }
+    
+    // If no match by route name, check path prefixes
+    if (!matched) {
+        // Sort path prefixes by length (descending) for more specific matches first
+        const pathPrefixes = Object.keys(urlToMenuItemMap)
+            .filter(key => typeof urlToMenuItemMap[key] === 'number')
+            .sort((a, b) => b.length - a.length);
+            
+        for (const prefix of pathPrefixes) {
+            // Skip entries that are likely route names (e.g., 'home', 'search')
+            if (prefix === 'home' || prefix === 'Home' || prefix === 'search') continue;
+            
+            // Check if the current path contains this prefix
+            if (currentPath.includes(prefix.toLowerCase())) {
+                activeItem.value = urlToMenuItemMap[prefix];
+                matched = true;
+                break;
+            }
+        }
+    }
+    
+    // Default to Home if no match is found
+    if (!matched) {
+        activeItem.value = 0;
     }
 };
+
+// Immediate route matching on component creation
+updateActiveItemFromRoute();
+
+// Watch for route changes to update active item
+// Use { immediate: true } to run it immediately
+watch(() => route.fullPath, () => {
+    nextTick(() => {
+        updateActiveItemFromRoute();
+    });
+}, { immediate: true });
 
 const handleResize = () => {
     if (window.innerWidth <= 768) isExpanded.value = false;
@@ -87,23 +176,14 @@ const handleResize = () => {
 };
 
 onMounted(() => {
-    // 页面加载时更新活动项
-    updateActiveItemFromUrl();
+    // Update active item on page load
+    updateActiveItemFromRoute();
     
     window.addEventListener('resize', handleResize);
-    
-    // 监听路由变化（如果使用了Vue Router）
-    if (window.history && window.history.pushState) {
-        window.addEventListener('popstate', updateActiveItemFromUrl);
-    }
 });
 
 onBeforeUnmount(() => {
     window.removeEventListener('resize', handleResize);
-    
-    if (window.history && window.history.pushState) {
-        window.removeEventListener('popstate', updateActiveItemFromUrl);
-    }
 });
 </script>
 
@@ -124,7 +204,8 @@ $shadow: rgba(50, 112, 233, 0.08);
 
 .side-bar-container {
     width: 240px;
-    height: 100vh;
+    height: 100%;
+    min-height: 100vh;
     background-color: $bg;
     color: $text;
     box-shadow: 2px 0 15px $shadow;
@@ -133,7 +214,7 @@ $shadow: rgba(50, 112, 233, 0.08);
     display: flex;
     flex-direction: column;
     border-right: 1px solid $border;
-    position: sticky;
+    position: fixed;
     top: 0;
     left: 0;
 
@@ -296,10 +377,7 @@ $shadow: rgba(50, 112, 233, 0.08);
 @media (max-width: 768px) {
     .side-bar-container {
         position: fixed;
-        z-index: 999;
-        height: 100vh;
-        left: 0;
-        top: 0;
+        z-index: 10;
     }
 }
 </style>
