@@ -1,6 +1,7 @@
 package com.setravel.swifttravel.utils;
 
 import java.nio.ByteBuffer;
+import java.util.Base64;
 import java.util.UUID;
 
 public class UUIDUtil {
@@ -27,5 +28,18 @@ public class UUIDUtil {
         buffer.putLong(uuid.getMostSignificantBits());
         buffer.putLong(uuid.getLeastSignificantBits());
         return buffer.array();
+    }
+
+    /*
+     * 用于byte[]和string之间的转换
+     */
+    public static String bytesToString(byte[] idBytes) {
+        if (idBytes == null) return null;
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(idBytes);
+    }
+
+    public static byte[] StringToBytes(String idString) {
+        if (idString == null || idString.isEmpty()) return null;
+        return Base64.getUrlDecoder().decode(idString);
     }
 }

@@ -3,6 +3,7 @@ package com.setravel.swifttravel.entities;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.Version;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,6 +49,16 @@ public class Room extends Model<Room> {
     @TableField("availability")
     private Boolean availability;
 
+    @TableField("capacity")
+    private int capacity;
+
+    @Version
+    @TableField("version")
+    private Integer version;
+
+    @TableField("current_reservation_id")
+    private byte[] current_reservation_id;
+
     @TableField("del")
     private Boolean del;
 
@@ -62,6 +73,12 @@ public class Room extends Model<Room> {
     public static final String ROOM_DATE = "room_date";
 
     public static final String AVAILABILITY = "availability";
+
+    public static final String CAPACITY = "capacity";
+
+    public static final String VERSION = "version";
+
+    public static final String CURRENT_RESERVATION_ID = "current_reservation_id";
 
     public static final String DEL = "del";
 
