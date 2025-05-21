@@ -82,10 +82,10 @@ const isSelected = (date) => {
       position: absolute;
       left: 15px;
       top: 50%;
-      transform: translateY(-60%);
+      transform: translateY(-50%);
       color: #3498db;
       z-index: 1;
-      font-size: 3rem;
+      font-size: 2rem;
     }
 
     .date-input {
@@ -134,7 +134,7 @@ const isSelected = (date) => {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
-    margin-top: 0.5rem;
+    margin-top: 1rem;
 
     span {
       padding: 0.3rem 0.8rem;

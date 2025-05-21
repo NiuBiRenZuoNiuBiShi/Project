@@ -39,6 +39,11 @@ const routes = [
         component: () => import('@/views/TestView.vue')
     },
     {
+        path: '/user',
+        name: 'user',
+        component: () => import('@/views/UserManagementView.vue')
+    },
+    {
         path: '/payment/select',
         name: 'PaymentSelect',
         component: () => import('@/views/PaymentSelect.vue'),
@@ -54,7 +59,7 @@ const routes = [
         name: 'PaymentSimulate',
         component: () => import('@/views/PaymentSimulate.vue'),
         props: true
-    }
+    },
 ];
 
 const router = createRouter({

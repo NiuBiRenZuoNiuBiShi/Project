@@ -3,25 +3,10 @@ spring:
     name: SwiftTravel
 
   datasource:
-    url: jdbc:mysql://localhost:3306/swift_travel?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
-    username: root # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
-    password: yangxin0160307 # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
+    url: jdbc:mysql://localhost:3306/swift_travel?useSSL=false&serverTimezone=UTC
+    username: ${SWIFT_TRAVEL_DB_USERNAME} # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
+    password: ${SWIFT_TRAVEL_DB_PASSWORD} # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
     driver-class-name: com.mysql.cj.jdbc.Driver
-
-  mybatis-plus:
-    configuration:
-      map-underscore-to-camel-case: true
-
-    global-config:
-      enable-sql-runner: true
-      db-config:
-        logic-delete-field: deleted
-        logic-delete-value: 1
-        logic-not-delete-value: 0
-        table-prefix: swift_travel_
-
-    mapper-locations: classpath*:mapper/**/*.xml
-    typeAliasesPackage: com.setravel.swifttravel.entities
 
 
   data:
@@ -30,3 +15,45 @@ spring:
       port: 6379
       password: ""
 
+  mail:
+    protocol: smtp
+    default-encoding: UTF-8
+    host: smtp.163.com
+    username: ${SWIFT_TRAVEL_EMAIL_USERNAME} # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
+    password: ${SWIFT_TRAVEL_EMAIL_AUTHCODE} # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 3000
+          timeout: 3000
+          writetimeout: 5000
+
+server:
+  port: 8080
+  # ssl: 
+  #   enabled: true
+  #   key-store: classpath:keystore.p12
+  #   key-store-password: SwiftTravel
+  #   key-store-type: PKCS12
+  #   key-alias: SSLKEY
+
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+
+  global-config:
+    enable-sql-runner: true
+    db-config:
+      id-type: input
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      table-prefix: swift_travel_
+
+  mapper-locations: classpath*:mapper/**/*.xml
+  typeAliasesPackage: com.setravel.swifttravel.entities
