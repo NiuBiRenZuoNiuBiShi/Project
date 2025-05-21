@@ -106,7 +106,10 @@ public class CarriagesService {
     
     public CarriageThrough carriages2carriageThrough(Carriages carriages) {
         CarriageThrough carriageThrough = new CarriageThrough();
-        carriageThrough.setId(carriages.getId());
+        carriageThrough.setId(Base64.getEncoder().encodeToString(carriages.getId()));
+        carriageThrough.setTrainNumberId(Base64.getEncoder().encodeToString( carriages.getTrainNumber()));
+        carriageThrough.setCarriageId(Base64.getEncoder().encodeToString(carriages.getId()));
+        carriageThrough.setFlag(Base64.getEncoder().encodeToString(carriages.getFlag()));
         carriageThrough.setDepCity(carriages.getDepCity());
         carriageThrough.setArrCity(carriages.getArrCity());
         carriageThrough.setDepTime(carriages.getDepTime());

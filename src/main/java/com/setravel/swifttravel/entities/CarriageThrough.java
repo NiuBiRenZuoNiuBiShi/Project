@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class CarriageThrough {
-    private byte[] id; // 车次ID
+    private String id; // 车次ID
 
     private LocalDateTime depTime; // 出发时间
 
@@ -29,7 +29,13 @@ public class CarriageThrough {
 
     private String trainNumber; // 车次号
 
+    private String trainNumberId;
+
+    private String carriageId; 
+
     private LocalDate costTime; // 车程时长
+
+    private String flag;
 
     private Integer secondNumber; // 二等座数量 (慢车硬座)
 

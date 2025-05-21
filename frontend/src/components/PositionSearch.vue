@@ -5,16 +5,10 @@
       <div class="icon-left">
         <i class="fas fa-map-marker-alt"></i>
       </div>
-      <input 
-        type="text" 
-        class="input" 
-        id="input" 
-        :placeholder="placeholder" 
-        v-model="inputValue" 
-        @input="handleSearch"
-        @focus="showSearchResult = true"
-        @blur="handleBlur"
-      />
+      <input type="text" class="input"
+        :class="{ 'input-right': selectedType && selectedItem, 'input-error': !selectedType && !selectedItem && hasSelected }"
+        id="input" :placeholder="placeholder" v-model="inputValue" @input="handleSearch"
+        @focus="showSearchResult = true" @blur="handleBlur" />
       <div class="selection-badge" v-if="selectedType">
         <i :class="selectedType === 'city' ? 'fas fa-city' : 'fas fa-train'"></i>
         <span>{{ selectedType === 'city' ? '城市' : '车站' }}</span>
@@ -27,26 +21,18 @@
       <!-- 城市搜索结果 -->
       <div v-if="cityResults.length > 0" class="result-category">
         <div class="category-title">城市</div>
-        <div 
-          class="search-result-item" 
-          v-for="(item, index) in cityResults" 
-          :key="`city-${index}`" 
-          @mousedown.prevent="selectItem(item, 'city')"
-        >
+        <div class="search-result-item" v-for="(item, index) in cityResults" :key="`city-${index}`"
+          @mousedown.prevent="selectItem(item, 'city')">
           <i class="fas fa-city"></i>
           <span>{{ item.cityName }}</span>
         </div>
       </div>
-      
+
       <!-- 车站搜索结果 -->
       <div v-if="stationResults.length > 0" class="result-category">
         <div class="category-title">车站</div>
-        <div 
-          class="search-result-item" 
-          v-for="(item, index) in stationResults" 
-          :key="`station-${index}`" 
-          @mousedown.prevent="selectItem(item, 'station')"
-        >
+        <div class="search-result-item" v-for="(item, index) in stationResults" :key="`station-${index}`"
+          @mousedown.prevent="selectItem(item, 'station')">
           <i class="fas fa-train"></i>
           <span>{{ item.stationName }}</span>
         </div>
@@ -66,11 +52,13 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: '请输入城市或车站'
+    default: '请输入城市或车站然后在下方选择'
   }
 });
 
 // 使用 defineModel
+const hasSelected = ref(false);
+
 const inputValue = defineModel('modelValue');
 const selectedItem = defineModel('selectedItem', { default: null });
 const selectedType = defineModel('selectedType', { default: '' });
@@ -84,23 +72,25 @@ const searchTimeout = ref(null);
 
 // 搜索城市和车站
 const handleSearch = async () => {
+  selectedItem.value = null;
+  selectedType.value = '';
   // 清除之前的延时
   if (searchTimeout.value) {
     clearTimeout(searchTimeout.value);
   }
-  
+
   // 如果输入为空，清空结果
   if (!inputValue.value || inputValue.value.trim() === '') {
     cityResults.value = [];
     stationResults.value = [];
     return;
   }
-  
+
   // 设置延时，防止频繁请求
   searchTimeout.value = setTimeout(async () => {
     try {
       isLoading.value = true;
-      
+
       // 并行请求城市和车站数据
       const [cityResponse, stationResponse] = await Promise.all([
         axios.get('/api/city/search', {
@@ -114,7 +104,7 @@ const handleSearch = async () => {
           }
         })
       ]);
-      
+
       cityResults.value = cityResponse.data.data || [];
       stationResults.value = stationResponse.data.data || [];
       showSearchResult.value = true;
@@ -153,10 +143,10 @@ const selectItem = (item, type) => {
     inputValue.value = item.stationName;
     selectedItem.value = item.stationName;
   }
-  
+  hasSelected.value = true;
   selectedType.value = type;
   // console.log(selectedType.value); Good
-  
+
   showSearchResult.value = false;
 };
 
@@ -167,7 +157,7 @@ const loadInitialData = async () => {
       axios.get('/api/city/search', { params: { input: '' } }),
       axios.get('/api/station/search', { params: { input: '' } })
     ]);
-    
+
     cityResults.value = cityResponse.data.data || [];
     stationResults.value = stationResponse.data.data || [];
   } catch (error) {
@@ -225,6 +215,16 @@ loadInitialData();
         box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
       }
 
+      &.input-right {
+        border-color: #74b816;
+        box-shadow: 0 0 0 3px rgba(116, 184, 22, 0.2);
+      }
+
+      &.input-error {
+        border-color: #e74c3c;
+        box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
+      }
+
       &::placeholder {
         color: #aaa;
         font-size: 1.5rem;
@@ -245,7 +245,7 @@ loadInitialData();
       border-radius: 12px;
       font-size: 0.8rem;
       color: #1890ff;
-      
+
       i {
         margin-right: 4px;
         font-size: 0.9rem;

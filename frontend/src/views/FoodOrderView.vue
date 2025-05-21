@@ -52,7 +52,7 @@
 import { ref, computed } from 'vue';
 import FoodItem from '@/components/FoodItem.vue';
 import ShoppingCartSummary from '@/components/ShoppingCartSummary.vue';
-import foodImageUrl from '@/assets/pic/food/anh-nguyen-kcA-c3f_3FE-unsplash.jpg';
+import foodImageUrl from '@/assets/pic/food/FoodItem.webp'; // 假设图片路径
 
 const foodItems = ref([
     { foodPic: foodImageUrl, foodName: '精选沙拉', foodPrice: 38.00, count: 0, description: '新鲜蔬菜配以特制酱料', tag: '健康' },

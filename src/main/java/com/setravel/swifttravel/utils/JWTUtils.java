@@ -6,13 +6,21 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Date;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Utility class for JWT token operations such as generation, verification,
+ * renewal, and blacklisting.
+ * 
+ * @author SwiftTravel
+ */
 @Component
+@Slf4j
 public class JWTUtils {
-    private static final String SECRET_KEY = "your-secret-key";
+    private static final String SECRET_KEY = "your-secret-key"; // Consider moving to configuration
     private static final long EXPIRE_TIME = 86400000; // 1 day in milliseconds
     private static final String TOKEN_BLACKLIST_PREFIX = "blacklist:";
     private static final long RENEWAL_THRESHOLD = 600000L; // 续签阈值，10分钟（单位：毫秒）
@@ -24,103 +32,145 @@ public class JWTUtils {
     }
 
     /**
-     * 生成JWT Token
+     * Generates a JWT Token
      * <p>
-     * 该方法根据用户名生成一个JWT Token，并设置有效期为1天。 使用HMAC256算法加密Token，并将用户名作为Subject保存到Token中。
+     * This method generates a JWT Token based on the username with a validity period of 1 day.
+     * It uses the HMAC256 algorithm for encryption and stores the username as the Subject in the Token.
      *
-     * @param username 用户名
-     * @return 生成的JWT Token
+     * @param username The username
+     * @return The generated JWT Token
      */
     public String generateToken(String username) {
-        Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
-        return JWT.create().withSubject(username).withIssuedAt(new Date(System.currentTimeMillis()))
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME)).sign(algorithm);
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
+            return JWT.create()
+                    .withSubject(username)
+                    .withIssuedAt(new Date(System.currentTimeMillis()))
+                    .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME))
+                    .sign(algorithm);
+        } catch (Exception e) {
+            log.error("Error generating JWT token: {}", e.getMessage(), e);
+            throw new RuntimeException("Could not generate token", e);
+        }
     }
 
     /**
-     * 验证JWT Token的合法性
+     * Verifies the validity of a JWT Token
      * <p>
-     * 该方法验证传入的Token是否为空，并检查Token是否在黑名单中。如果Token合法，则返回true，否则返回false。
+     * This method checks if the provided Token is empty and if it's on the blacklist.
+     * If the Token is valid, it returns true; otherwise, it returns false.
      *
-     * @param token JWT Token
-     * @return 如果Token合法，则返回true，否则返回false
+     * @param token The JWT Token
+     * @return True if the Token is valid, false otherwise
      */
     public boolean verifyToken(String token) {
-        if (token.isEmpty() || isTokenInBlockList(token)) {
+        if (token == null || token.isEmpty() || isTokenInBlockList(token)) {
             return false;
         }
         try {
             decodeToken(token);
             return true;
         } catch (Exception e) {
+            log.warn("Invalid token encountered: {}", e.getMessage());
             return false;
         }
     }
 
     /**
-     * 检查JWT Token是否快过期，并进行续签
+     * Checks if a JWT Token is about to expire and renews it if necessary
      * <p>
-     * 该方法检查传入的Token是否接近过期（距离过期时间小于10分钟）。如果是，则生成一个新的Token并返回， 否则返回原始Token。
+     * This method checks if the provided Token is close to expiration (less than 10 minutes remaining).
+     * If it is, a new Token is generated and returned; otherwise, the original Token is returned.
      *
-     * @param token JWT Token
-     * @return 返回一个Pair，包含新的Token（如果需要续签），以及是否进行续签的标志
+     * @param token The JWT Token
+     * @return A Pair containing the new Token (if renewal is needed) and a flag indicating whether a renewal occurred
      */
     public Pair<String, Boolean> renewTokenIfNecessary(String token) {
-        DecodedJWT decodedJWT = decodeToken(token);
-        long expirationTime = decodedJWT.getExpiresAt().getTime();
-        long currentTime = System.currentTimeMillis();
+        try {
+            DecodedJWT decodedJWT = decodeToken(token);
+            long expirationTime = decodedJWT.getExpiresAt().getTime();
+            long currentTime = System.currentTimeMillis();
 
-        // 如果距离过期时间小于续签阈值，进行续签
-        if (expirationTime - currentTime < RENEWAL_THRESHOLD) {
-            String username = decodedJWT.getSubject();
-            return Pair.of(generateToken(username), true); // 生成新的Token
+            // Renew if expiration time is less than the threshold
+            if (expirationTime - currentTime < RENEWAL_THRESHOLD) {
+                String username = decodedJWT.getSubject();
+                return Pair.of(generateToken(username), true); // Generate new Token
+            }
+            return Pair.of(token, false); // No renewal needed, return original Token
+        } catch (Exception e) {
+            log.error("Error while checking token for renewal: {}", e.getMessage(), e);
+            return Pair.of(token, false); // Return original token on error
         }
-        return Pair.of(token, false); // 不需要续签，返回原始Token
     }
 
     /**
-     * 将Token添加到黑名单
+     * Adds a Token to the blacklist
      * <p>
-     * 该方法将传入的Token存储到Redis的黑名单中，设置过期时间为1天。
+     * This method stores the provided Token in the Redis blacklist with an expiration of 1 day.
+     * Making this method public to be accessible from service layer.
      *
-     * @param token JWT Token
+     * @param token The JWT Token to blacklist
      */
-    @SuppressWarnings("unused")
-    private void addTokenToBlockList(String token) {
-        redisTemplate.opsForValue().set(TOKEN_BLACKLIST_PREFIX + token, "true", EXPIRE_TIME, TimeUnit.MILLISECONDS);
+    public void addTokenToBlockList(String token) {
+        try {
+            // Extract expiration time from token to set appropriate TTL
+            DecodedJWT jwt = JWT.decode(token);
+            long expiresAt = jwt.getExpiresAt().getTime();
+            long currentTime = System.currentTimeMillis();
+            long ttl = Math.max(1, (expiresAt - currentTime) / 1000); // Convert to seconds, minimum 1 second
+            
+            redisTemplate.opsForValue().set(TOKEN_BLACKLIST_PREFIX + token, "true", ttl, TimeUnit.SECONDS);
+            log.debug("Token added to blacklist with TTL: {} seconds", ttl);
+        } catch (Exception e) {
+            log.error("Error adding token to blacklist: {}", e.getMessage(), e);
+            // Still try to add with default expiry if decoding fails
+            redisTemplate.opsForValue().set(TOKEN_BLACKLIST_PREFIX + token, "true", EXPIRE_TIME, TimeUnit.MILLISECONDS);
+        }
     }
 
     /**
-     * 检查Token是否在黑名单中
+     * Checks if a Token is in the blacklist
      * <p>
-     * 该方法检查传入的Token是否存在于Redis的黑名单中。
+     * This method checks if the provided Token exists in the Redis blacklist.
      *
-     * @param token JWT Token
-     * @return 如果Token在黑名单中，则返回true，否则返回false
+     * @param token The JWT Token
+     * @return True if the Token is in the blacklist, false otherwise
      */
     private boolean isTokenInBlockList(String token) {
-        return redisTemplate.hasKey(TOKEN_BLACKLIST_PREFIX + token);
+        try {
+            Boolean hasKey = redisTemplate.hasKey(TOKEN_BLACKLIST_PREFIX + token);
+            return hasKey != null && hasKey;
+        } catch (Exception e) {
+            log.error("Error checking token in blacklist: {}", e.getMessage(), e);
+            return false; // Assume token is valid if Redis check fails
+        }
     }
 
     /**
-     * 从JWT Token中获取用户名
+     * Extracts the username from a JWT Token
      * <p>
-     * 该方法解析JWT Token并提取其中的用户名（Subject）。
+     * This method decodes the JWT Token and extracts the username (Subject).
      *
-     * @param token JWT Token
-     * @return 从Token中提取的用户名
+     * @param token The JWT Token
+     * @return The username extracted from the Token
      */
     public String getUsernameByToken(String token) {
-        return JWT.decode(token).getSubject();
+        try {
+            return JWT.decode(token).getSubject();
+        } catch (Exception e) {
+            log.error("Error extracting username from token: {}", e.getMessage(), e);
+            return null;
+        }
     }
 
     /**
-     * 解码JWT Token
+     * Decodes and verifies a JWT Token
      * <p>
-     * 该方法使用HMAC256算法解码并验证JWT Token。如果Token无效或过期，将抛出异常。
+     * This method uses the HMAC256 algorithm to decode and verify the JWT Token.
+     * If the Token is invalid or expired, an exception is thrown.
      *
-     * @param token JWT Token
-     * @return 解码后的DecodedJWT对象
+     * @param token The JWT Token
+     * @return The decoded JWT object
      */
     private DecodedJWT decodeToken(String token) {
         return JWT.require(Algorithm.HMAC256(SECRET_KEY)).build().verify(token);

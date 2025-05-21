@@ -3,9 +3,8 @@ package com.setravel.swifttravel.entities;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.annotation.Version;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.setravel.swifttravel.mapper.TrainNumberMapper;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -125,6 +124,10 @@ public class Carriages extends Model<Carriages> {
     private byte[] flag;
     @TableField("del")
     private Boolean del;
+
+    @TableField("version")
+    @Version
+    private Integer version;
 
     public static final String ID = "id";
 

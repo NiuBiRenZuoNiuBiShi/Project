@@ -616,7 +616,7 @@ section {
   position: absolute;
   width: 100%;
   height: 100%;
-  background-image: url('https://images.unsplash.com/photo-1600859747268-54c7e693c327?q=80&w=2127&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+  background-image: url('@/assets/pic/HeroImage.avif');
   background-size: cover;
   background-position: center;
   border-radius: 30px;
@@ -812,7 +812,7 @@ section {
     &:hover .card-icon-wrapper {
       transform: scale(1.1);
       i {
-        animation: flight-animation 2s infinite ease-in-out;
+        animation: flight-animation 2s infinite linear;
       }
     }
   }

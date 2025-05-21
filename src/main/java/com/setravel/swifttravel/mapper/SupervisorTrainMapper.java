@@ -1,7 +1,8 @@
 package com.setravel.swifttravel.mapper;
 
 import com.setravel.swifttravel.entities.City;
-import com.setravel.swifttravel.entities.TrainNumberDetail;
+import com.setravel.swifttravel.entities.request.TrainNumberDetail;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

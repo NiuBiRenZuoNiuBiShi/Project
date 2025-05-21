@@ -74,7 +74,7 @@ const menuItems = [
     { icon: 'fa-solid fa-house', text: 'Home', href: '/home' },
     { icon: 'fa-solid fa-train', text: 'Travel', href: '/search?form=Train'},
     { icon: 'fa-solid fa-hotel', text: 'Hotel', href: '/search?form=Hotel' },
-    { icon: 'fa-solid fa-user', text: 'Profile', href: '#' },
+    { icon: 'fa-solid fa-user', text: 'Profile', href: '/user' },
     { icon: 'fa-solid fa-circle-info', text: 'Support', href: '/home' },
     { icon: 'fa-solid fa-right-from-bracket', text: 'Logout', href: '#' },
 ];

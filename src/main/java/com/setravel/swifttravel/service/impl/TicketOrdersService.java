@@ -1,5 +1,6 @@
 package com.setravel.swifttravel.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.setravel.swifttravel.entities.Carriages;
 import com.setravel.swifttravel.entities.Contacts;
@@ -32,8 +33,7 @@ public class TicketOrdersService {
 
     public List<TicketsOrders> getTicketOrders(String userId) {
         QueryWrapper<TicketsOrders> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_id", userId)
-                .eq("del", false) // 查询未删除的记录
+        queryWrapper.eq("user_id", userId).eq("del", false) // 查询未删除的记录
                 .orderByAsc("dep_date"); // 按照出发时间升序排列
 
         return ticketOrdersMapper.selectList(queryWrapper);
@@ -41,13 +41,13 @@ public class TicketOrdersService {
 
     /**
      * 根据订单ID删除相应订单（数据同步Seats Carriages）
+     * 
      * @param orderId
      * @return
      */
     public Object deleteTicketOrder(String orderId) {
         QueryWrapper<TicketsOrders> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("id", orderId)
-                .eq("del", false); // 查询未删除的记录
+        queryWrapper.eq("id", orderId).eq("del", false); // 查询未删除的记录
         TicketsOrders ticketOrder = ticketOrdersMapper.selectOne(queryWrapper);
         if (ticketOrder != null) {
             ticketOrder.setDel(true);
@@ -57,37 +57,35 @@ public class TicketOrdersService {
             String trainId = new String(ticketOrder.getTrainId()); // debug
             // 然后通过车次ID查询到对应的车厢信息
             QueryWrapper<Carriages> carriagesQueryWrapper = new QueryWrapper<>();
-            carriagesQueryWrapper.eq("train_id", trainId)
-                    .eq("del", false); // 查询未删除的记录
+            carriagesQueryWrapper.eq("train_id", trainId).eq("del", false); // 查询未删除的记录
             CarriagesService carriagesService = new CarriagesService();
             Carriages carriage = carriagesService.getCarriageByTrainId(trainId);
             if (carriage != null) {
                 carriage.setAllNumber(carriage.getAllNumber() + 1);
                 // 获取座位类型
                 QueryWrapper<Seats> seatsQueryWrapper = new QueryWrapper<>();
-                seatsQueryWrapper.eq("id", ticketOrder.getSeatId())
-                        .eq("del", false); // 查询未删除的记录
+                seatsQueryWrapper.eq("id", ticketOrder.getSeatId()).eq("del", false); // 查询未删除的记录
                 Seats seat = seatsMapper.selectOne(seatsQueryWrapper); // debug
                 if (seat != null) {
                     // 更新座位状态
-                    seat.setFlags(new byte[]{0}); // 0表示可用
+                    seat.setFlags(new byte[] { 0 }); // 0表示可用
                     seatsMapper.updateById(seat);
                     // 更新车厢信息
                     String seatType = seat.getSeatType();
                     if (seatType != null) {
                         switch (seatType) {
-                            case "一等座":
-                                carriage.setFirstNumber(carriage.getFirstNumber() + 1);
-                                break;
-                            case "二等座":
-                                carriage.setSecondNumber(carriage.getSecondNumber() + 1);
-                                break;
-                            case "商务座":
-                                carriage.setBusinessNumber(carriage.getBusinessNumber() + 1);
-                                break;
-                            case "无座":
-                                carriage.setNoSeatNumber(carriage.getNoSeatNumber() + 1);
-                                break;
+                        case "一等座":
+                            carriage.setFirstNumber(carriage.getFirstNumber() + 1);
+                            break;
+                        case "二等座":
+                            carriage.setSecondNumber(carriage.getSecondNumber() + 1);
+                            break;
+                        case "商务座":
+                            carriage.setBusinessNumber(carriage.getBusinessNumber() + 1);
+                            break;
+                        case "无座":
+                            carriage.setNoSeatNumber(carriage.getNoSeatNumber() + 1);
+                            break;
                         }
                     }
                 }
@@ -100,6 +98,18 @@ public class TicketOrdersService {
         }
     }
 
+    /**
+     * 获取座位信息
+     * 
+     * @param trainId 列车ID
+     * @return 座位信息列表
+     */
+    public List<Seats> getSeatsInfo(byte[] trainId) {
+        LambdaQueryWrapper<Seats> queryWrapper = new LambdaQueryWrapper<Seats>().eq(Seats::getTrainNumber, trainId)
+                .eq(Seats::getDel, false);
+        return seatsMapper.selectList(queryWrapper);
+    }
+    
     public TicketsOrders makeTicketOrder(Integer carriageID, Integer seatID, Integer contactID) {
         TicketsOrders ticketOrder = new TicketsOrders();
         Carriages carriages = carriagesService.getCarriageByTrainId(String.valueOf(carriageID));

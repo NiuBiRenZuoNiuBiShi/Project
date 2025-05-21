@@ -13,24 +13,37 @@
                     v-model:arriveTime="filterForm.arriveTime" />
             </div>
             <div class="list-container">
-                <TrainList @buy-ticket="buyTicket" :filterConditions="filterForm"/>
+                <TrainList @buy-ticket="buyTicket" :filterConditions="filterForm" />
             </div>
         </div>
+
+        <!-- 添加座位选择模态框 -->
+        <SeatSelectionModel v-model:is-visible="seatSelectionVisible" :ticket="selectedTicket" v-if="seatSelectionVisible"
+            @confirm="onSeatSelectionConfirm" />
+
+        <ContactSelection v-model:is-visible="contactSelectionVisible" :ticket="selectedTicket" 
+            v-if="contactSelectionVisible" @confirm="onContactSelectionConfirm" />
     </div>
 </template>
-
 <script setup>
 import { ref } from 'vue';
 import QueryTrainTicketFrom from '@/components/QueryTrainTicketFrom.vue';
 import TrainList from '@/components/TrainList.vue';
 import FilterForm from '@/components/FilterForm.vue';
+import SeatSelectionModel from '@/components/SeatSelectionModel.vue'; // 导入座位选择组件
+import ContactSelection from '@/components/ContactSelection.vue'; // 导入联系人选择组件
+import { searchTrainTicketsApi, orderTicketApi } from '@/api/TrainTicketApi';
+import { useCarriageStore } from '@/repo/carriageStore';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus'; 
 
+const carriageStore = useCarriageStore();
+const router = useRouter();
 const filterForm = ref({
     seatType: [],
     departTime: [],
     arriveTime: [],
 });
-
 const searchForm = ref({
     departure: '',
     destination: '',
@@ -39,6 +52,13 @@ const searchForm = ref({
     departureType: '',
     destinationType: ''
 });
+
+// 添加座位选择相关状态
+const seatSelectionVisible = ref(false);
+const selectedTicket = ref(null);
+const seatSelectionData = ref(null);
+
+const contactSelectionVisible = ref(false);
 
 const search = () => {
     searchTrainTicketsApi(searchForm.value)
@@ -56,9 +76,52 @@ const search = () => {
 };
 
 const buyTicket = (ticket) => {
-    console.log('购买车票:', ticket);
+    console.log('选择车票:', ticket);
+    selectedTicket.value = ticket;
+    seatSelectionVisible.value = true;
 };
 
+// 座位选择确认处理
+const onSeatSelectionConfirm = (selectionData) => {
+    console.log('座位选择确认:', selectionData);
+    seatSelectionData.value = selectionData; // 保存座位选择结果
+    seatSelectionVisible.value = false;      // 关闭座位选择模态框
+    contactSelectionVisible.value = true;    // 显示联系人选择模态框
+};
+
+// 联系人选择确认处理
+const onContactSelectionConfirm = (data) => {
+    console.log('联系人选择确认:', data);
+    contactSelectionVisible.value = false;
+    
+    // 构造最终的订票请求
+    const orderRequest = {
+        carriageId: seatSelectionData.value.ticket.carriageId,
+        seatIdList: seatSelectionData.value.selectedSeats,
+        totalPrice: seatSelectionData.value.totalPrice,
+        // 添加是否为中转票信息
+        isTransfer: carriageStore.isTransfer,
+        // 如果是中转票，添加额外信息
+        transferSegment: seatSelectionData.value.transferSegment,
+        // 添加联系人信息
+        contactIdList: [data.contact.contactId]
+    };
+    
+    // 调用API提交订单
+    orderTicketApi(orderRequest)
+        .then(response => {
+            if (response.data && response.data.code === 200) {
+                ElMessage.success('订票成功！');
+                router.push({ name: 'orders' });
+            } else {
+                ElMessage.error(response.data?.message || '订票失败，请重试');
+            }
+        })
+        .catch(error => {
+            console.error('订票失败:', error);
+            ElMessage.error('订票失败，请检查网络连接或重试');
+        });
+};
 </script>
 
 <style lang="scss" scoped>
@@ -77,10 +140,10 @@ const buyTicket = (ticket) => {
     justify-content: space-between;
     justify-items: start;
     align-items: start;
-    column-gap: 1rem;
+    column-gap: 1.5rem;
     row-gap: 1rem;
 
-    width: 90%;
+    width: 95%;
     margin: 0 auto;
 }
 

@@ -3,8 +3,8 @@ package com.setravel.swifttravel.controller;
 import com.setravel.swifttravel.entities.City;
 import com.setravel.swifttravel.entities.Result;
 import com.setravel.swifttravel.entities.Station;
-import com.setravel.swifttravel.entities.TrainNumberDetail;
 import com.setravel.swifttravel.entities.request.AddStationsRequest;
+import com.setravel.swifttravel.entities.request.TrainNumberDetail;
 import com.setravel.swifttravel.service.SupervisorTrainService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,10 +21,6 @@ import java.util.List;
  */
 @RestController
 public class SupervisorTrainController {
-
-    public SupervisorTrainController() {
-        System.out.println("SupervisorTrainController 初始化了！");
-    }
 
     @Resource
     SupervisorTrainService supervisorTrainService;

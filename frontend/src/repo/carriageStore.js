@@ -1,5 +1,7 @@
+import { base64ToArray } from "@/utils/trans";
 import { defineStore } from "pinia";
 import { ref } from "vue";
+
 
 export const useCarriageStore = defineStore("carriage", () => {
     const carriages = ref([]);
@@ -79,12 +81,18 @@ export const useCarriageStore = defineStore("carriage", () => {
                     departTime: formatTimeStr(carriage.depTimeStart),
                     midArriveTime: formatTimeStr(carriage.arrTimeMiddle),
                     departStation: carriage.depStation,
-                    midStation1: carriage.midStation1,
+                    midStation: carriage.midStation1,
+                    trainNumber: carriage.trainNumber1,
+                    trainNumberId: carriage.trainNumberId1,
+                    carriageId1: carriage.carriageId1,
                     // 第二段行程信息
                     midDepartTime: formatTimeStr(carriage.depTimeMiddle),
                     arriveTime: formatTimeStr(carriage.arrTimeEnd),
                     midStation2: carriage.midStation2,
                     arriveStation: carriage.arrStation,
+                    trainNumber2: carriage.trainNumber2,
+                    trainNumberId2: carriage.trainNumberId2,
+                    carriageId2: carriage.carriageId2,
                     // 中转信息
                     transferCity: carriage.midCity,
                     transferTime: carriage.transferTime ? formatDuration(timeStrToMinutes(carriage.transferTime)) : "",
@@ -104,6 +112,8 @@ export const useCarriageStore = defineStore("carriage", () => {
                     // 车型信息
                     type1: carriage.type1,
                     type2: carriage.type2,
+                    flags1: base64ToArray(carriage.flag1),
+                    flags2: base64ToArray(carriage.flag2),
                 };
             });
         } else {
@@ -121,6 +131,8 @@ export const useCarriageStore = defineStore("carriage", () => {
                     departStation: carriage.depStation,
                     arriveStation: carriage.arrStation,
                     trainNumber: carriage.trainNumber,
+                    trainNumberId: carriage.trainNumberId,
+                    carriageId: carriage.carriageId,
                     duration: formatDuration(duration),
                     type: carriage.type,
                     // 座位价格
@@ -133,6 +145,7 @@ export const useCarriageStore = defineStore("carriage", () => {
                     firstNumber: carriage.firstNumber,
                     secondNumber: carriage.secondNumber,
                     noSeatNumber: carriage.noSeatNumber,
+                    flags: base64ToArray(carriage.flag),
                 };
             });
         }

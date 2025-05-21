@@ -2,12 +2,12 @@
   <div class="form-box">
     <div class="inputs-container">
       <div class="locations-container">
-        <PositionSearch label="出发地" placeholder="请输入出发城市" v-model:selectedItem="departure"
+        <PositionSearch label="出发地" placeholder="请输入城市或车站" v-model:selectedItem="departure"
           v-model:selectedType="departureType" />
         <div class="exchange-icon" @click="exchangeLocations">
           <i class="fas fa-exchange-alt"></i>
         </div>
-        <PositionSearch label="目的地" placeholder="请输入到达城市" v-model:selectedItem="destination"
+        <PositionSearch label="目的地" placeholder="请输入城市或车站" v-model:selectedItem="destination"
           v-model:selectedType="destinationType" />
       </div>
       <TimeSelectForm v-model="selectedTime" />
@@ -32,7 +32,6 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
 import PositionSearch from '@/components/PositionSearch.vue';
 import TimeSelectForm from '@/components/TimeSelectForm.vue';
 import SearchButton from '@/components/SearchButton.vue';

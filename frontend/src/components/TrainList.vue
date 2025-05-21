@@ -240,7 +240,7 @@ $glass-bg: rgba(255, 255, 255, 0.6);
   overflow: hidden;
   cursor: pointer;
   color: $text;
-  font-size: 1rem;
+  font-size: 1.3rem;
   font-weight: 500;
   border: 1px solid rgba($border, 0.8);
 
@@ -308,18 +308,18 @@ $glass-bg: rgba(255, 255, 255, 0.6);
   gap: 1rem;
 
   .no-tickets-icon {
-    font-size: 3rem;
+    font-size: 5rem;
     margin-bottom: 0.5rem;
   }
 
   .no-tickets-text {
-    font-size: 1.5rem;
+    font-size: 3rem;
     font-weight: 600;
     color: $text;
   }
 
   .no-tickets-subtext {
-    font-size: 1rem;
+    font-size: 1.5rem;
     color: $text-light;
   }
 }

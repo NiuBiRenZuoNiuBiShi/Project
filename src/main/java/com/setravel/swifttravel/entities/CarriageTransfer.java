@@ -8,6 +8,7 @@ import java.util.Objects;
 /**
  * 中转车次-前端车票查询
  */
+@SuppressWarnings("unused")
 public class CarriageTransfer {
 
     private LocalDateTime depTimeStart; // 第一趟始发时间
@@ -16,6 +17,10 @@ public class CarriageTransfer {
     private LocalDateTime depTimeMiddle; // 第二趟出发时间
     private LocalDateTime arrTimeEnd; // 第二趟到达时间
     private LocalTime costTime; // 车程总耗时
+    private String trainNumber1;
+    private String trainNumberId1;
+    private String carriageId1;
+    private String flag1;
 
     private String depCity; // 始发城市
     private String midCity; // 中转城市
@@ -50,10 +55,18 @@ public class CarriageTransfer {
     private BigDecimal businessPrice2; // 2程商务座价格 (慢车软卧价格)
     private BigDecimal noSeatPrice2; // 2程无座价格 (慢车才有)
 
+    private String trainNumber2;
+    private String trainNumberId2;
+    private String carriageId2;
+    private String flag2;
+
     private String message; // 换乘类型说明
 
     public void setFirstCarriage(CarriageThrough carriageThrough) {
         this.depTimeStart = carriageThrough.getDepTime();
+        this.trainNumber1 = carriageThrough.getTrainNumber();
+        this.trainNumberId1 = carriageThrough.getTrainNumberId();
+        this.carriageId1 = carriageThrough.getCarriageId();
         this.arrTimeMiddle = carriageThrough.getArrTime();
         this.depCity = carriageThrough.getDepCity();
         this.midCity = carriageThrough.getArrCity();
@@ -68,11 +81,15 @@ public class CarriageTransfer {
         this.noSeatPrice1 = carriageThrough.getNoSeatPrice();
         this.depStation = carriageThrough.getDepStation();
         this.midStation1 = carriageThrough.getArrStation();
+        this.flag1 = carriageThrough.getFlag();
     }
 
     public void setSecondCarriage(CarriageThrough carriageThrough) {
         this.depTimeMiddle = carriageThrough.getDepTime();
         this.arrTimeEnd = carriageThrough.getArrTime();
+        this.trainNumber2 = carriageThrough.getTrainNumber();
+        this.trainNumberId2 = carriageThrough.getTrainNumberId();
+        this.carriageId2 = carriageThrough.getCarriageId();
         this.arrCity = carriageThrough.getArrCity();
         this.type2 = carriageThrough.getType();
         this.secondNumber2 = carriageThrough.getSecondNumber();
@@ -85,6 +102,7 @@ public class CarriageTransfer {
         this.noSeatPrice2 = carriageThrough.getNoSeatPrice();
         this.midStation2 = carriageThrough.getDepStation();
         this.arrStation = carriageThrough.getArrStation();
+        this.flag2 = carriageThrough.getFlag();
         this.costTime = LocalTime.ofSecondOfDay((int) (arrTimeEnd.toLocalTime().toSecondOfDay() - depTimeStart.toLocalTime().toSecondOfDay()));
         this.transferTime = LocalTime.ofSecondOfDay((int) (depTimeMiddle.toLocalTime().toSecondOfDay() - arrTimeMiddle.toLocalTime().toSecondOfDay()));
         if (Objects.equals(this.midStation1, this.midStation2)) {
