@@ -53,13 +53,13 @@ public class Seats extends Model<Seats> {
     /**
      * 乐观锁
      */
+    @Version
     @TableField("version")
     private Integer version;
 
     @TableField("del")
     private Boolean del;
 
-    @Version
     @TableField("seat_number")
     private String seatNumber;
 

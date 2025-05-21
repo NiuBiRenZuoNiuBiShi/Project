@@ -49,20 +49,22 @@ public class BuyTicketsServiceImpl implements BuyTicketsService {
         // 加载座位
         List<Seats> seats = seatsMapper.selectByIds(seatIdList);
 
-        // 校验座位版本号
         for (int i = 0; i < seats.size(); i++) {
             Seats seat = seats.get(i);
-            int expectedVersion = request.getVersionList().get(i);
-            if (seat.getVersion() != expectedVersion) {
-                throw new SeatVersionException(
-                        "Seat version mismatch: Seat ID = " + Base64.getEncoder().encodeToString(seat.getId()));
+            if (seat == null) {
+                throw new IllegalArgumentException("Seat not found");
+            }
+            if (!carriageId.equals(seat.getTrainNumber())) {
+                throw new IllegalArgumentException("Seat does not belong to the specified carriage");
+            }
+            if (seat.getVersion() != request.getVersionList().get(i)) {
+                throw new SeatVersionException("Seat version mismatch");
             }
         }
 
         BigDecimal totalMoney = BigDecimal.ZERO;
 
         for (Seats seat : seats) {
-            seat.setVersion(seat.getVersion() + 1); // 手动 +1 也可以让 MyBatis-Plus 自动处理
             switch (seat.getSeatType()) {
             case "Business":
                 carriages.setBusinessNumber(carriages.getBusinessNumber() - 1);

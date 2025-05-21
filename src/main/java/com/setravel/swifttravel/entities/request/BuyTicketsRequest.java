@@ -8,6 +8,6 @@ import lombok.Data;
 public class BuyTicketsRequest {
     private List<String> seatIdList;
     private String carriageId;
-    private List<Integer> versionList;
     private List<String> contactIdList;
+    private List<Integer> versionList;
 }

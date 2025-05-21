@@ -3,21 +3,21 @@ import api from './Api';
 
 export const getContacts = async () => {
     try {
-        const response = await api.get('/contacts');
+        const response = await api.get('/api/contacts');
         return response.data;
     } catch (error) {
         console.error('Error fetching contacts:', error);
-        throw error;
+        throw null;
     }
 }
 
 export const addContact = async (contact) => {
     try {
-        const response = await api.post('/contacts/add', contact);
+        const response = await api.post('/api/contacts/add', contact);
         return response.data;
     } catch (error) {
         console.error('Error adding contact:', error);
-        throw error;
+        return null;
     }
 }
 
@@ -27,7 +27,7 @@ export const addContactList = async (contactList) => {
         return response.data;
     } catch (error) {
         console.error('Error adding contact list:', error);
-        throw error;
+        return null;
     }
 }
 
@@ -37,7 +37,7 @@ export const updateContact = async (contact) => {
         return response.data;
     } catch (error) {
         console.error('Error updating contact:', error);
-        throw error;
+        return null;
     }
 }
 
@@ -47,6 +47,6 @@ export const deleteContact = async (contact) => {
         return response.data;
     } catch (error) {
         console.error('Error deleting contact:', error);
-        throw error;
+        return null;
     }
 }

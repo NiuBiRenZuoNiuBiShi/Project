@@ -96,8 +96,8 @@ const onContactSelectionConfirm = (data) => {
     
     // 构造最终的订票请求
     const orderRequest = {
-        ticketId: seatSelectionData.value.ticket.carriageId,
-        seats: seatSelectionData.value.selectedSeats,
+        carriageId: seatSelectionData.value.ticket.carriageId,
+        seatIdList: seatSelectionData.value.selectedSeats,
         totalPrice: seatSelectionData.value.totalPrice,
         // 添加是否为中转票信息
         isTransfer: carriageStore.isTransfer,

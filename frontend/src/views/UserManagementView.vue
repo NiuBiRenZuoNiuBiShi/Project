@@ -2,10 +2,10 @@
   <div class="user-management">
     <!-- 页面头部 -->
     <header class="page-header">
-      <h1 class="page-title">用户管理</h1>
+      <h1 class="page-title">My Info</h1>
       <button class="btn refresh-btn" @click="refreshData">
         <span class="icon">⟳</span>
-        刷新数据
+        Refresh Data
       </button>
     </header>
 
@@ -15,20 +15,20 @@
         <!-- 用户信息卡片 -->
         <section class="card user-info-card">
           <div class="card-header">
-            <h2>个人信息</h2>
+            <h2>My Profile</h2>
             <div class="action-buttons">
               <button v-if="!editingUserInfo" class="btn edit-btn" @click="startEditUser">
                 <span class="icon">✎</span>
-                编辑
+                Edit
               </button>
               <div v-else class="button-group">
                 <button class="btn save-btn" @click="saveUserInfo">
                   <span class="icon">✓</span>
-                  保存
+                  Save
                 </button>
                 <button class="btn cancel-btn" @click="cancelEditUser">
                   <span class="icon">✕</span>
-                  取消
+                  Cancel
                 </button>
               </div>
             </div>
@@ -36,107 +36,87 @@
 
           <div v-if="loading.user" class="loading-container">
             <div class="loading-spinner"></div>
-            <p>加载用户信息中...</p>
+            <p>Loading user information...</p>
           </div>
-          
+
           <div v-else-if="error.user" class="error-container">
             <div class="error-icon">⚠</div>
             <p class="error-message">{{ error.user }}</p>
-            <button class="btn retry-btn" @click="fetchUserData">重试</button>
+            <button class="btn retry-btn" @click="fetchUserData">Retry</button>
           </div>
-          
+
           <form v-else class="user-form" @submit.prevent="saveUserInfo">
             <div class="form-group">
-              <label for="username">用户名</label>
-              <input 
-                id="username" 
-                type="text" 
-                v-model="userForm.username" 
-                :disabled="!editingUserInfo"
-                :class="{'input-error': userFormErrors.username}"
-              >
+              <label for="username">Username</label>
+              <input id="username" type="text" v-model="userForm.username" :disabled="!editingUserInfo"
+                :class="{ 'input-error': userFormErrors.username }">
               <p v-if="userFormErrors.username" class="error-text">{{ userFormErrors.username }}</p>
             </div>
 
             <div class="form-group">
-              <label for="email">邮箱</label>
-              <input 
-                id="email" 
-                type="email" 
-                v-model="userForm.email" 
-                :disabled="!editingUserInfo"
-                :class="{'input-error': userFormErrors.email}"
-              >
+              <label for="email">Email</label>
+              <input id="email" type="email" v-model="userForm.email" :disabled="!editingUserInfo"
+                :class="{ 'input-error': userFormErrors.email }">
               <p v-if="userFormErrors.email" class="error-text">{{ userFormErrors.email }}</p>
             </div>
 
             <div class="form-group">
-              <label for="phone">手机号</label>
-              <input 
-                id="phone" 
-                type="tel" 
-                v-model="userForm.phone" 
-                :disabled="!editingUserInfo"
-                :class="{'input-error': userFormErrors.phone}"
-              >
+              <label for="phone">Phone Number</label>
+              <input id="phone" type="tel" v-model="userForm.phone" :disabled="!editingUserInfo"
+                :class="{ 'input-error': userFormErrors.phone }">
               <p v-if="userFormErrors.phone" class="error-text">{{ userFormErrors.phone }}</p>
             </div>
 
             <div class="form-group">
-              <label for="idCard">身份证号</label>
-              <input 
-                id="idCard" 
-                type="text" 
-                v-model="userForm.idCard" 
-                :disabled="!editingUserInfo"
-                :class="{'input-error': userFormErrors.idCard}"
-              >
+              <label for="idCard">ID Card Number</label>
+              <input id="idCard" type="text" v-model="userForm.idCard" :disabled="!editingUserInfo"
+                :class="{ 'input-error': userFormErrors.idCard }">
               <p v-if="userFormErrors.idCard" class="error-text">{{ userFormErrors.idCard }}</p>
             </div>
 
-            <p class="form-note">账号创建于：{{ formatDate(userForm.createdAt) }}</p>
+            <p class="form-note">Account Created At: {{ formatDate(userForm.createdAt) }}</p>
           </form>
         </section>
 
         <!-- 联系人管理卡片 -->
         <section class="card contacts-card">
           <div class="card-header">
-            <h2>我的联系人</h2>
+            <h2>My Contacts</h2>
             <button class="btn add-btn" @click="openAddContact">
               <span class="icon">+</span>
-              添加联系人
+              Add Contacts
             </button>
           </div>
 
           <div v-if="loading.contacts" class="loading-container">
             <div class="loading-spinner"></div>
-            <p>加载联系人中...</p>
+            <p>Loading contacts...</p>
           </div>
-          
+
           <div v-else-if="error.contacts" class="error-container">
             <div class="error-icon">⚠</div>
             <p class="error-message">{{ error.contacts }}</p>
-            <button class="btn retry-btn" @click="fetchContacts">重试</button>
+            <button class="btn retry-btn" @click="fetchContacts">Retry</button>
           </div>
-          
+
           <div v-else class="contacts-list">
             <div v-if="contacts.length === 0" class="empty-state">
               <div class="empty-icon">👤</div>
-              <p>您还没有添加联系人</p>
-              <p class="empty-subtext">添加联系人可以更快地完成订票</p>
+              <p>You have not added any contacts</p>
+              <p class="empty-subtext">Adding contacts can help you book tickets faster</p>
             </div>
-            
+
             <div v-else class="contact-cards">
               <div v-for="contact in contacts" :key="contact.contactId" class="contact-item">
                 <div class="contact-details">
                   <div class="contact-name">{{ contact.contactName }}</div>
                   <div class="contact-info">
                     <div class="info-item">
-                      <span class="info-label">电话:</span>
+                      <span class="info-label">Phone:</span>
                       <span class="info-value">{{ contact.contactPhone }}</span>
                     </div>
                     <div v-if="contact.contactEmail" class="info-item">
-                      <span class="info-label">邮箱:</span>
+                      <span class="info-label">Email:</span>
                       <span class="info-value">{{ contact.contactEmail }}</span>
                     </div>
                   </div>
@@ -156,73 +136,61 @@
     <div v-if="contactModalVisible" class="modal-overlay" @click="closeContactModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h2>{{ contactForm.contactId ? '编辑联系人' : '添加联系人' }}</h2>
+          <h2>{{ contactForm.contactId ? 'Edit Contact' : 'Add Contact' }}</h2>
           <button class="icon-btn close-btn" @click="closeContactModal">✕</button>
         </div>
-        
+
         <form class="contact-form" @submit.prevent="saveContact">
           <div class="form-group">
-            <label for="contactName">姓名</label>
-            <input 
-              id="contactName" 
-              type="text" 
-              v-model="contactForm.contactName"
-              :class="{'input-error': contactFormErrors.contactName}"
-            >
+            <label for="contactName">Name</label>
+            <input id="contactName" type="text" v-model="contactForm.contactName"
+              :class="{ 'input-error': contactFormErrors.contactName }">
             <p v-if="contactFormErrors.contactName" class="error-text">{{ contactFormErrors.contactName }}</p>
           </div>
 
           <div class="form-group">
-            <label for="contactPhone">手机号</label>
-            <input 
-              id="contactPhone" 
-              type="tel" 
-              v-model="contactForm.contactPhone"
-              :class="{'input-error': contactFormErrors.contactPhone}"
-            >
+            <label for="contactPhone">Phone Number</label>
+            <input id="contactPhone" type="tel" v-model="contactForm.contactPhone"
+              :class="{ 'input-error': contactFormErrors.contactPhone }">
             <p v-if="contactFormErrors.contactPhone" class="error-text">{{ contactFormErrors.contactPhone }}</p>
           </div>
 
           <div class="form-group">
-            <label for="contactEmail">邮箱 (可选)</label>
-            <input 
-              id="contactEmail" 
-              type="email" 
-              v-model="contactForm.contactEmail"
-              :class="{'input-error': contactFormErrors.contactEmail}"
-            >
+            <label for="contactEmail">Email (Optional)</label>
+            <input id="contactEmail" type="email" v-model="contactForm.contactEmail"
+              :class="{ 'input-error': contactFormErrors.contactEmail }">
             <p v-if="contactFormErrors.contactEmail" class="error-text">{{ contactFormErrors.contactEmail }}</p>
           </div>
 
           <div class="form-actions">
-            <button type="button" class="btn cancel-btn" @click="closeContactModal">取消</button>
-            <button type="submit" class="btn save-btn">保存</button>
+            <button type="button" class="btn cancel-btn" @click="closeContactModal">Cancel</button>
+            <button type="submit" class="btn save-btn">Save</button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- 确认删除模态框 -->
+    <!-- Confirm Delete Modal -->
     <div v-if="deleteModalVisible" class="modal-overlay" @click="closeDeleteModal">
       <div class="modal-content delete-modal" @click.stop>
         <div class="modal-header">
-          <h2>确认删除</h2>
+          <h2>Confirm Delete</h2>
           <button class="icon-btn close-btn" @click="closeDeleteModal">✕</button>
         </div>
-        
+
         <div class="delete-confirmation">
-          <p>确定要删除联系人 <strong>{{ contactToDelete?.contactName }}</strong> 吗？</p>
-          <p class="delete-warning">此操作不可撤销！</p>
-          
+          <p>Are you sure you want to delete contact <strong>{{ contactToDelete?.contactName }}</strong>?</p>
+          <p class="delete-warning">This action cannot be undone!</p>
+
           <div class="form-actions">
-            <button class="btn cancel-btn" @click="closeDeleteModal">取消</button>
-            <button class="btn delete-btn" @click="deleteContact">删除</button>
+            <button class="btn cancel-btn" @click="closeDeleteModal">Cancel</button>
+            <button class="btn delete-btn" @click="onDeleteContact">Delete</button>
           </div>
         </div>
       </div>
     </div>
-    
-    <!-- 消息提示 -->
+
+    <!-- Notification -->
     <div v-if="notification.visible" class="notification" :class="notification.type">
       <div class="notification-content">
         <span class="notification-icon">{{ notification.type === 'success' ? '✓' : '✕' }}</span>
@@ -293,10 +261,10 @@ const deleteModalVisible = ref(false);
 const fetchUserData = async () => {
   loading.user = true;
   error.user = '';
-  
+
   try {
     const response = await getUserInfo();
-    
+
     if (response && response.data) {
       const userData = response.data;
       Object.assign(userForm, {
@@ -307,15 +275,15 @@ const fetchUserData = async () => {
         idCard: userData.idCard,
         createdAt: userData.createdAt
       });
-      
+
       // 保存原始数据用于重置
-      originalUserData.value = {...userForm};
+      originalUserData.value = { ...userForm };
     } else {
       throw new Error('获取用户信息失败');
     }
   } catch (err) {
     console.error('获取用户信息失败:', err);
-    error.user = '无法加载用户信息，请稍后重试';
+    error.user = 'Unable To Load User Information, please try again later';
   } finally {
     loading.user = false;
   }
@@ -325,10 +293,11 @@ const fetchUserData = async () => {
 const fetchContacts = async () => {
   loading.contacts = true;
   error.contacts = '';
-  
+
   try {
     const response = await getContacts();
-    
+
+
     if (response) {
       contacts.value = response;
     } else {
@@ -336,7 +305,7 @@ const fetchContacts = async () => {
     }
   } catch (err) {
     console.error('获取联系人失败:', err);
-    error.contacts = '无法加载联系人列表，请稍后重试';
+    error.contacts = 'Unable To Load Contacts List, please try again later';
   } finally {
     loading.contacts = false;
   }
@@ -364,49 +333,49 @@ const cancelEditUser = () => {
 
 const validateUserForm = () => {
   let isValid = true;
-  
+
   // 重置所有错误
   Object.keys(userFormErrors).forEach(key => userFormErrors[key] = '');
-  
+
   // 用户名验证
   if (!userForm.username.trim()) {
-    userFormErrors.username = '用户名不能为空';
+    userFormErrors.username = 'Username cannot be empty';
     isValid = false;
   } else if (userForm.username.length < 3 || userForm.username.length > 20) {
-    userFormErrors.username = '用户名长度必须在3-20个字符之间';
+    userFormErrors.username = 'Username has to be between 3 and 20 characters';
     isValid = false;
   }
-  
+
   // 邮箱验证
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!userForm.email.trim()) {
-    userFormErrors.email = '邮箱不能为空';
+    userFormErrors.email = 'Email cannot be empty';
     isValid = false;
   } else if (!emailRegex.test(userForm.email)) {
-    userFormErrors.email = '请输入有效的邮箱地址';
+    userFormErrors.email = 'Please enter a valid email address';
     isValid = false;
   }
-  
+
   // 手机号验证
   const phoneRegex = /^1[3-9]\d{9}$/;
   if (!userForm.phone.trim()) {
-    userFormErrors.phone = '手机号不能为空';
+    userFormErrors.phone = 'Phone number cannot be empty';
     isValid = false;
   } else if (!phoneRegex.test(userForm.phone)) {
-    userFormErrors.phone = '请输入有效的手机号码';
+    userFormErrors.phone = 'please enter the correct phone number';
     isValid = false;
   }
-  
+
   // 身份证号验证
   const idCardRegex = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
   if (!userForm.idCard.trim()) {
-    userFormErrors.idCard = '身份证号不能为空';
+    userFormErrors.idCard = 'ID Card number cannot be empty';
     isValid = false;
   } else if (!idCardRegex.test(userForm.idCard)) {
-    userFormErrors.idCard = '请输入有效的身份证号码';
+    userFormErrors.idCard = 'Please enter a valid ID Card number';
     isValid = false;
   }
-  
+
   return isValid;
 };
 
@@ -415,9 +384,9 @@ const saveUserInfo = async () => {
   if (!validateUserForm()) {
     return;
   }
-  
+
   loading.user = true;
-  
+
   try {
     const userToUpdate = {
       id: userForm.id,
@@ -426,20 +395,20 @@ const saveUserInfo = async () => {
       email: userForm.email,
       idCard: userForm.idCard
     };
-    
+
     const response = await updateUserInfo(userToUpdate);
-    
+
     if (response && response.success) {
       // 更新成功，保存为新的原始数据
-      originalUserData.value = {...userForm};
-      showNotification('个人信息更新成功', 'success');
+      originalUserData.value = { ...userForm };
+      showNotification('User information updated successfully', 'success');
       editingUserInfo.value = false;
     } else {
-      throw new Error(response?.message || '更新用户信息失败');
+      throw new Error(response?.message || 'Failed to update user information');
     }
   } catch (err) {
-    console.error('保存用户信息失败:', err);
-    showNotification('保存失败: ' + (err.message || '未知错误'), 'error');
+    console.error('Failed to save user information:', err);
+    showNotification('Failed to save user information: ' + (err.message || 'Unknown error'), 'error');
   } finally {
     loading.user = false;
   }
@@ -452,10 +421,10 @@ const openAddContact = () => {
   contactForm.contactName = '';
   contactForm.contactPhone = '';
   contactForm.contactEmail = '';
-  
+
   // 清除错误
   Object.keys(contactFormErrors).forEach(key => contactFormErrors[key] = '');
-  
+
   // 显示模态框
   contactModalVisible.value = true;
 };
@@ -466,10 +435,10 @@ const editContact = (contact) => {
   contactForm.contactName = contact.contactName;
   contactForm.contactPhone = contact.contactPhone;
   contactForm.contactEmail = contact.contactEmail || '';
-  
+
   // 清除错误
   Object.keys(contactFormErrors).forEach(key => contactFormErrors[key] = '');
-  
+
   // 显示模态框
   contactModalVisible.value = true;
 };
@@ -480,38 +449,38 @@ const closeContactModal = () => {
 
 const validateContactForm = () => {
   let isValid = true;
-  
+
   // 重置所有错误
   Object.keys(contactFormErrors).forEach(key => contactFormErrors[key] = '');
-  
+
   // 联系人姓名验证
   if (!contactForm.contactName.trim()) {
-    contactFormErrors.contactName = '联系人姓名不能为空';
+    contactFormErrors.contactName = 'Contact name cannot be empty';
     isValid = false;
   } else if (contactForm.contactName.length < 2 || contactForm.contactName.length > 20) {
-    contactFormErrors.contactName = '姓名长度必须在2-20个字符之间';
+    contactFormErrors.contactName = 'Name length must be between 2 and 20 characters';
     isValid = false;
   }
-  
+
   // 手机号验证
   const phoneRegex = /^1[3-9]\d{9}$/;
   if (!contactForm.contactPhone.trim()) {
-    contactFormErrors.contactPhone = '手机号不能为空';
+    contactFormErrors.contactPhone = 'Phone number cannot be empty';
     isValid = false;
   } else if (!phoneRegex.test(contactForm.contactPhone)) {
-    contactFormErrors.contactPhone = '请输入有效的手机号码';
+    contactFormErrors.contactPhone = 'Please enter a valid phone number';
     isValid = false;
   }
-  
+
   // 邮箱验证 (可选)
   if (contactForm.contactEmail.trim()) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(contactForm.contactEmail)) {
-      contactFormErrors.contactEmail = '请输入有效的邮箱地址';
+      contactFormErrors.contactEmail = 'Please enter a valid email address';
       isValid = false;
     }
   }
-  
+
   return isValid;
 };
 
@@ -520,7 +489,7 @@ const saveContact = async () => {
   if (!validateContactForm()) {
     return;
   }
-  
+
   try {
     if (contactForm.contactId) {
       // 更新联系人
@@ -530,8 +499,8 @@ const saveContact = async () => {
         contactPhone: contactForm.contactPhone,
         contactEmail: contactForm.contactEmail
       });
-      
-      showNotification('联系人更新成功', 'success');
+
+      showNotification('Contact updated successfully', 'success');
     } else {
       // 添加新联系人
       await addContact({
@@ -539,16 +508,16 @@ const saveContact = async () => {
         contactPhone: contactForm.contactPhone,
         contactEmail: contactForm.contactEmail
       });
-      
-      showNotification('联系人添加成功', 'success');
+
+      showNotification('Contact added successfully', 'success');
     }
-    
+
     // 关闭模态框并重新获取联系人列表
     closeContactModal();
     fetchContacts();
   } catch (err) {
-    console.error('保存联系人失败:', err);
-    showNotification('操作失败: ' + (err.message || '未知错误'), 'error');
+    console.error('Failed to save contact:', err);
+    showNotification('Failed to save contact: ' + (err.message || 'Unknown error'), 'error');
   }
 };
 
@@ -563,20 +532,20 @@ const closeDeleteModal = () => {
   contactToDelete.value = null;
 };
 
-const deleteContact = async () => {
+const onDeleteContact = async () => {
   if (!contactToDelete.value) return;
-  
+
   try {
     await deleteContact(contactToDelete.value);
-    
-    showNotification('联系人删除成功', 'success');
-    
+
+    showNotification('Contact deleted successfully', 'success');
+
     // 关闭模态框并重新获取联系人列表
     closeDeleteModal();
     fetchContacts();
   } catch (err) {
-    console.error('删除联系人失败:', err);
-    showNotification('删除失败: ' + (err.message || '未知错误'), 'error');
+    console.error('Failed to delete contact:', err);
+    showNotification('Failed to delete contact: ' + (err.message || 'Unknown error'), 'error');
   }
 };
 
@@ -585,7 +554,7 @@ const showNotification = (message, type = 'success') => {
   notification.message = message;
   notification.type = type;
   notification.visible = true;
-  
+
   // 3秒后自动关闭通知
   setTimeout(() => {
     notification.visible = false;
@@ -595,7 +564,7 @@ const showNotification = (message, type = 'success') => {
 // 格式化日期
 const formatDate = (dateString) => {
   if (!dateString) return '';
-  
+
   const date = new Date(dateString);
   return new Intl.DateTimeFormat('zh-CN', {
     year: 'numeric',
@@ -657,7 +626,7 @@ $info: #3b82f6;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid rgba($border, 0.8);
-  
+
   .page-title {
     font-size: 2rem;
     font-weight: 700;
@@ -688,25 +657,25 @@ $info: #3b82f6;
   box-shadow: 0 6px 20px $shadow;
   overflow: hidden;
   transition: all 0.3s ease;
-  
+
   &:hover {
     box-shadow: 0 8px 30px rgba($shadow, 0.3);
   }
-  
+
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem;
     border-bottom: 1px solid rgba($border, 0.8);
-    
+
     h2 {
       margin: 0;
-      font-size: 1.4rem;
+      font-size: 1.8rem;
       font-weight: 600;
       color: $primary-dark;
     }
-    
+
     .action-buttons {
       display: flex;
       gap: 0.5rem;
@@ -727,23 +696,23 @@ $info: #3b82f6;
   transition: all 0.2s ease;
   border: none;
   outline: none;
-  font-size: 0.95rem;
-  
+  font-size: 1.2rem;
+
   .icon {
-    font-size: 1.1rem;
+    font-size: 1.4rem;
   }
 }
 
 .refresh-btn {
   background: linear-gradient(to right, $primary-light, $primary);
   color: white;
-  
+
   &:hover {
     background: linear-gradient(to right, $primary, $primary-dark);
     box-shadow: 0 4px 12px rgba($primary, 0.3);
     transform: translateY(-2px);
   }
-  
+
   &:active {
     transform: translateY(0);
   }
@@ -752,7 +721,7 @@ $info: #3b82f6;
 .edit-btn {
   background-color: $primary;
   color: white;
-  
+
   &:hover {
     background-color: darken($primary, 5%);
     box-shadow: 0 4px 12px rgba($primary, 0.3);
@@ -762,7 +731,7 @@ $info: #3b82f6;
 .save-btn {
   background-color: $success;
   color: white;
-  
+
   &:hover {
     background-color: darken($success, 5%);
     box-shadow: 0 4px 12px rgba($success, 0.3);
@@ -772,7 +741,7 @@ $info: #3b82f6;
 .cancel-btn {
   background-color: $text-light;
   color: white;
-  
+
   &:hover {
     background-color: darken($text-light, 5%);
     box-shadow: 0 4px 12px rgba($text-light, 0.3);
@@ -782,7 +751,7 @@ $info: #3b82f6;
 .add-btn {
   background: linear-gradient(to right, $accent, $accent-secondary);
   color: white;
-  
+
   &:hover {
     background: linear-gradient(to right, darken($accent, 5%), darken($accent-secondary, 5%));
     box-shadow: 0 4px 12px rgba($accent, 0.3);
@@ -792,7 +761,7 @@ $info: #3b82f6;
 .retry-btn {
   background-color: $info;
   color: white;
-  
+
   &:hover {
     background-color: darken($info, 5%);
     box-shadow: 0 4px 12px rgba($info, 0.3);
@@ -802,7 +771,7 @@ $info: #3b82f6;
 .delete-btn {
   background-color: $error;
   color: white;
-  
+
   &:hover {
     background-color: darken($error, 5%);
     box-shadow: 0 4px 12px rgba($error, 0.3);
@@ -823,12 +792,12 @@ $info: #3b82f6;
   background: rgba($text-light, 0.1);
   color: $text;
   font-size: 1.1rem;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba($shadow, 0.2);
   }
-  
+
   &:active {
     transform: translateY(0);
   }
@@ -850,7 +819,7 @@ $info: #3b82f6;
 
 .close-btn {
   font-size: 1.2rem;
-  
+
   &:hover {
     background: rgba($text-light, 0.2);
   }
@@ -860,17 +829,17 @@ $info: #3b82f6;
 .user-form,
 .contact-form {
   padding: 1.5rem;
-  
+
   .form-group {
     margin-bottom: 1.5rem;
-    
+
     label {
       display: block;
       margin-bottom: 0.5rem;
       font-weight: 500;
       color: $text;
     }
-    
+
     input {
       width: 100%;
       padding: 0.8rem 1rem;
@@ -879,41 +848,41 @@ $info: #3b82f6;
       font-size: 1rem;
       transition: all 0.2s ease;
       outline: none;
-      
+
       &:focus {
         border-color: $primary;
         box-shadow: 0 0 0 3px rgba($primary, 0.1);
       }
-      
+
       &:disabled {
         background-color: rgba($border, 0.5);
         color: $text-light;
         cursor: not-allowed;
       }
-      
+
       &.input-error {
         border-color: $error;
-        
+
         &:focus {
           box-shadow: 0 0 0 3px rgba($error, 0.1);
         }
       }
     }
-    
+
     .error-text {
       margin-top: 0.5rem;
       color: $error;
       font-size: 0.9rem;
     }
   }
-  
+
   .form-actions {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
     margin-top: 2rem;
   }
-  
+
   .form-note {
     margin-top: 1rem;
     font-size: 0.9rem;
@@ -930,7 +899,7 @@ $info: #3b82f6;
   justify-content: center;
   padding: 3rem 1rem;
   gap: 1rem;
-  
+
   .loading-spinner {
     width: 40px;
     height: 40px;
@@ -939,12 +908,17 @@ $info: #3b82f6;
     border-top-color: $primary;
     animation: spin 1s linear infinite;
   }
-  
+
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
   }
-  
+
   p {
     color: $text-light;
     font-size: 1rem;
@@ -958,15 +932,15 @@ $info: #3b82f6;
   justify-content: center;
   padding: 3rem 1rem;
   gap: 1rem;
-  
+
   .error-icon {
     font-size: 2.5rem;
     color: $error;
   }
-  
+
   .error-message {
     color: $text;
-    font-size: 1rem;
+    font-size: 1.5rem;
     text-align: center;
     max-width: 80%;
   }
@@ -975,7 +949,7 @@ $info: #3b82f6;
 // 联系人列表样式
 .contacts-list {
   padding: 1.5rem;
-  
+
   .empty-state {
     display: flex;
     flex-direction: column;
@@ -983,30 +957,30 @@ $info: #3b82f6;
     justify-content: center;
     padding: 2rem;
     gap: 1rem;
-    
+
     .empty-icon {
       font-size: 4rem;
       color: rgba($text-light, 0.5);
     }
-    
+
     p {
       margin: 0;
       font-size: 1.2rem;
       color: $text;
       font-weight: 500;
     }
-    
+
     .empty-subtext {
       font-size: 0.95rem;
       color: $text-light;
     }
   }
-  
+
   .contact-cards {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    
+
     .contact-item {
       display: flex;
       justify-content: space-between;
@@ -1015,45 +989,45 @@ $info: #3b82f6;
       border-radius: 8px;
       border: 1px solid rgba($border, 0.8);
       transition: all 0.2s ease;
-      
+
       &:hover {
         border-color: $primary;
         background-color: rgba($primary, 0.02);
         box-shadow: 0 4px 12px rgba($shadow, 0.1);
       }
-      
+
       .contact-details {
         flex: 1;
-        
+
         .contact-name {
           font-size: 1.1rem;
           font-weight: 500;
           color: $text;
           margin-bottom: 0.5rem;
         }
-        
+
         .contact-info {
           display: flex;
           flex-direction: column;
           gap: 0.3rem;
-          
+
           .info-item {
             display: flex;
             align-items: center;
             gap: 0.5rem;
             font-size: 0.95rem;
-            
+
             .info-label {
               color: $text-light;
             }
-            
+
             .info-value {
               color: $text;
             }
           }
         }
       }
-      
+
       .contact-actions {
         display: flex;
         gap: 0.5rem;
@@ -1075,10 +1049,15 @@ $info: #3b82f6;
   justify-content: center;
   align-items: center;
   animation: fadeIn 0.2s ease-in-out;
-  
+
   @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
 }
 
@@ -1090,19 +1069,26 @@ $info: #3b82f6;
   overflow: hidden;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
   animation: slideUp 0.3s ease-in-out;
-  
+
   @keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
-  
+
   .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem;
     border-bottom: 1px solid rgba($border, 0.8);
-    
+
     h2 {
       margin: 0;
       font-size: 1.4rem;
@@ -1114,25 +1100,25 @@ $info: #3b82f6;
 
 .delete-modal {
   max-width: 400px;
-  
+
   .delete-confirmation {
     padding: 1.5rem;
     text-align: center;
-    
+
     p {
       margin: 0 0 1rem;
       font-size: 1.1rem;
-      
+
       strong {
         font-weight: 600;
       }
     }
-    
+
     .delete-warning {
       color: $error;
       font-weight: 500;
     }
-    
+
     .form-actions {
       margin-top: 1.5rem;
       display: flex;
@@ -1152,39 +1138,46 @@ $info: #3b82f6;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   animation: slideIn 0.3s ease-in-out;
-  
+
   @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
   }
-  
+
   &.success {
     background-color: lighten($success, 48%);
     border-left: 4px solid $success;
   }
-  
+
   &.error {
     background-color: lighten($error, 40%);
     border-left: 4px solid $error;
   }
-  
+
   .notification-content {
     display: flex;
     align-items: center;
     gap: 0.8rem;
-    
+
     .notification-icon {
       font-size: 1.2rem;
-      
+
       .success & {
         color: $success;
       }
-      
+
       .error & {
         color: $error;
       }
     }
-    
+
     .notification-message {
       font-size: 0.95rem;
       color: $text;
@@ -1197,31 +1190,31 @@ $info: #3b82f6;
   .user-management {
     padding: 1.5rem;
   }
-  
+
   .page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
-    
+
     .refresh-btn {
       align-self: flex-start;
     }
   }
-  
+
   .content-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .contact-item {
     flex-direction: column;
     align-items: flex-start;
-    
+
     .contact-actions {
       margin-top: 1rem;
       align-self: flex-end;
     }
   }
-  
+
   .button-group {
     display: flex;
     gap: 0.5rem;
