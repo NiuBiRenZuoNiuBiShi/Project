@@ -3,6 +3,7 @@ package com.setravel.swifttravel.entities;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.Version;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Getter;
 import lombok.Setter;
@@ -52,11 +53,15 @@ public class Seats extends Model<Seats> {
     /**
      * 乐观锁
      */
+    @Version
     @TableField("version")
     private Integer version;
 
     @TableField("del")
     private Boolean del;
+
+    @TableField("seat_number")
+    private String seatNumber;
 
     public static final String ID = "id";
 

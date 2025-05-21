@@ -4,21 +4,34 @@ import { useRoute, useRouter } from 'vue-router';
 import QueryTrainTicketForm from '@/components/QueryTrainTicketFrom.vue'
 const route = useRoute();
 const router = useRouter();
-
+const emit = defineEmits(['search']);
 
 const currentForm = ref(route.query.form || 'Train');
 
 const trainFormData = ref({
   departure: '',
+  departureType: '',
   destination: '',
+  destinationType: '',
   selectedTime: new Date().toISOString().split('T')[0],
   transfer_option: false,
 });
 
 const handleTrainSearch = () => {
-  console.log(trainFormData.value);
-};
-
+  // console.log('departureType', trainFormData.value.departureType);
+  // console.log('destinationType', trainFormData.value.destinationType);
+  
+  
+  emit('search', {
+    formType: currentForm.value,
+    departure: trainFormData.value.departure,
+    departureType: trainFormData.value.departureType,
+    destination: trainFormData.value.destination,
+    destinationType: trainFormData.value.destinationType,
+    selectedTime: trainFormData.value.selectedTime,
+    transfer_option: trainFormData.value.transfer_option,
+  });
+}
 
 watch(
   () => route.query.form,
@@ -30,7 +43,7 @@ watch(
 
 const switchFormType = (type) => {
   console.log(type);
-  
+
   if (type === 'Train' || type === 'Hotel')
     currentForm.value = type;
 
@@ -57,7 +70,8 @@ const switchFormType = (type) => {
       <div v-if="currentForm === 'Train'" class="form-wrapper">
         <QueryTrainTicketForm v-model:departure="trainFormData.departure"
           v-model:destination="trainFormData.destination" v-model:selectedTime="trainFormData.selectedTime"
-          v-model:transfer_option="trainFormData.transfer_option" @search="handleTrainSearch" />
+          v-model:transfer_option="trainFormData.transfer_option" v-model:departureType="trainFormData.departureType"
+          v-model:destinationType="trainFormData.destinationType" @search="handleTrainSearch" />
       </div>
       <div v-else-if="currentForm === 'Hotel'" class="form-wrapper">
         <h2>酒店预订</h2>
