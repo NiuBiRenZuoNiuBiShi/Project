@@ -87,4 +87,5 @@ public class Food extends Model<Food> {
     public Serializable pkVal() {
         return this.id;
     }
+
 }

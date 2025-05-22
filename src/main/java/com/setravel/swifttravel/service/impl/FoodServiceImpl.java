@@ -1,15 +1,15 @@
 package com.setravel.swifttravel.service.impl;
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.baomidou.mybatisplus.extension.activerecord.AbstractModel;
+import com.setravel.swifttravel.entities.*;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.setravel.swifttravel.entities.Food;
-import com.setravel.swifttravel.entities.Result;
-import com.setravel.swifttravel.entities.Users;
 import com.setravel.swifttravel.entities.output.FoodOutput;
 import com.setravel.swifttravel.entities.request.FoodRequest;
 import com.setravel.swifttravel.mapper.FoodMapper;
@@ -92,10 +92,31 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public Result buyFoodList(List<FoodRequest> requestList) {
-        List<Food> foodList = requestList.stream().map(FoodRequest::toEntity).collect(Collectors.toList());
+        List<Food> foodList = requestList.stream().map(FoodRequest::toEntity).toList();
         Users currentUser = UserContext.getCurrentUser(userMapper);
         // TODO: Implement the logic to buy food
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
+        FoodOrders foodOrder = new FoodOrders();
+        foodOrder.setId(UUIDUtil.generateUUIDBytes());
+        foodOrder.setUserId(currentUser.getId());
+        foodOrder.setDel(false);
+        foodOrder.setPayId(null); // Assuming payId is not set at this point
 
+        List<FoodOrderItems> foodOrderItemsList = foodList.stream().map(food -> {
+            FoodOrderItems foodOrderItem = new FoodOrderItems();
+            foodOrderItem.setId(UUIDUtil.generateUUIDBytes());
+            foodOrderItem.setFoodId(food.getId());
+            foodOrderItem.setFoodNumber(food.getNumber());
+            foodOrderItem.setOrderId(foodOrder.getId());
+            return foodOrderItem;
+        }).toList();
+        // 后期如果需要通过食物订单查询详情的话，可能需要在foodOrders表中添加一个foodOrderItems字段
+        // foodOrder.setFoodOrderItems(foodOrderItemsList);
+
+        // 向foodOrders表中插入数据
+        foodOrder.insert();
+        // 向foodOrderItems表中插入数据
+        foodOrderItemsList.forEach(AbstractModel::insert);
+
+        return Result.success(foodOrder);
+    }
 }
