@@ -60,6 +60,17 @@ const routes = [
         component: () => import('@/views/PaymentSimulate.vue'),
         props: true
     },
+    {
+        path: '/notifications',
+        name: 'Notifications',
+        component: () => import('@/views/MessageCenter.vue')
+    },
+    {
+        path: '/message-detail/:id',
+        name: 'MessageDetail',
+        component: () => import('@/views/MessageDetail.vue'),
+        props: true
+    }
 ];
 
 const router = createRouter({
