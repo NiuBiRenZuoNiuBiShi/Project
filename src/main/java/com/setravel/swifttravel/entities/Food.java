@@ -59,6 +59,9 @@ public class Food extends Model<Food> {
     @TableField("pic_url")
     private String picUrl;
 
+    @TableField("number")
+    private Integer number;
+
     @TableField("del")
     private Boolean del;
 

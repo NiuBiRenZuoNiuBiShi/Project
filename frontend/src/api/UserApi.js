@@ -12,8 +12,11 @@ export const userLogin = async (user) => {
 }
 
 export const userLogout = async () => {
+    const body = {
+        token: localStorage.getItem('token')
+    }
     try {
-        const response = await api.post('/api/user/logout');
+        const response = await api.post('/api/user/logout', body);
         return response.data;
     } catch (error) {
         console.error('Error logging out:', error);
