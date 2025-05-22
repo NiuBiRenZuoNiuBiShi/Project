@@ -99,12 +99,13 @@ const onContactSelectionConfirm = (data) => {
         carriageId: seatSelectionData.value.ticket.carriageId,
         seatIdList: seatSelectionData.value.selectedSeats,
         totalPrice: seatSelectionData.value.totalPrice,
+        versionList: seatSelectionData.value.versionList,
         // 添加是否为中转票信息
         isTransfer: carriageStore.isTransfer,
         // 如果是中转票，添加额外信息
         transferSegment: seatSelectionData.value.transferSegment,
         // 添加联系人信息
-        contactIdList: [data.contact.contactId]
+        contactIdList: data.contact.contactId
     };
     
     // 调用API提交订单

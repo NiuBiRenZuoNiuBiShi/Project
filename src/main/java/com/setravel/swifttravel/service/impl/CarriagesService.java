@@ -215,4 +215,27 @@ public class CarriagesService {
                 .eq("del", false); // 查询未删除的记录
         carriagesMapper.update(carriage, queryWrapper);
     }
+
+    /**
+     * 获取按时长排序的车厢列表
+     * @param depStation
+     * @param depCity
+     * @param arrStation
+     * @param arrCity
+     * @param depDate
+     * @return
+     */
+    public List<CarriageThrough> getCarriagesOrderedByTime(String depStation, String depCity, String arrStation, String arrCity, String depDate) {
+        List<CarriageThrough> carriageThroughs = getCarriageThrough(depStation, depCity, arrStation, arrCity, depDate);
+        if (carriageThroughs == null || carriageThroughs.isEmpty()) {
+            return null;
+        }
+        return carriageThroughs.stream()
+                .sorted((c1, c2) -> {
+                    long duration1 = Duration.between(c1.getDepTime(), c1.getArrTime()).toMinutes();
+                    long duration2 = Duration.between(c2.getDepTime(), c2.getArrTime()).toMinutes();
+                    return Long.compare(duration1, duration2);
+                })
+                .toList();
+    }
 }

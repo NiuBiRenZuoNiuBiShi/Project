@@ -17,7 +17,9 @@ public interface UserService {
      * Registers a new user in the system. Creates a new user account with the
      * provided information after validation.
      *
-     * @param user The user entity containing registration details
+     * @param user             The user entity containing registration details
+     * @param verificationCode  The verification code sent to the user's email for
+     *                          account verification
      * @return Result object indicating success or failure with appropriate message
      */
     Result userRegister(Users user, String verificationCode);
