@@ -64,3 +64,6 @@ CREATE TABLE food_order_items (
                                   food_id     BINARY(16) NOT NULL,
                                   food_number INT(10)    NOT NULL
 )COMMENT '食物订单明细';
+
+ALTER TABLE notifications
+    ADD UNIQUE KEY uniq_user_order_type (user_id, order_id, message_type);

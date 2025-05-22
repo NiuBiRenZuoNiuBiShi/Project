@@ -6,6 +6,7 @@ import com.setravel.swifttravel.service.NotificationService;
 import com.setravel.swifttravel.utils.UUIDUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -174,8 +175,12 @@ public class NotificationServiceImpl implements NotificationService {
             .setCreatedTime(LocalDateTime.now())
             .setDel(false);
 
-        notificationsMapper.insert(notification);
-        log.info("已发送通知：{}", content);
+        try {
+            notificationsMapper.insert(notification);
+            log.info("已发送通知：{}", content);
+        }catch (DuplicateKeyException e){
+            log.warn("通知已存在，未重复发送");
+        }
     }
 
     /**

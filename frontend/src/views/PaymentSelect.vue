@@ -74,6 +74,7 @@ $primary: #4a8eff;
 .payment-select-container {
   max-width: 90%;
   width: 90%;
+  height: 95%;
   margin: 3rem auto;
   padding: 2rem;
   background: white;
@@ -95,10 +96,11 @@ $primary: #4a8eff;
   border-radius: 12px;
   padding: 3rem 2rem;
   margin: 3rem auto 7% auto;   // 顶部间距、底部留白、左右自动居中
-  font-size: 3rem;
+  font-size: 2rem;
   color: #555;
   text-align: left;
   width: 80%;
+  height: 14%;
 }
 
 .payment-options {

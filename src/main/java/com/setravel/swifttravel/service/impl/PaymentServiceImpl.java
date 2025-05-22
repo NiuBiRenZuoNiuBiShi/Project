@@ -1,10 +1,10 @@
 package com.setravel.swifttravel.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.setravel.swifttravel.entities.PaymentRecords;
-import com.setravel.swifttravel.entities.Result;
+import com.setravel.swifttravel.entities.*;
 import com.setravel.swifttravel.entities.request.CreatePaymentRequest;
-import com.setravel.swifttravel.mapper.PaymentRecordsMapper;
+import com.setravel.swifttravel.mapper.*;
+import com.setravel.swifttravel.service.NotificationService;
 import com.setravel.swifttravel.service.PaymentService;
 import com.setravel.swifttravel.utils.UUIDUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import static com.setravel.swifttravel.entities.PaymentRecords.PAY_SUCCESS;
+
+import static com.setravel.swifttravel.entities.PaymentRecords.*;
 
 @Service
 @Slf4j
@@ -22,6 +23,14 @@ public class PaymentServiceImpl
 
     @Autowired
     private PaymentRecordsMapper paymentRecordsMapper;
+    @Autowired
+    private TicketOrdersMapper ticketOrdersMapper;
+    @Autowired
+    private HotelOrderMapper hotelOrderMapper;
+    @Autowired
+    private FoodOrdersMapper foodOrdersMapper;
+    @Autowired
+    private NotificationService notificationService;
 
     /**
      * 创建支付订单
@@ -88,6 +97,19 @@ public class PaymentServiceImpl
 
             int result = paymentRecordsMapper.updateById(record);
             if (result > 0) {
+                //发送对应的消息
+                String type = record.getPayType();
+                if(TICKET.equals(type)){
+                    TicketsOrders order = ticketOrdersMapper.selectById(record.getOrderId());
+                    notificationService.sendTicketOrderPaySuccessMessage(order);
+                }else if (HOTEL.equals(type)) {
+                    HotelOrders order = hotelOrderMapper.selectById(record.getOrderId());
+                    notificationService.sendHotelOrderPaySuccessMessage(order);
+                } else if (FOOD.equals(type)) {
+                    FoodOrders order = foodOrdersMapper.selectById(record.getOrderId());
+                    notificationService.sendFoodOrderPaySuccessMessage(order);
+                }
+
                 return Result.success("支付成功", record);
             } else {
                 return Result.error("支付记录更新失败");
