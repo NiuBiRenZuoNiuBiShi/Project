@@ -44,8 +44,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
      *
      * @return The ObjectMapper instance
      */
-    @Bean
+    /*@Bean
     public com.fasterxml.jackson.databind.ObjectMapper objectMapper() {
         return new com.fasterxml.jackson.databind.ObjectMapper();
-    }
+    }*/
 }
