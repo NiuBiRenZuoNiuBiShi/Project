@@ -115,4 +115,11 @@ public class TicketController {
             @RequestParam Integer contactId) {
         return new Result(200, "成功创建订单", ticketOrdersService.makeTicketOrder(carriagesId, seatId, contactId));
     }
+
+    @GetMapping("/getCarriagesOrderedByTime")
+    public Result getCarriagesOrderedByTime(@RequestParam String depStation, @RequestParam String depCity,
+            @RequestParam String arrStation, @RequestParam String arrCity, @RequestParam String depDate) {
+        return new Result(200, "成功获取到车次", carriagesService.getCarriagesOrderedByTime(depStation, depCity, arrStation,
+                arrCity, depDate));
+    }
 }
