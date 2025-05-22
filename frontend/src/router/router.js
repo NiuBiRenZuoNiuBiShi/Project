@@ -42,6 +42,17 @@ const routes = [
         path: '/user',
         name: 'user',
         component: () => import('@/views/UserManagementView.vue')
+    },
+    {
+        path: '/notifications',
+        name: 'Notifications',
+        component: () => import('@/views/MessageCenter.vue')
+    },
+    {
+        path: '/message-detail/:id',
+        name: 'MessageDetail',
+        component: () => import('@/views/MessageDetail.vue'),
+        props: true
     }
 ];
 

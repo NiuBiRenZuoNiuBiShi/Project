@@ -54,4 +54,34 @@ public interface NotificationService {
      * @param hotelOrder
      */
     void sendHotelOrderCancelMessage(HotelOrders hotelOrder);
+
+    /**
+     * 获取消息详情并标记为已读
+     * @param messageId
+     * @return
+     */
+    Result getMessageDetailAndMarkRead(byte[] messageId);
+
+    /**
+     * 将用户消息全部标记为已读
+     * @param userId
+     * @return
+     */
+    Result markAllAsRead(byte[] userId);
+
+    /**
+     * 分页查询
+     * @param userId
+     * @param page
+     * @param size
+     * @return
+     */
+    List<Notifications> getNotificationByPage(byte[] userId, int page, int size);
+
+    /**
+     * 消息数量
+     * @param userId
+     * @return
+     */
+    int countUserNotifications(byte[] userId);
 }

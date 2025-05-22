@@ -123,6 +123,35 @@ public class NotificationServiceImpl implements NotificationService {
         insertNotification(hotelOrder.getUserId(), hotelOrder.getId(), ORDER_CANCEL, content);
     }
 
+    @Override
+    public Result getMessageDetailAndMarkRead(byte[] messageId) {
+        Notifications notification = notificationsMapper.selectById(messageId);
+        if(notification == null) {
+            return Result.error("消息不存在");
+        }
+        if(!notification.getRead()){
+            notification.setRead(true);
+            notificationsMapper.updateById(notification);
+        }
+        return Result.success("消息详情", notification);
+    }
+
+    @Override
+    public Result markAllAsRead(byte[] userId) {
+        int updated = notificationsMapper.markAllAsRead(userId);
+        return Result.success("已将消息全部标记为已读，共更新：" + updated + "条");
+    }
+
+    @Override
+    public List<Notifications> getNotificationByPage(byte[] userId, int page, int size) {
+        int offset = (page - 1) * size;
+        return notificationsMapper.selectPagedByUserId(userId, offset, size);
+    }
+
+    @Override
+    public int countUserNotifications(byte[] userId) {
+        return notificationsMapper.countByUserId(userId);
+    }
 
     /**
      * 插入一条消息

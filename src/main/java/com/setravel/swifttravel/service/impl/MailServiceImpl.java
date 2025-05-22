@@ -29,8 +29,10 @@ public class MailServiceImpl implements MailService {
     @Resource
     private JavaMailSender javaMailSender;
 
+    /*
     @Resource
     private Mapper mapper;
+     */
 
     @Override
     public Result sendSimpleMailMessage(MailDTO mailDTO) {

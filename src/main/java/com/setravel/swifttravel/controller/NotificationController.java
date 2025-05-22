@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -36,7 +37,7 @@ public class NotificationController {
         }
     }
 
-    @GetMapping("/{userId}/ubread")
+    @GetMapping("/{userId}/unread")
     public Result getUnread(@PathVariable("userId") String userIdStr){
         try {
             byte[] userId = UUIDUtil.uuidToBytes(UUID.fromString(userIdStr));
@@ -68,4 +69,47 @@ public class NotificationController {
         }
     }
 
+    /**
+     * 查看消息详情并标记为已读
+     * @param messageIdStr
+     * @return
+     */
+    @GetMapping("/detail/{messageId}")
+    public Result getDetailAndMarkRead(@PathVariable("messageId") String messageIdStr) {
+        try{
+            byte[] messageId = UUIDUtil.uuidToBytes(UUID.fromString(messageIdStr));
+            return notificationService.getMessageDetailAndMarkRead(messageId);
+        }catch (Exception e){
+            return Result.error("获取失败：" + e.getMessage());
+        }
+    }
+
+    @PostMapping("/{userId}/readAll")
+    public Result markAllAsRead(@PathVariable("userId") String userIdStr) {
+        try{
+            byte[] userId = UUIDUtil.uuidToBytes(UUID.fromString(userIdStr));
+            return notificationService.markAllAsRead(userId);
+        }catch (Exception e){
+            return Result.error("批量更新失败" + e.getMessage());
+        }
+    }
+
+    @GetMapping("{userId}/page")
+    public Result getNotificationByPage(@PathVariable("userId") String userIdStr,
+                                        @RequestParam(defaultValue = "1")int page,
+                                        @RequestParam(defaultValue = "10")int size) {
+        try{
+            byte[] userId = UUIDUtil.uuidToBytes(UUID.fromString(userIdStr));
+            List<Notifications> list = notificationService.getNotificationByPage(userId, page, size);
+            int total = notificationService.countUserNotifications(userId);
+            return Result.success("分页查询成功", Map.of(
+                "data", list,
+                "page", page,
+                "size", size,
+                "total", total
+            ));
+        }catch (Exception e){
+            return Result.error("分页查询失败" + e.getMessage());
+        }
+    }
 }
