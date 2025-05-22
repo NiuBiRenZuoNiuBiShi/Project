@@ -10,20 +10,22 @@
                 <button @click="emit('close-summary')" class="close-button">&times;</button>
             </div>
         </div>
-        
+
         <div class="delivery-info">
             <div class="delivery-icon">🚄</div>
             <div class="delivery-text">
                 <span>预计送达时间</span>
-                <strong>15:30-15:45</strong>
+                <strong>{{ deliveryInfo.estimatedTime }}</strong>
             </div>
         </div>
-        
+
+        <div class="cart-divider"></div>
+
         <div class="summary-items">
             <div v-for="(item, index) in items" :key="item.id || index" class="summary-item">
                 <div class="item-details">
                     <span class="item-name">{{ item.foodName }}</span>
-                    <span class="item-price">¥{{ (item.foodPrice * item.count).toFixed(2) }}</span>
+                    <span class="item-price">¥{{ (Number(item.price) * item.count).toFixed(2) }}</span>
                 </div>
                 <div class="item-controls">
                     <button class="control-btn dec" @click="updateItem(item, -1)">-</button>
@@ -32,9 +34,9 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="cart-divider"></div>
-        
+
         <div class="summary-calculation">
             <div class="calc-row">
                 <span>商品金额</span>
@@ -42,17 +44,17 @@
             </div>
             <div class="calc-row">
                 <span>配送费</span>
-                <span>¥5.00</span>
+                <span>¥{{ deliveryInfo.fee.toFixed(2) }}</span>
             </div>
         </div>
-        
+
         <div class="summary-total">
             <span class="total-label">合计</span>
-            <span class="total-price">¥{{ (totalAmount + 5).toFixed(2) }}</span>
+            <span class="total-price">¥{{ finalTotal.toFixed(2) }}</span>
         </div>
-        
+
         <div class="summary-actions">
-            <button class="checkout-button">
+            <button class="checkout-button" @click="handleCheckout">
                 <span>去结算</span>
                 <span class="arrow">→</span>
             </button>
@@ -63,29 +65,44 @@
 <script setup>
 import { computed } from 'vue';
 
-// 接收父组件传递的已添加食物列表
+// 接收父组件传递的props
 const props = defineProps({
     items: {
         type: Array,
         default: () => []
+    },
+    deliveryInfo: {
+        type: Object,
+        default: () => ({
+            estimatedTime: '15:30-15:45',
+            fee: 5.00
+        })
     }
 });
 
 // 定义可以触发的事件
-const emit = defineEmits(['clear-cart', 'close-summary', 'update-item']);
+const emit = defineEmits(['clear-cart', 'close-summary', 'update-item', 'checkout']);
 
 // 计算商品总计金额
 const totalAmount = computed(() => {
     return props.items.reduce((sum, item) => {
-        return sum + item.foodPrice * item.count;
+        return sum + (Number(item.price) * item.count);
     }, 0);
+});
+
+// 计算最终总价（包含配送费）
+const finalTotal = computed(() => {
+    return totalAmount.value + props.deliveryInfo.fee;
 });
 
 // 更新购物车中的商品数量
 const updateItem = (item, change) => {
-    console.log(item);
-    
     emit('update-item', item, change);
+};
+
+// 处理结算按钮点击
+const handleCheckout = () => {
+    emit('checkout');
 };
 </script>
 
@@ -116,27 +133,27 @@ $breakpoint-xs: 480px;
     border-radius: 20px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     padding: 2rem;
-    z-index: 100; // 确保高于购物车按钮但低于侧边栏
+    z-index: 100;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
     max-height: 80vh;
     overflow-y: auto;
-    
+
     @media (max-width: $breakpoint-md) {
         right: 1.5rem;
         width: 35rem;
     }
-    
+
     @media (max-width: $breakpoint-sm) {
         right: 1rem;
-        bottom: 7rem; // 避免遮挡结算按钮
+        bottom: 7rem;
         width: 32rem;
         padding: 1.5rem;
         gap: 1.2rem;
         max-height: 70vh;
     }
-    
+
     @media (max-width: $breakpoint-xs) {
         left: 50%;
         right: auto;
@@ -152,37 +169,37 @@ $breakpoint-xs: 480px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    
+
     .header-left {
         display: flex;
         align-items: center;
         gap: 1rem;
-        
+
         .cart-icon {
             font-size: 2.2rem;
-            
+
             @media (max-width: $breakpoint-xs) {
                 font-size: 2rem;
             }
         }
-        
+
         .title {
             font-size: 2rem;
             font-weight: 700;
             color: $text;
-            
+
             @media (max-width: $breakpoint-xs) {
                 font-size: 1.8rem;
             }
         }
     }
-    
+
     .header-right {
         display: flex;
         align-items: center;
         gap: 1rem;
     }
-    
+
     .clear-cart-button {
         background-color: #f1f5f9;
         border: none;
@@ -193,18 +210,18 @@ $breakpoint-xs: 480px;
         border-radius: 8px;
         font-weight: 600;
         transition: all 0.2s ease;
-        
+
         @media (max-width: $breakpoint-xs) {
             font-size: 1.3rem;
             padding: 0.4rem 1rem;
         }
-        
+
         &:hover {
             background-color: #e2e8f0;
             color: $text;
         }
     }
-    
+
     .close-button {
         background: none;
         border: none;
@@ -212,7 +229,7 @@ $breakpoint-xs: 480px;
         font-size: 2.4rem;
         cursor: pointer;
         line-height: 1;
-        
+
         &:hover {
             color: $text;
         }
@@ -226,38 +243,38 @@ $breakpoint-xs: 480px;
     background-color: #f1f9ff;
     padding: 1.2rem;
     border-radius: 12px;
-    
+
     @media (max-width: $breakpoint-xs) {
         padding: 1rem;
         gap: 1.2rem;
     }
-    
+
     .delivery-icon {
         font-size: 2.2rem;
-        
+
         @media (max-width: $breakpoint-xs) {
             font-size: 2rem;
         }
     }
-    
+
     .delivery-text {
         display: flex;
         flex-direction: column;
-        
+
         span {
             font-size: 1.3rem;
             color: $text-light;
-            
+
             @media (max-width: $breakpoint-xs) {
                 font-size: 1.2rem;
             }
         }
-        
+
         strong {
             font-size: 1.6rem;
             color: $text;
             font-weight: 700;
-            
+
             @media (max-width: $breakpoint-xs) {
                 font-size: 1.5rem;
             }
@@ -278,7 +295,7 @@ $breakpoint-xs: 480px;
     max-height: 40vh;
     overflow-y: auto;
     padding-right: 0.5rem;
-    
+
     @media (max-width: $breakpoint-sm) {
         gap: 1.2rem;
         max-height: 35vh;
@@ -289,42 +306,42 @@ $breakpoint-xs: 480px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    
+
     .item-details {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        
+
         .item-name {
             font-size: 1.6rem;
             font-weight: 600;
             color: $text;
-            
+
             @media (max-width: $breakpoint-xs) {
                 font-size: 1.5rem;
             }
         }
-        
+
         .item-price {
             font-size: 1.5rem;
             font-weight: 700;
             color: $primary-dark;
-            
+
             @media (max-width: $breakpoint-xs) {
                 font-size: 1.4rem;
             }
         }
     }
-    
+
     .item-controls {
         display: flex;
         align-items: center;
         gap: 1rem;
-        
+
         @media (max-width: $breakpoint-xs) {
             gap: 0.8rem;
         }
-        
+
         .control-btn {
             width: 30px;
             height: 30px;
@@ -336,39 +353,39 @@ $breakpoint-xs: 480px;
             font-size: 1.6rem;
             cursor: pointer;
             transition: all 0.2s ease;
-            
+
             @media (max-width: $breakpoint-xs) {
                 width: 28px;
                 height: 28px;
                 font-size: 1.4rem;
             }
-            
+
             &.inc {
                 background-color: $primary;
                 color: white;
-                
+
                 &:hover {
                     background-color: $primary-dark;
                 }
             }
-            
+
             &.dec {
                 background-color: #f1f5f9;
                 color: $text;
-                
+
                 &:hover {
                     background-color: #e2e8f0;
                 }
             }
         }
-        
+
         .item-count {
             font-size: 1.6rem;
             font-weight: 600;
             color: $text;
             min-width: 25px;
             text-align: center;
-            
+
             @media (max-width: $breakpoint-xs) {
                 font-size: 1.4rem;
                 min-width: 20px;
@@ -381,14 +398,14 @@ $breakpoint-xs: 480px;
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
-    
+
     .calc-row {
         display: flex;
         justify-content: space-between;
         font-size: 1.5rem;
         font-weight: 500;
         color: $text-light;
-        
+
         @media (max-width: $breakpoint-xs) {
             font-size: 1.4rem;
         }
@@ -400,22 +417,22 @@ $breakpoint-xs: 480px;
     justify-content: space-between;
     padding-top: 1rem;
     border-top: 1px solid $border;
-    
+
     .total-label {
         font-size: 1.8rem;
         font-weight: 700;
         color: $text;
-        
+
         @media (max-width: $breakpoint-xs) {
             font-size: 1.6rem;
         }
     }
-    
+
     .total-price {
         font-size: 2.2rem;
         font-weight: 700;
         color: $accent-dark;
-        
+
         @media (max-width: $breakpoint-xs) {
             font-size: 2rem;
         }
@@ -442,30 +459,30 @@ $breakpoint-xs: 480px;
     gap: 1rem;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px $shadow;
-    
+
     @media (max-width: $breakpoint-xs) {
         padding: 1rem;
         font-size: 1.6rem;
         border-radius: 10px;
     }
-    
+
     &:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(50, 112, 233, 0.2);
-        
+
         @media (max-width: $breakpoint-sm) {
             transform: translateY(-1px);
         }
     }
-    
+
     &:active {
         transform: translateY(0);
     }
-    
+
     .arrow {
         transition: transform 0.3s ease;
     }
-    
+
     &:hover .arrow {
         transform: translateX(5px);
     }
