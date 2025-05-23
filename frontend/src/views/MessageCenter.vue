@@ -1,4 +1,3 @@
-
 <template>
   <div class="message-center-container">
     <h2 class="title">消息中心</h2>
@@ -10,12 +9,17 @@
     </div>
 
     <div class="message-list">
-      <div v-for="msg in messages" :key="msg.messageId" class="message-card" @click="viewMessage(msg.messageId)">
+      <div
+          v-for="msg in messages"
+          :key="msg.messageId"
+          class="message-card"
+          @click="viewMessage(msg.messageId)"
+      >
         <div class="header">
-          <span class="type">{{ msg.messageType }}</span>
-          <span class="status" v-if="!msg.read">未读</span>
+          <span class="type">{{ getTypeLabel(msg.messageType) }}</span>
+          <span class="red-dot" v-if="!msg.read"></span>
         </div>
-        <div class="content">{{ msg.content.slice(0, 50) }}...</div>
+        <div class="content">{{ msg.content.length > 50 ? msg.content.slice(0, 50) + '...' : msg.content }}</div>
         <div class="time">{{ formatDate(msg.sendTime) }}</div>
       </div>
     </div>
@@ -35,22 +39,61 @@ export default {
       currentTab: 'all',
       currentPage: 1,
       totalPages: 1,
-      messages: [],
+      messages: []
     };
   },
   methods: {
+    /*
     async fetchMessages() {
       const url =
           this.currentTab === 'all'
               ? `/api/notifications/page?page=${this.currentPage}`
-              : `/api/notifications/page/unread?page=${this.currentPage}`;
+              : `/api/notifications/unread/page?page=${this.currentPage}`;
       const res = await fetch(url);
       const result = await res.json();
       if (result.code === 200) {
-        this.messages = result.data.records;
-        this.totalPages = result.data.totalPages;
+        this.messages = result.data.data;
+        this.totalPages = Math.ceil(result.data.total / result.data.size);
       }
+    },*/
+    async fetchMessages() {
+      // 模拟数据
+      const mock = {
+        code: 200,
+        data: {
+          data: [
+            {
+              messageId: '1',
+              messageType: 'PAY_SUCCESS',
+              content: '您的车票已支付成功，祝您旅途愉快！G123 号列车将于明天发车。',
+              sendTime: new Date().toISOString(),
+              read: false
+            },
+            {
+              messageId: '2',
+              messageType: 'DEP_REMINDER',
+              content: '列车即将发车，请提前3小时到站，G456号列车从上海虹桥出发。',
+              sendTime: new Date().toISOString(),
+              read: true
+            },
+            {
+              messageId: '3',
+              messageType: 'ORDER_CANCEL',
+              content: '您的酒店订单已取消，退款将原路退回。',
+              sendTime: new Date().toISOString(),
+              read: false
+            }
+          ],
+          total: 3,
+          size: 10,
+          page: this.currentPage
+        }
+      };
+
+      this.messages = mock.data.data;
+      this.totalPages = 1;
     },
+
     switchTab(tab) {
       this.currentTab = tab;
       this.currentPage = 1;
@@ -76,8 +119,16 @@ export default {
         this.fetchMessages();
       }
     },
-    async viewMessage(messageId) {
+    viewMessage(messageId) {
       this.$router.push({ name: 'MessageDetail', params: { id: messageId } });
+    },
+    getTypeLabel(type) {
+      const map = {
+        PAY_SUCCESS: '支付成功',
+        ORDER_CANCEL: '订单取消',
+        DEP_REMINDER: '发车提醒'
+      };
+      return map[type] || '系统通知';
     },
     formatDate(time) {
       return new Date(time).toLocaleString();
@@ -152,7 +203,7 @@ export default {
   .message-card {
     border: 1px solid #eee;
     border-radius: 8px;
-    padding: 1rem;
+    padding: 1rem 1.5rem;
     background: #f9f9f9;
     cursor: pointer;
     transition: 0.2s;
@@ -164,17 +215,23 @@ export default {
     .header {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       font-weight: bold;
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       margin-bottom: 0.5rem;
 
-      .status {
-        color: red;
+      .red-dot {
+        width: 10px;
+        height: 10px;
+        background-color: red;
+        border-radius: 50%;
+        display: inline-block;
+        margin-left: 0.5rem;
       }
     }
 
     .content {
-      font-size: 1.4rem;
+      font-size: 1.5rem;
       color: #444;
       margin-bottom: 0.5rem;
     }
@@ -188,13 +245,12 @@ export default {
 
 .pagination-controls {
   position: fixed;
-  bottom: 8%;
-  left: 50%;
   justify-content: center;
   align-items: center;
   gap: 1.5rem;
   margin-top: 2rem;
-
+  bottom: 8%;
+  left: 50%;
 
   button {
     background-color: #4a8eff;
