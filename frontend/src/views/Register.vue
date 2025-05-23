@@ -5,14 +5,14 @@
       <div class="logo">MyApp</div>
       <nav class="nav">
         <ul>
-          <li><a href="http://localhost:5173/home"><i class="fas fa-home home-icon"></i> Home</a></li>
-          <li><a href="http://localhost:5173/about"><i class="fa-solid fa-address-card"></i>About</a></li>
-          <li><a href="#" @click.prevent="toggleSidebar"><i class="fa-solid fa-phone-volume"></i>Contact</a></li>
+          <li><a href="http://localhost:5173/home" class="nav-link"><i class="fas fa-home home-icon"></i> Home</a></li>
+          <li><a href="http://localhost:5173/about" class="nav-link"><i class="fa-solid fa-address-card"></i>About</a></li>
+          <li><a href="#" @click.prevent="toggleSidebar" class="nav-link"><i class="fa-solid fa-phone-volume"></i>Contact</a></li>
         </ul>
       </nav>
     </header>
 
-    <!-- Sidebar Section (Phone & Email) -->
+    <!-- Sidebar Section -->
     <div class="sidebar" :class="{ show: showSidebar }">
       <div class="sidebar-content">
         <button @click="toggleSidebar" class="close-btn">X</button>
@@ -24,30 +24,37 @@
     <!-- Main Content Section -->
     <main class="content">
       <div class="register_container">
+        <div class="form_background"></div>
         <div class="form">
           <h2 class="title">Create Account</h2>
           <div class="input_container">
             <div class="input_field_wrapper">
-              <input type="text" class="username" :class="{ invalid: username_invalid }" placeholder="Username"
-                     v-model="username" @blur="validateUsername">
+              <input type="text" class="username" :class="{ invalid: username_invalid }"
+                     placeholder="Username" v-model="username" @blur="validateUsername">
               <transition name="fade">
-                <p v-if="username_invalid && username_touched" class="error_message">Username must be 4-16 characters</p>
+                <p v-if="username_invalid && username_touched" class="error_message">
+                  Username must be 4-16 characters
+                </p>
               </transition>
             </div>
 
             <div class="input_field_wrapper">
-              <input type="email" class="email" :class="{ invalid: email_invalid }" placeholder="Email"
-                     v-model="email" @blur="validateEmail">
+              <input type="email" class="email" :class="{ invalid: email_invalid }"
+                     placeholder="Email" v-model="email" @blur="validateEmail">
               <transition name="fade">
-                <p v-if="email_invalid && email_touched" class="error_message">Please enter a valid email</p>
+                <p v-if="email_invalid && email_touched" class="error_message">
+                  Please enter a valid email
+                </p>
               </transition>
             </div>
 
             <div class="input_field_wrapper">
-              <input type="password" class="password" :class="{ invalid: password_invalid }" placeholder="Password"
-                     v-model="password" @blur="validatePassword">
+              <input type="password" class="password" :class="{ invalid: password_invalid }"
+                     placeholder="Password" v-model="password" @blur="validatePassword">
               <transition name="fade">
-                <p v-if="password_invalid && password_touched" class="error_message">Password must be 8-20 characters with at least one number</p>
+                <p v-if="password_invalid && password_touched" class="error_message">
+                  Password must be 8-20 characters with at least one number
+                </p>
               </transition>
             </div>
 
@@ -55,7 +62,23 @@
               <input type="password" class="confirm-password" :class="{ invalid: confirm_password_invalid }"
                      placeholder="Confirm Password" v-model="confirm_password" @blur="validateConfirmPassword">
               <transition name="fade">
-                <p v-if="confirm_password_invalid && confirm_password_touched" class="error_message">Passwords do not match</p>
+                <p v-if="confirm_password_invalid && confirm_password_touched" class="error_message">
+                  Passwords do not match
+                </p>
+              </transition>
+            </div>
+
+            <div class="input_field_wrapper verification-code-wrapper">
+              <input type="text" class="verification-code" :class="{ invalid: verificationCode_invalid }"
+                     placeholder="Verification Code" v-model="verificationCode" @blur="validateVerificationCode"
+                     maxlength="6">
+              <button class="send-code-btn" @click="sendVerificationCode" :disabled="sendCodeDisabled">
+                {{ sendCodeBtnText }}
+              </button>
+              <transition name="fade">
+                <p v-if="verificationCode_invalid && verificationCode_touched" class="error_message">
+                  Please enter 6-digit code
+                </p>
               </transition>
             </div>
           </div>
@@ -78,7 +101,6 @@
       </div>
     </main>
 
-    <!-- Footer Section -->
     <footer class="footer">
       <p>&copy; 2025 MyApp. All rights reserved.</p>
     </footer>
@@ -86,37 +108,51 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { checkPassword, checkUsername } from '@/utils/checkSyntax';
+import { ref, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
+import { userRegister } from '@/api/UserApi.js'
 
 const router = useRouter();
 
+// 表单数据
 const username = ref('');
 const email = ref('');
 const password = ref('');
 const confirm_password = ref('');
+const verificationCode = ref('');
 const terms_accepted = ref(false);
 
+// 验证状态
 const username_invalid = ref(false);
 const email_invalid = ref(false);
 const password_invalid = ref(false);
 const confirm_password_invalid = ref(false);
+const verificationCode_invalid = ref(false);
 const terms_invalid = ref(false);
 
+// 触摸状态
 const username_touched = ref(false);
 const email_touched = ref(false);
 const password_touched = ref(false);
 const confirm_password_touched = ref(false);
+const verificationCode_touched = ref(false);
 
+// 验证码发送状态
+const countdown = ref(0);
+const sendCodeDisabled = computed(() => countdown.value > 0 || email_invalid.value);
+const sendCodeBtnText = computed(() => countdown.value > 0 ? `${countdown.value}s` : 'Send Code');
+
+// 侧边栏控制
 const showSidebar = ref(false);
 const toggleSidebar = () => {
   showSidebar.value = !showSidebar.value;
 };
 
+// 验证方法
 const validateUsername = () => {
   username_touched.value = true;
-  username_invalid.value = !checkUsername(username.value);
+  username_invalid.value = username.value.length < 4 || username.value.length > 16;
 };
 
 const validateEmail = () => {
@@ -127,7 +163,10 @@ const validateEmail = () => {
 
 const validatePassword = () => {
   password_touched.value = true;
-  password_invalid.value = !checkPassword(password.value);
+  const hasNumber = /\d/.test(password.value);
+  password_invalid.value = password.value.length < 8 ||
+      password.value.length > 20 ||
+      !hasNumber;
 };
 
 const validateConfirmPassword = () => {
@@ -135,11 +174,38 @@ const validateConfirmPassword = () => {
   confirm_password_invalid.value = password.value !== confirm_password.value;
 };
 
+const validateVerificationCode = () => {
+  verificationCode_touched.value = true;
+  verificationCode_invalid.value = verificationCode.value.length !== 6;
+};
+
+// 发送验证码
+const sendVerificationCode = async () => {
+  validateEmail();
+  if (email_invalid.value) return;
+
+  try {
+    // 替换为实际的API调用
+    await axios.post('/api/send-verification-code', { email: email.value });
+    countdown.value = 60;
+    const timer = setInterval(() => {
+      countdown.value--;
+      if (countdown.value <= 0) {
+        clearInterval(timer);
+      }
+    }, 1000);
+  } catch (error) {
+    console.error('Failed to send verification code:', error);
+  }
+};
+
+// 表单验证
 const validateForm = () => {
   validateUsername();
   validateEmail();
   validatePassword();
   validateConfirmPassword();
+  validateVerificationCode();
 
   terms_invalid.value = !terms_accepted.value;
 
@@ -147,24 +213,37 @@ const validateForm = () => {
       !email_invalid.value &&
       !password_invalid.value &&
       !confirm_password_invalid.value &&
+      !verificationCode_invalid.value &&
       terms_accepted.value;
 };
 
-const handleRegister = () => {
-  if (validateForm()) {
-    // Here you would typically make an API call to register the user
-    console.log('Registration data:', {
-      username: username.value,
-      email: email.value,
-      password: password.value
+// 注册处理
+const handleRegister = async () => {
+  if (!validateForm()) return;
+
+  try {
+    const response = await userRegister({
+      user: {
+        username: username.value,
+        email: email.value,
+        password: password.value
+      },
+      verificationCode: verificationCode.value
     });
 
-    // Redirect to login page after successful registration
-    router.push('/login');
+    if (response.success) {
+      router.push('/login');
+    } else {
+      console.error('Registration failed:', response.message);
+      // 可以在这里添加错误提示显示逻辑
+    }
+  } catch (error) {
+    console.error('Registration error:', error);
+    // 可以在这里添加错误提示显示逻辑
   }
 };
 
-// Watch for changes to validate in real-time
+// 实时验证
 watch(username, validateUsername);
 watch(email, validateEmail);
 watch(password, () => {
@@ -174,341 +253,409 @@ watch(password, () => {
   }
 });
 watch(confirm_password, validateConfirmPassword);
+watch(verificationCode, validateVerificationCode);
 </script>
 
 <style lang="scss" scoped>
-$mask-color: rgba(0, 0, 0, 0.2);
-$background-color: #fffdf7;
-$login-color: #ffffff;
-$button-color: #a3d2ca;
-$button-color-hover: #5eaaa8;
+/* 变量定义 */
+$primary-color: #a3d2ca;
+$primary-hover: #5eaaa8;
 $error-color: #ff4757;
-$terms-color: #555;
-
+$text-color: #333;
+$light-bg: #fffdf7;
+$white: #ffffff;
+$gray: #cccccc;
+$dark-gray: #555;
 @font-face {
   font-family: "TsangerYuYangT_W01_W01"; /* 字体名称 */
   src: url('@/assets/font/站酷仓耳渔阳体/TsangerYuYangT_W03_W03.ttf') format('truetype'); /* 字体文件路径 */
   font-weight: normal;
   font-style: normal;
 }
-
-.home-icon {
-  color: #a3d2ca; /* 设置房子图标颜色 */
-}
-
+/* 基础样式 */
 .view-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
+}
 
-  .header {
-    background-color: #222;
-    color: white;
-    padding: 1rem 2rem;
+/* Header 样式 */
+.header {
+  background-color: #222;
+  color: $white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+  .logo {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .nav ul {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 
-    .logo {
-      font-size: 2rem;
-      font-weight: 700;
+    li {
+      transition: color 0.3s ease; /* 添加平滑过渡 */
     }
 
-    .nav ul {
-      list-style-type: none;
-      padding-left: 0;
+    .nav-link {
       display: flex;
-      gap: 2rem;
+      align-items: center;
+      gap: 0.5rem;
+      color: $white; /* 默认字体颜色 */
+      text-decoration: none;
+      font-size: 1.2rem;
+      transition: color 0.3s ease;
+    }
 
-      li a {
-        color: white;
-        text-decoration: none;
+    .nav-link:hover,
+    .nav-link:hover i {
+      color: #a3d2ca; /* 鼠标悬停时，字体和图标颜色变为红色 */
+    }
+
+    .nav-link i {
+      font-size: 1.2rem;
+      color: $white; /* 默认图标颜色 */
+      transition: color 0.3s ease;
+    }
+
+    li a {
+      color: $white;
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      i {
         font-size: 1.2rem;
-        transition: color 0.3s;
-
-        i {
-          margin-right: 4px;
-          color: inherit;
-          transition: color 0.3s;
-        }
-        &:hover {
-          color: $button-color;
-        }
-        &:hover i {
-          color: $button-color;
-        }
+        color: $white;
       }
     }
   }
+}
 
-  .content {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: $background-color;
+/* 内容区域样式 */
+.content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: $light-bg;
+  padding: 2rem;
 
-    .register_container {
-      width: 1000px;
+  .register_container {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    height: 600px;
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+
+    .form_background {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: flex;
-      justify-content: space-between;
-      background-color: $login-color;
-      border-radius: 30px;
-      padding: 4rem;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-      background-image: linear-gradient(105deg, $mask-color 0%, $mask-color 47%, rgba(248, 249, 250, 0.2) 52%, transparent 55%), url(../assets/pic/micke-lindstrom-emvCxhS7OaQ-unsplash.jpg);
+      width: 100%;
+      height: 100%;
+      background-image:
+          linear-gradient(
+                  105deg,
+                  rgba(0, 0, 0, 0.2) 0%,
+                  rgba(0, 0, 0, 0.2) 47%,
+                  rgba(248, 249, 250, 0.2) 52%,
+                  transparent 55%
+          ),
+          url('@/assets/pic/micke-lindstrom-emvCxhS7OaQ-unsplash.jpg');
       background-size: cover;
       background-position: center;
-      background-blend-mode: multiply;
+      z-index: 1;
+    }
 
-      .form {
-        width: 40%;
+    .form {
+      position: relative;
+      width: 50%;
+      height: 100%;
+      padding: 3rem;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(5px);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      .title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: $text-color;
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .input_container {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background-color: rgba(255, 255, 255, 0.6);
-        padding: 3rem;
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-        backdrop-filter: blur(5px);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
 
-        .title {
-          font-weight: 900;
-          font-size: 3rem;
-          color: #222;
-          margin-bottom: 3%;
-        }
-
-        .input_container {
-          display: flex;
+        .input_field_wrapper {
           position: relative;
-          flex-direction: column;
-          gap: 2rem;
-          margin-bottom: 2.5rem;
-          width: 100%;
-
-          .input_field_wrapper {
-            position: relative;
-            width: 100%;
-            margin-bottom: 1rem;
-          }
 
           input {
             width: 100%;
-            height: 5.5rem;
-            outline: none;
-            border: 1px solid rgb(231 231 231);
-            border-radius: 12px;
-            padding: 0 2rem;
-            font-size: 1.5rem;
-            transition: all 0.2s ease-in-out;
+            padding: 1rem;
+            border: 1px solid #e7e7e7;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
             background-color: rgba(255, 255, 255, 0.9);
 
             &:focus {
-              border: 1px solid $button-color-hover;
-              box-shadow: 0 0 0 2px rgba(94, 170, 168, 0.2);
-            }
-
-            &::placeholder {
-              color: #aaa;
-              font-style: italic;
-              font-weight: 500;
-              font-size: 1.5rem;
-              letter-spacing: 0.5px;
-              transition: opacity 0.3s;
+              border-color: $primary-color;
+              box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+              outline: none;
             }
 
             &.invalid {
-              border: 2px solid $error-color;
-              box-shadow: 0 0 5px rgba($error-color, 0.5);
+              border-color: $error-color;
+              box-shadow: 0 0 0 2px rgba($error-color, 0.2);
             }
+          }
+
+          &.verification-code-wrapper {
+            input {
+              padding-right: 120px;
+            }
+
+            .send-code-btn {
+              position: absolute;
+              right: 5px;
+              top: 50%;
+              transform: translateY(-50%);
+              padding: 0.5rem 1rem;
+              background: $primary-color;
+              color: $white;
+              border: none;
+              border-radius: 6px;
+              font-size: 0.9rem;
+              cursor: pointer;
+              transition: all 0.3s;
+
+              &:hover {
+                background: $primary-hover;
+              }
+
+              &:disabled {
+                background: $gray;
+                cursor: not-allowed;
+              }
+            }
+          }
+
+          .error_message {
+            position: absolute;
+            left: 0;
+            bottom: -1.5rem;
+            color: $error-color;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+          }
+        }
+      }
+
+      .terms_container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem;
+        font-size: 0.9rem;
+        position: relative;
+
+        .terms_checkbox {
+          margin-right: 0.5rem;
+          accent-color: $primary-color;
+        }
+
+        .terms_link {
+          color: $primary-color;
+          text-decoration: none;
+          margin-left: 0.3rem;
+
+          &:hover {
+            text-decoration: underline;
           }
         }
 
-        .terms_container {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          margin-bottom: 2rem;
-          font-size: 1.4rem;
-          color: $terms-color;
+        .terms_error {
+          position: absolute;
+          bottom: -1.5rem;
+          left: 0;
+        }
+      }
 
-          .terms_checkbox {
-            width: 2rem;
-            height: 2rem;
-            margin-right: 1rem;
-            accent-color: $button-color-hover;
+      .button_container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        .register_button {
+          width: 100%;
+          padding: 1rem;
+          background: $primary-color;
+          color: $white;
+          border: none;
+          border-radius: 8px;
+          font-size: 1.1rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s;
+
+          &:hover {
+            background: $primary-hover;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba($primary-color, 0.3);
           }
 
-          .terms_link {
-            color: $button-color-hover;
+          &:active {
+            transform: translateY(0);
+          }
+        }
+
+        .login_redirect {
+          text-align: center;
+          font-size: 0.9rem;
+          color: $dark-gray;
+
+          .login_link {
+            color: $primary-color;
             text-decoration: none;
             font-weight: 600;
-            margin-left: 0.3rem;
 
             &:hover {
               text-decoration: underline;
             }
           }
-
-          .terms_error {
-            position: absolute;
-            bottom: -2.5rem;
-            left: 0;
-          }
-        }
-
-        .button_container {
-          width: 100%;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          gap: 2rem;
-
-          .register_button {
-            width: 90%;
-            display: block;
-            height: 5.5rem;
-            background-color: $button-color;
-            color: #fff;
-            font-size: 2rem;
-            letter-spacing: 1px;
-            font-weight: 700;
-            border-radius: 12px;
-            border: none;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 4px 10px rgba($button-color, 0.3);
-            transform: translateY(0);
-
-            &:hover {
-              cursor: pointer;
-              transform: translateY(-2px);
-              background-color: $button-color-hover;
-              box-shadow: 0 6px 15px rgba($button-color-hover, 0.4);
-            }
-
-            &:active {
-              transform: translateY(1px);
-              box-shadow: 0 2px 5px rgba($button-color-hover, 0.4);
-            }
-          }
-
-          .login_redirect {
-            font-size: 1.5rem;
-            color: $terms-color;
-
-            .login_link {
-              color: $button-color-hover;
-              text-decoration: none;
-              font-weight: 600;
-              margin-left: 0.5rem;
-
-              &:hover {
-                text-decoration: underline;
-              }
-            }
-          }
         }
       }
     }
   }
+}
 
-  .footer {
-    background-color: #222;
-    color: white;
-    text-align: center;
+/* Footer 样式 */
+.footer {
+  background: #222;
+  color: $white;
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.9rem;
+}
+
+/* Sidebar 样式 */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 230px;
+  height: auto;
+  background-color: white;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 1000;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  font-family: "TsangerYuYangT_W01_W01", sans-serif;
+  &.show {
+    transform: translateX(0);
+  }
+
+  .sidebar-content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 1.5rem;
+
+    .close-btn {
+      align-self: flex-end;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      margin-bottom: 1.5rem;
+    }
+
+    p {
+      font-size: 1.5rem;
+      color: #333;
+
+      i {
+        color: $primary-color;
+      }
+    }
+  }
+}
+
+/* 过渡动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .register_container {
+    flex-direction: column;
+    height: auto;
+
+    .form_background {
+      height: 200px;
+    }
+
+    .form {
+      width: 100%;
+      padding: 2rem;
+    }
+  }
+
+  .header {
+    flex-direction: column;
+    padding: 1rem;
+
+    .logo {
+      margin-bottom: 1rem;
+    }
+
+    .nav ul {
+      gap: 1rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
     padding: 1rem;
   }
 
-  .sidebar {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 230px;
-    height: auto;
-    background-color: rgba(0, 123, 255, 0.9);
-    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
-    transform: translateX(100%);
-    transition: transform 0.3s ease-in-out;
-    z-index: 1000;
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    font-family: "TsangerYuYangT_W01_W01", sans-serif;
+  .register_container {
+    border-radius: 15px;
 
-    &.show {
-      transform: translateX(0);
-    }
-
-    .sidebar-content {
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 1rem;
-
-      p {
-        font-size: 1.5rem;
-        color: #333;
-      }
-
-      .close-btn {
-        align-self: flex-end;
-        font-size: 2rem;
-        background: none;
-        border: none;
-        color: #333;
-        cursor: pointer;
-        transition: color 0.3s ease;
-
-        &:hover {
-          color: #a3d2ca;
-        }
-      }
-    }
-  }
-
-  .error_message {
-    position: absolute;
-    left: 0.5rem;
-    bottom: -2rem;
-    color: $error-color;
-    font-size: 1.2rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-  }
-
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.3s ease;
-  }
-
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
-
-  @media (max-width: 768px) {
-    .content .register_container {
-      flex-direction: column;
-      .form {
-        width: 100%;
-      }
-    }
-  }
-
-  @media (max-width: 480px) {
-    .content .register_container {
-      width: 90%;
-      padding: 2rem;
+    .form {
+      padding: 1.5rem;
     }
   }
 }

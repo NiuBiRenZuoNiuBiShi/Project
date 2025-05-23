@@ -45,7 +45,7 @@
           </div>
           <div class="forget_info" role="button"><span>Forget password?</span></div>
           <div class="button_container">
-            <button class="login_button">Login</button>
+            <button class="login_button" @click="login">Login</button>
             <button class="register_button" @click="goToRegister">Register</button>
           </div>
         </div>
@@ -63,6 +63,7 @@
 import { ref, watch } from 'vue';
 import { checkPassword, checkUsername } from '@/utils/checkSyntax';
 import { useRouter } from 'vue-router'
+import { userLogin } from '@/api/UserApi.js';
 const router = useRouter()
 
 const goToRegister = () => {
@@ -71,6 +72,33 @@ const goToRegister = () => {
   // 或
   // router.push({ name: 'register' }) // 方式二：使用你在路由配置中定义的名称
 }
+const login = async () => {
+  // 进行表单验证
+  username_touched.value = true;
+  password_touched.value = true;
+
+  if (username_invalid.value || password_invalid.value) {
+    return; // 如果用户名或密码格式不正确，直接返回
+  }
+
+  try {
+    // 调用登录接口
+    const user = { username: username.value, password: password.value };
+    const data = await userLogin(user);
+
+    if (data.success) {
+      // 登录成功后处理，比如跳转到主页
+      router.push('/home');
+    } else {
+      // 登录失败，显示错误信息
+      alert('登录失败: ' + data.message);
+    }
+  } catch (error) {
+    console.error('登录失败:', error);
+    alert('登录失败，请稍后再试');
+  }
+};
+
 
 const username = ref('');
 const password = ref('');
@@ -327,7 +355,7 @@ $button-color-hover: #5eaaa8;
     right: 0;
     width: 230px;
     height: auto;
-    background-color: rgba(0, 123, 255, 0.9);
+    background-color: white;
     box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
     transform: translateX(100%);
     transition: transform 0.3s ease-in-out;

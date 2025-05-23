@@ -12,6 +12,7 @@ import com.setravel.swifttravel.service.UserService;
 
 import jakarta.annotation.Resource;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -47,7 +48,7 @@ public class UserController {
         return userService.userLogout(token);
     }
 
-    @PostMapping("/api/user/info")
+    @GetMapping("/api/user/info")
     public Result getUserInfo() {
         return userService.getUserInfo();
     }

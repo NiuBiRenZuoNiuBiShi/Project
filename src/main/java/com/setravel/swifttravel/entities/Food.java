@@ -59,6 +59,9 @@ public class Food extends Model<Food> {
     @TableField("pic_url")
     private String picUrl;
 
+    @TableField("number")
+    private Integer number;
+
     @TableField("del")
     private Boolean del;
 
@@ -84,4 +87,5 @@ public class Food extends Model<Food> {
     public Serializable pkVal() {
         return this.id;
     }
+
 }

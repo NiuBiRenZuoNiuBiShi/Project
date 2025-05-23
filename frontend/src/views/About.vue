@@ -6,9 +6,7 @@
       <header>
         <div class="main">
           <ul>
-            <li class="active"><a href="http://localhost:5173/login">登录</a></li>
-            <li class="active"><a href="http://localhost:5173/register">注册</a></li>
-            <li class="active"><a href="http://localhost:5173/home">主页</a></li>
+            <li class="active"><a href="http://localhost:5173/home">Home</a></li>
           </ul>
         </div>
         <div class="title">

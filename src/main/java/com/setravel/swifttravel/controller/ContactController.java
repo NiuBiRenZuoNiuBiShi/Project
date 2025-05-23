@@ -2,13 +2,14 @@ package com.setravel.swifttravel.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.setravel.swifttravel.entities.Contacts;
 import com.setravel.swifttravel.entities.Result;
+import com.setravel.swifttravel.entities.request.ContactRequest;
 import com.setravel.swifttravel.service.ContactService;
 
 import jakarta.annotation.Resource;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,28 +23,27 @@ public class ContactController {
     private ContactService contactService;
 
     @PostMapping("/api/contact/add")
-    public Result postMethodName(@RequestBody Contacts entity) {
+    public Result addContact(@RequestBody ContactRequest entity) {
         return contactService.addContact(entity);
     }
 
     @PostMapping("/api/contact/adds")
-    public Result getMethodName(@RequestBody List<Contacts> contactList) {
+    public Result addContacts(@RequestBody List<ContactRequest> contactList) {
         return contactService.addContacts(contactList);
     }
 
     @DeleteMapping("/api/contact/delete")
-    public Result deleteMethodName(@RequestBody Contacts entity) {
+    public Result deleteContact(@RequestBody ContactRequest entity) {
         return contactService.deleteContact(entity);
     }
 
     @PutMapping("/api/contact/update")
-    public Result updateMethodName(@RequestBody Contacts entity) {
+    public Result updateContact(@RequestBody ContactRequest entity) {
         return contactService.updateContact(entity);
     }
 
-    // @PostMapping("/api/contact/get")
-    // public Result getMethodName(@RequestBody Contacts entity) {
-
-    // return entity;
-    // }
+    @GetMapping("/api/contact/get")
+    public Result getContacts() {
+        return contactService.getContactsByCurrentUser();
+    }
 }
