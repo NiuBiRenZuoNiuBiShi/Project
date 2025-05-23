@@ -33,7 +33,7 @@ import FilterForm from '@/components/FilterForm.vue';
 import SeatSelectionModel from '@/components/SeatSelectionModel.vue'; // 导入座位选择组件
 import ContactSelection from '@/components/ContactSelection.vue'; // 导入联系人选择组件
 import { searchTrainTicketsApi, orderTicketApi } from '@/api/TrainTicketApi';
-import { useCarriageStore } from '@/repo/carriageStore';
+import { useCarriageStore } from '@/store/carriageStore';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus'; 
 

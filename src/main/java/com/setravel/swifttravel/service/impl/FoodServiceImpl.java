@@ -1,13 +1,16 @@
 package com.setravel.swifttravel.service.impl;
 
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.extension.activerecord.AbstractModel;
 import com.setravel.swifttravel.entities.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.setravel.swifttravel.entities.output.FoodOutput;
@@ -91,15 +94,43 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     public Result buyFoodList(List<FoodRequest> requestList) {
         List<Food> foodList = requestList.stream().map(FoodRequest::toEntity).toList();
+
+        // 使用悲观锁 + 库存检查
+        try {
+            // 先锁定相关食物记录，防止并发修改
+            List<Food> lockedFoods = foodMapper.selectFoodsForUpdate(foodList.stream().map(Food::getId).toList());
+
+            // 检查库存是否充足
+            Map<byte[], Integer> requestMap = foodList.stream().collect(Collectors.toMap(Food::getId, Food::getNumber));
+
+            for (Food lockedFood : lockedFoods) {
+                Integer requestNum = requestMap.get(lockedFood.getId());
+                if (requestNum == null || lockedFood.getNumber() < requestNum) {
+                    return Result.error("库存不足: " + lockedFood.getFoodName());
+                }
+            }
+
+            // 扣减库存
+            int affectedRows = foodMapper.decreaseFoodsWithCheck(foodList);
+            if (affectedRows != foodList.size()) {
+                throw new RuntimeException("库存扣减失败，可能库存不足");
+            }
+
+        } catch (Exception e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return Result.error("购买失败: " + e.getMessage());
+        }
+
+        // 创建订单
         Users currentUser = UserContext.getCurrentUser(userMapper);
-        // TODO: Implement the logic to buy food
         FoodOrders foodOrder = new FoodOrders();
         foodOrder.setId(UUIDUtil.generateUUIDBytes());
         foodOrder.setUserId(currentUser.getId());
         foodOrder.setDel(false);
-        foodOrder.setPayId(null); // Assuming payId is not set at this point
+        foodOrder.setPayId(null);
 
         List<FoodOrderItems> foodOrderItemsList = foodList.stream().map(food -> {
             FoodOrderItems foodOrderItem = new FoodOrderItems();
@@ -109,12 +140,9 @@ public class FoodServiceImpl implements FoodService {
             foodOrderItem.setOrderId(foodOrder.getId());
             return foodOrderItem;
         }).toList();
-        // 后期如果需要通过食物订单查询详情的话，可能需要在foodOrders表中添加一个foodOrderItems字段
-        // foodOrder.setFoodOrderItems(foodOrderItemsList);
 
-        // 向foodOrders表中插入数据
+        // 插入订单数据
         foodOrder.insert();
-        // 向foodOrderItems表中插入数据
         foodOrderItemsList.forEach(AbstractModel::insert);
 
         return Result.success(foodOrder);
