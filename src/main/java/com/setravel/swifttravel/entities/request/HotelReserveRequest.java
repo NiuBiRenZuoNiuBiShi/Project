@@ -13,5 +13,5 @@ public class HotelReserveRequest {
     private String roomType;
     private LocalDate checkinDate;
     private LocalDate checkoutDate;
-    private Integer numberofPeople;
+    private Integer numberPeople;
 }

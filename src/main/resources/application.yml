@@ -18,8 +18,8 @@ spring:
   mail:
     protocol: smtp
     default-encoding: UTF-8
-    host: smtp.office365.com
-    port: 587
+    host: smtp.163.com
+    port: 25
     username: ${SWIFT_TRAVEL_EMAIL_USERNAME} # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
     password: ${SWIFT_TRAVEL_EMAIL_AUTHCODE} # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
     properties:

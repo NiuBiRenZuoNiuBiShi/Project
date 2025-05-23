@@ -1,5 +1,8 @@
 package com.setravel.swifttravel.controller;
 
+import com.setravel.swifttravel.mapper.UserMapper;
+import com.setravel.swifttravel.security.UserContext;
+import com.setravel.swifttravel.utils.UUIDUtil;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,14 +30,18 @@ public class ReservationController {
     @Resource
     private ReservationService reservationService;
 
+    @Resource
+    private UserMapper userMapper;
+
     /*
      * 创建预订订单
      * POST /api/v1/reservations
      */
     @PostMapping
     public Result createReservation(@RequestBody HotelReserveRequest request) {
-        // 从认证信息中获取用户id？
         try {
+            // 从认证信息中获取用户id
+            request.setUserId(UUIDUtil.bytesToString(UserContext.getCurrentUserId(userMapper)));
             HotelReserveOutput reservation = reservationService.createReservation(request);
             // 注意：之前使用 ResponseEntity.status(HttpStatus.CREATED) 返回 201
             // 直接返回 Result 时，HTTP 状态码通常为 200 OK。
@@ -58,13 +65,10 @@ public class ReservationController {
      */
     @GetMapping("/my-history")
     public Result getMyReservations(
-        // 如何获取用户信息？
-        @RequestParam String userIdString,
         @RequestParam(defaultValue = "1") int pageNum,
         @RequestParam(defaultValue = "10") int pageSize
     ) {
-        // TODO:禁止查询不属于本人的预订记录
-
+        String userIdString = UUIDUtil.bytesToString(UserContext.getCurrentUserId(userMapper));
         try {
             IPage<HotelReserveOutput> reservations = reservationService.getUserReservations(userIdString, pageNum, pageSize);
             if (reservations == null || reservations.getRecords().isEmpty()) {
@@ -83,15 +87,14 @@ public class ReservationController {
      */
     @GetMapping("/{reservationIdString}")
     public Result getReservationDetails(
-            @PathVariable String reservationIdString,
-            // @AuthenticationPrincipal MyUserDetails userDetails // Example
-            @RequestParam String userIdString // TODO: Replace with authenticated user ID for validation
+        @PathVariable String reservationIdString
+        // @AuthenticationPrincipal MyUserDetails userDetails
     ) {
-        // String currentUserIdString = IdUtils.bytesToUrlSafeString(userDetails.getId());
+        String userIdString = UUIDUtil.bytesToString(UserContext.getCurrentUserId(userMapper));
         try{
             HotelReserveOutput reservation = reservationService.getReservationDetails(reservationIdString, userIdString);
             if (reservation == null) {
-                return Result.success("未找到任何预订记录。", reservation);
+                return Result.success("未找到任何预订记录。", null);
             }
             return Result.success(reservation);
         } catch (Exception e) {
@@ -107,14 +110,9 @@ public class ReservationController {
 
     @DeleteMapping("/{reservationIdString}")
     public Result cancelReservation(
-            @PathVariable String reservationIdString,
-            // 应该从认证信息中获取 userIdString，而不是作为参数传递(暂作为参数传递)
-            @RequestParam String userIdString 
+            @PathVariable String reservationIdString
     ) {
-        // String authenticatedUserIdString = getAuthenticatedUserIdFromSecurityContext();
-        // if (!authenticatedUserIdString.equals(userIdString)) { // 确保是用户自己取消
-        //    return Result.error(403, "禁止操作：无权取消此预订");
-        // }
+        String userIdString = UUIDUtil.bytesToString(UserContext.getCurrentUserId(userMapper));
         try {
             boolean cancelled = reservationService.cancelReservation(reservationIdString, userIdString);
             if (cancelled) {

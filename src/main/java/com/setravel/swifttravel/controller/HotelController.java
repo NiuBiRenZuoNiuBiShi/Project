@@ -1,5 +1,6 @@
 package com.setravel.swifttravel.controller;
 
+import com.setravel.swifttravel.entities.Hotel;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -77,7 +78,7 @@ public class HotelController {
      * @param hotelIdString 酒店id
      * @param checkinDate 入住日期
      * @param checkoutDate 退房日期
-     * @param numberofPeople 入住人数
+     * @param numberOfPeople 入住人数
      * @return 目标酒店可选的房型列表
      * 
      */

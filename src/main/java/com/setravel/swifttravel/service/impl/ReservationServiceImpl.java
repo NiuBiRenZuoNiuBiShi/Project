@@ -63,7 +63,7 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
         long nights = ChronoUnit.DAYS.between(request.getCheckinDate(), request.getCheckoutDate());
 
         // 检查指定房型在整个日期范围内的可用性
-        List<Room> dailyRoomRecords = roomMapper.findAvailableRooms(hotelIDBytes, request.getCheckinDate(), request.getCheckoutDate(), request.getNumberofPeople());
+        List<Room> dailyRoomRecords = roomMapper.findAvailableRooms(hotelIDBytes, request.getCheckinDate(), request.getCheckoutDate(), request.getNumberPeople());
         // 按日期分组，并且只选取特定房型和当前可用的房间
         Map<LocalDate, List<Room>> roomsByDateForType = dailyRoomRecords.stream()
             // 只选取当前可用的房间
@@ -80,7 +80,7 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
                 throw new RuntimeException("所选房型在 " + currDate + " 库存不足。");
             }
             // 默认选择该日期下该房型的第一个可用记录作为预订目标
-            roomsToReserve.add(availableRoomsOnDate.get(0));
+            roomsToReserve.add(availableRoomsOnDate.getFirst());
         }
 
         if (roomsToReserve.size() < nights) {
@@ -93,7 +93,7 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
         reservation.setId(rsvId);
         reservation.setUserId(userIdBytes);
         reservation.setHotelId(hotelIDBytes);
-        reservation.setRoomId(roomsToReserve.get(0).getId()); //只取第一个(还需要考虑一下)
+        reservation.setRoomId(roomsToReserve.getFirst().getId()); //只取第一个(还需要考虑一下)
         reservation.setCheckinDate(request.getCheckinDate());
         reservation.setCheckoutDate(request.getCheckoutDate());
         reservation.setStatus("CONFIRMED");
@@ -206,7 +206,9 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
             // 恢复Room表中的availability状态和清除current_reservation_id (使用乐观锁)
             // 通过 current_reservation_id 来精确查找所有属于此预订的每日房间记录
             List<Room> bookedRooms = roomMapper.selectList(
-                new LambdaQueryWrapper<Room>().eq(Room::getCurrent_reservation_id, reservation.getId())
+                new LambdaQueryWrapper<Room>()
+                    .eq(Room::getCurrent_reservation_id, reservation.getId())
+                    .eq(Room::getDel, false)
             );
 
             if (CollectionUtils.isEmpty(bookedRooms) && reservation.getCheckinDate() != null && reservation.getCheckoutDate() != null &&
@@ -214,6 +216,9 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
                 // 如果预订时长大于0但没有找到关联的房间记录，这可能是一个数据不一致的信号
                 //Logger.warn("预订ID {} (用户ID {}) 已取消，但未找到任何通过current_reservation_id关联的房间记录来恢复库存。", rsvIdString, userIdString);
                 // 预订本身已取消，但库存恢复可能需要人工检查。
+                throw new IllegalStateException("数据不一致：预订ID " + rsvIdString + " (用户ID " + userIdString +
+                    ") 已取消，但未找到任何通过current_reservation_id关联的房间记录来恢复库存。");
+
             }
 
             for (Room roomToRestore : bookedRooms) {
@@ -222,9 +227,16 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
                 
                 int updateRows = roomMapper.updateById(roomToRestore);
                 if (updateRows == 0) {
-                    // throw exception? 恢复房间库存时发生乐观锁冲突或记录已更改
+                    // 恢复房间库存时发生乐观锁冲突或记录已更改
+                    String roomIdStr = (roomToRestore.getId() != null) ? UUIDUtil.bytesToString(roomToRestore.getId()) : "未知";
+                    throw new OptimisticLockingFailureException(
+                        "恢复房间库存失败 (房间ID: " + roomIdStr +
+                            ", 关联预订ID: " + rsvIdString + ")：发生并发冲突或记录已不存在。"
+                    );
                 }
             }
+        } else {
+            throw new OptimisticLockingFailureException("取消预订操作失败：更新预订记录时发生并发冲突或记录已不存在 (ID: " + rsvIdString + ")");
         }
 
         return rsvUpdSuccess;

@@ -1,5 +1,8 @@
 package com.setravel.swifttravel.controller;
 
+import com.setravel.swifttravel.mapper.UserMapper;
+import com.setravel.swifttravel.security.UserContext;
+import com.setravel.swifttravel.utils.UUIDUtil;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,12 +28,16 @@ public class HotelReviewController {
     @Resource
     private HotelReviewService hotelReviewService;
 
+    @Resource
+    private UserMapper userMapper;
+
     /**
      * 用户创建酒店评价
      * POST /api/v1/reviews
      */
     @PostMapping
     public Result createReview(@Validated @RequestBody CreateReviewRequest request) {
+        request.setUserId(UUIDUtil.bytesToString(UserContext.getCurrentUserId(userMapper)));
         try {
             ReviewOutput createdReview = hotelReviewService.createReview(request);
             // 使用 Result.success(data) 返回成功响应，HTTP状态码默认为200 OK
@@ -63,13 +70,13 @@ public class HotelReviewController {
 
     /**
      * 获取指定用户的评价列表 (分页)
-     * GET /api/v1/reviews/user/{userIdString}?pageNum=1&pageSize=10
+     * GET /api/v1/reviews/userReview?pageNum=1&pageSize=10
      */
-    @GetMapping("/user/{userIdString}")
+    @GetMapping("/userReview")
     public Result getReviewsByUser(
-            @PathVariable String userIdString, // 实际应从认证用户获取或仅管理员可查他人
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize) {
+        String userIdString = UUIDUtil.bytesToString(UserContext.getCurrentUserId(userMapper));
         try {
             IPage<ReviewOutput> reviewPage = hotelReviewService.getReviewsByUserId(userIdString, pageNum, pageSize);
             return Result.success(reviewPage);
@@ -84,14 +91,9 @@ public class HotelReviewController {
      */
     @DeleteMapping("/{reviewIdString}")
     public Result deleteReview(
-        @PathVariable String reviewIdString,
-        @RequestParam String userIdString
+        @PathVariable String reviewIdString
     ) {
-        // 用户只能删除自己的评价
-        // String authenticatedUserId = ... ; // 从Spring Security获取
-        // if (!authenticatedUserId.equals(userIdString)) {
-        //     return Result.error(403, "无权操作"); // 假设Result有error(code, message)
-        // }
+        String userIdString = UUIDUtil.bytesToString(UserContext.getCurrentUserId(userMapper));
         try {
             boolean deleted = hotelReviewService.deleteReview(reviewIdString, userIdString);
             if (deleted) {
