@@ -59,7 +59,6 @@ const routes = [
         component: () => import('@/views/PaymentSelect.vue'),
         props: route => ({
             orderId: route.query.orderId,
-            userId: route.query.userId,
             payType: route.query.payType,
             amount: parseFloat(route.query.amount)
         })

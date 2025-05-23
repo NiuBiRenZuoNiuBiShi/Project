@@ -36,15 +36,14 @@ export default {
       currentPage: 1,
       totalPages: 1,
       messages: [],
-      userId: localStorage.getItem('userId')
     };
   },
   methods: {
     async fetchMessages() {
       const url =
           this.currentTab === 'all'
-              ? `/api/notifications/page?userId=${this.userId}&page=${this.currentPage}`
-              : `/api/notifications/page/unread?userId=${this.userId}&page=${this.currentPage}`;
+              ? `/api/notifications/page?page=${this.currentPage}`
+              : `/api/notifications/page/unread?page=${this.currentPage}`;
       const res = await fetch(url);
       const result = await res.json();
       if (result.code === 200) {
@@ -70,7 +69,7 @@ export default {
       }
     },
     async markAllAsRead() {
-      const res = await fetch(`/api/notifications/${this.userId}/readAll`, { method: 'POST' });
+      const res = await fetch(`/api/notifications/readAll`, { method: 'POST' });
       const result = await res.json();
       if (result.code === 200) {
         alert('所有消息已标记为已读');

@@ -3,6 +3,8 @@ package com.setravel.swifttravel.controller;
 import com.setravel.swifttravel.entities.Notifications;
 import com.setravel.swifttravel.entities.Result;
 import com.setravel.swifttravel.mapper.NotificationsMapper;
+import com.setravel.swifttravel.mapper.UserMapper;
+import com.setravel.swifttravel.security.UserContext;
 import com.setravel.swifttravel.service.NotificationService;
 import com.setravel.swifttravel.utils.UUIDUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,16 +22,17 @@ public class NotificationController {
     private NotificationsMapper notificationsMapper;
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * 根据用户ID查询该用户的所有通知（按时间倒序）
-     * @param userIdStr
      * @return
      */
-    @GetMapping("/{userId}")
-    public Result getUserNotifications(@PathVariable("userId") String userIdStr) {
+    @GetMapping
+    public Result getUserNotifications() {
         try{
-            byte[] userId = UUIDUtil.uuidToBytes(UUID.fromString(userIdStr));
+            byte[] userId = UserContext.getCurrentUserId(userMapper);
             List<Notifications> notifications = notificationsMapper.selectByUserId(userId);
             return Result.success("查询成功", notifications);
         }catch (Exception e){
@@ -37,10 +40,14 @@ public class NotificationController {
         }
     }
 
-    @GetMapping("/{userId}/unread")
-    public Result getUnread(@PathVariable("userId") String userIdStr){
+    /**
+     * 获取用户所有未读消息
+     * @return
+     */
+    @GetMapping("/unread")
+    public Result getUnread(){
         try {
-            byte[] userId = UUIDUtil.uuidToBytes(UUID.fromString(userIdStr));
+            byte[] userId = UserContext.getCurrentUserId(userMapper);
             List<Notifications> list = notificationService.getUnreadNotifications(userId);
             return Result.success("查询成功", list);
         }catch (Exception e){
@@ -84,22 +91,32 @@ public class NotificationController {
         }
     }
 
-    @PostMapping("/{userId}/readAll")
-    public Result markAllAsRead(@PathVariable("userId") String userIdStr) {
+    /**
+     * 全部标记为已读
+     * @return
+     */
+    @PostMapping("/readAll")
+    public Result markAllAsRead() {
         try{
-            byte[] userId = UUIDUtil.uuidToBytes(UUID.fromString(userIdStr));
+            byte[] userId = UserContext.getCurrentUserId(userMapper);
             return notificationService.markAllAsRead(userId);
         }catch (Exception e){
             return Result.error("批量更新失败" + e.getMessage());
         }
     }
 
-    @GetMapping("{userId}/page")
-    public Result getNotificationByPage(@PathVariable("userId") String userIdStr,
+    /**
+     * 分页
+     * @param page
+     * @param size
+     * @return
+     */
+    @GetMapping("/page")
+    public Result getNotificationByPage(
                                         @RequestParam(defaultValue = "1")int page,
                                         @RequestParam(defaultValue = "10")int size) {
         try{
-            byte[] userId = UUIDUtil.uuidToBytes(UUID.fromString(userIdStr));
+            byte[] userId = UserContext.getCurrentUserId(userMapper);
             List<Notifications> list = notificationService.getNotificationByPage(userId, page, size);
             int total = notificationService.countUserNotifications(userId);
             return Result.success("分页查询成功", Map.of(

@@ -29,7 +29,7 @@
 <script>
 export default {
   name: 'PaymentSelect',
-  props: ['orderId', 'userId', 'payType', 'amount'],
+  props: ['orderId', 'payType', 'amount'],
   computed: {
     payTypeDisplay() {
       const map = { TICKET: '车票', HOTEL: '酒店', FOOD: '餐食' };
@@ -40,7 +40,6 @@ export default {
     async selectMethod(method) {
       const payload = {
         orderId: this.orderId,
-        userId: this.userId,
         payType: this.payType,
         amount: this.amount,
         method
@@ -49,7 +48,10 @@ export default {
       try {
         const response = await fetch('/api/payment/create', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('Authentication')}`
+          },
           body: JSON.stringify(payload)
         });
 

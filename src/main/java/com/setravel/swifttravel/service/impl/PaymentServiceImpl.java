@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.setravel.swifttravel.entities.*;
 import com.setravel.swifttravel.entities.request.CreatePaymentRequest;
 import com.setravel.swifttravel.mapper.*;
+import com.setravel.swifttravel.security.UserContext;
 import com.setravel.swifttravel.service.NotificationService;
 import com.setravel.swifttravel.service.PaymentService;
 import com.setravel.swifttravel.utils.UUIDUtil;
@@ -31,6 +32,8 @@ public class PaymentServiceImpl
     private FoodOrdersMapper foodOrdersMapper;
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * 创建支付订单
@@ -46,7 +49,7 @@ public class PaymentServiceImpl
             PaymentRecords record = new PaymentRecords()
                 .setPaymentId(paymentId)
                 .setOrderId(UUIDUtil.uuidToBytes(UUID.fromString(request.getOrderId())))
-                .setUserId(UUIDUtil.uuidToBytes(UUID.fromString(request.getUserId())))
+                .setUserId(UserContext.getCurrentUserId(userMapper))
                 .setPayType(request.getPayType())
                 .setAmount(request.getAmount())
                 .setMethod(request.getMethod())
@@ -91,6 +94,9 @@ public class PaymentServiceImpl
             if (PaymentRecords.PAY_SUCCESS.equals(record.getStatus())) {
                 return Result.success("该订单已完成支付", record);
             }
+            if (!TO_BE_PAID.equals(record.getStatus())) {
+                return Result.error("当前支付状态不允许再次支付");
+            }
 
             record.setStatus(PAY_SUCCESS);
             record.setUpdatedTime(LocalDateTime.now());
@@ -101,13 +107,25 @@ public class PaymentServiceImpl
                 String type = record.getPayType();
                 if(TICKET.equals(type)){
                     TicketsOrders order = ticketOrdersMapper.selectById(record.getOrderId());
-                    notificationService.sendTicketOrderPaySuccessMessage(order);
+                    try {
+                        notificationService.sendTicketOrderPaySuccessMessage(order);
+                    }catch (Exception e){
+                        log.warn("发送支付成功通知失败：{}", e.getMessage());
+                    }
                 }else if (HOTEL.equals(type)) {
                     HotelOrders order = hotelOrderMapper.selectById(record.getOrderId());
-                    notificationService.sendHotelOrderPaySuccessMessage(order);
+                    try {
+                        notificationService.sendHotelOrderPaySuccessMessage(order);
+                    }catch (Exception e){
+                        log.warn("发送支付成功通知失败：{}", e.getMessage());
+                    }
                 } else if (FOOD.equals(type)) {
                     FoodOrders order = foodOrdersMapper.selectById(record.getOrderId());
-                    notificationService.sendFoodOrderPaySuccessMessage(order);
+                    try {
+                        notificationService.sendFoodOrderPaySuccessMessage(order);
+                    }catch (Exception e){
+                        log.warn("发送支付成功通知失败：{}", e.getMessage());
+                    }
                 }
 
                 return Result.success("支付成功", record);
