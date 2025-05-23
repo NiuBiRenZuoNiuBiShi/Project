@@ -81,8 +81,8 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
-    public Result getFoodListByTrainId(String trainId) {
-        byte[] trainIdBinary = Base64.getDecoder().decode(trainId);
+    public Result getFoodListByTrainId(byte[] trainId) {
+        byte[] trainIdBinary = trainId;
         try {
             List<Food> foodList = foodMapper.selectList(
                     new LambdaQueryWrapper<Food>().eq(Food::getTrainsId, trainIdBinary).eq(Food::getDel, false));

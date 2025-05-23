@@ -101,7 +101,7 @@ const allMenuItems = [
     { icon: 'fa-solid fa-hotel', text: 'Hotel', href: '/search?form=Hotel', requireAuth: false },
     { icon: 'fa-solid fa-user', text: 'Profile', href: '/user', requireAuth: true },
     { icon: 'fa-solid fa-circle-info', text: 'Support', href: '/home', requireAuth: false },
-    { icon: 'fa-solid fa-utensils', text: 'Order Food', href: '/orderFood', requireAuth: true },
+    { icon: 'fa-solid fa-utensils', text: 'Order Food', href: '/orderfood', requireAuth: true },
     { icon: 'fa-solid fa-right-from-bracket', text: 'Logout', href: '#', requireAuth: true, action: handleLogout },
     { icon: 'fa-solid fa-right-to-bracket', text: 'Login', href: '#', requireAuth: false, loginOnly: true, action: handleLoginClick },
 ];

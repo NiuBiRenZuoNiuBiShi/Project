@@ -79,7 +79,7 @@ public class FoodController {
      * @return Result containing the operation status and the retrieved food items
      */
     @PostMapping("/api/food/getByTrainId")
-    public Result getFoodListByTrainId(@RequestBody String trainId) {
+    public Result getFoodListByTrainId(@RequestBody byte[] trainId) {
         return foodService.getFoodListByTrainId(trainId);
     }
 

@@ -14,7 +14,7 @@ public interface FoodService {
 
     Result getFoodListByIds(List<String> foodIds);
 
-    Result getFoodListByTrainId(String trainId);
+    Result getFoodListByTrainId(byte[] trainId);
 
 
     Result buyFoodList(List<FoodRequest> requestList);
