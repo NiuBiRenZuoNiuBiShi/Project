@@ -17,4 +17,11 @@ public interface PaymentService {
      * @return
      */
     Result completePay(String id);
+
+    /**
+     * 取消支付
+     * @param paymentId
+     * @return
+     */
+    Result cancelPayment(String paymentId);
 }

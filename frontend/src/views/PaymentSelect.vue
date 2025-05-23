@@ -23,13 +23,22 @@
         <span>银行卡支付</span>
       </div>
     </div>
+
+    <button class="cancel-btn" @click="cancelPayment">取消支付</button>
   </div>
 </template>
 
 <script>
+import api from "@/api/Api.js";
+
 export default {
   name: 'PaymentSelect',
   props: ['orderId', 'payType', 'amount'],
+  data() {
+    return {
+      paymentId: '', // 存储创建成功后的 paymentId
+    };
+  },
   computed: {
     payTypeDisplay() {
       const map = { TICKET: '车票', HOTEL: '酒店', FOOD: '餐食' };
@@ -46,24 +55,40 @@ export default {
       };
 
       try {
-        const response = await fetch('/api/payment/create', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('Authentication')}`
-          },
-          body: JSON.stringify(payload)
-        });
+        const response = await api.post('/api/payment/create', payload);
+        const result = response.data;
 
-        const result = await response.json();
         if (result.code === 200) {
-          const paymentId = result.data;
-          this.$router.push({ name: 'PaymentSimulate', params: { paymentId, method } });
+          this.paymentId = result.data;
+          this.$router.push({
+            name: 'PaymentSimulate',
+            params: { paymentId: this.paymentId, method }
+          });
         } else {
           alert('创建支付失败：' + result.message);
         }
       } catch (e) {
         alert('网络错误，请稍后重试');
+      }
+    },
+
+    async cancelPayment() {
+      const confirmCancel = confirm('确定取消支付？');
+      if (!confirmCancel || !this.paymentId) return;
+
+      try {
+        const response = await api.post(`/api/payment/cancel/${this.paymentId}`);
+        const result = response.data;
+
+        if (result.code === 200) {
+          alert('支付已取消');
+        } else {
+          alert('取消失败：' + result.message);
+        }
+
+        this.$router.push('/');
+      } catch (e) {
+        alert('网络异常，取消失败');
       }
     }
   }
@@ -154,4 +179,21 @@ $primary: #4a8eff;
     color: #333;
   }
 }
+
+.cancel-btn {
+  margin-top: 3rem;
+  background-color: #ccc;
+  color: #333;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: 0.3s;
+
+  &:hover {
+    background-color: #bbb;
+  }
+}
+
 </style>

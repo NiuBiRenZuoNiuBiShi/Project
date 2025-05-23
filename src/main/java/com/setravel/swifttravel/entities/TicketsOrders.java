@@ -52,6 +52,9 @@ public class TicketsOrders extends Model<TicketsOrders> {
     @TableField("del")
     private Boolean del;
 
+    @TableField("pay_status")
+    private String payStatus;
+
     public static final String ID = "id";
 
     public static final String PAY_ID = "pay_id";

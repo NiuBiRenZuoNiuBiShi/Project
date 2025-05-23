@@ -34,6 +34,8 @@ public class PaymentServiceImpl
     private NotificationService notificationService;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private TrainNumberMapper trainNumberMapper;
 
     /**
      * 创建支付订单
@@ -46,7 +48,10 @@ public class PaymentServiceImpl
             UUID paymentUUID = UUID.randomUUID();
             byte[] paymentId = UUIDUtil.uuidToBytes(paymentUUID);
 
-            PaymentRecords record = new PaymentRecords()
+            String username = UserContext.getUsername();
+            System.out.println("当前用户：" + username);
+
+        PaymentRecords record = new PaymentRecords()
                 .setPaymentId(paymentId)
                 .setOrderId(UUIDUtil.uuidToBytes(UUID.fromString(request.getOrderId())))
                 .setUserId(UserContext.getCurrentUserId(userMapper))
@@ -107,6 +112,11 @@ public class PaymentServiceImpl
                 String type = record.getPayType();
                 if(TICKET.equals(type)){
                     TicketsOrders order = ticketOrdersMapper.selectById(record.getOrderId());
+                    order.setPayStatus("已支付");
+                    ticketOrdersMapper.updateById(order);
+
+                    //TODO 减少车票库存
+
                     try {
                         notificationService.sendTicketOrderPaySuccessMessage(order);
                     }catch (Exception e){
@@ -114,6 +124,11 @@ public class PaymentServiceImpl
                     }
                 }else if (HOTEL.equals(type)) {
                     HotelOrders order = hotelOrderMapper.selectById(record.getOrderId());
+                    order.setPayStatus("已支付");
+                    hotelOrderMapper.updateById(order);
+
+                    //TODO 减少酒店库存
+
                     try {
                         notificationService.sendHotelOrderPaySuccessMessage(order);
                     }catch (Exception e){
@@ -121,6 +136,11 @@ public class PaymentServiceImpl
                     }
                 } else if (FOOD.equals(type)) {
                     FoodOrders order = foodOrdersMapper.selectById(record.getOrderId());
+                    order.setPayStatus("已支付");
+                    foodOrdersMapper.updateById(order);
+
+                    //TODO 减少餐食数量
+
                     try {
                         notificationService.sendFoodOrderPaySuccessMessage(order);
                     }catch (Exception e){
@@ -138,4 +158,58 @@ public class PaymentServiceImpl
             return Result.error("支付异常：" + e.getMessage());
         }
     }
+
+    /**
+     * 取消支付
+     * @param id
+     * @return
+     */
+    @Override
+    public Result cancelPayment(String id) {
+        try {
+            UUID uuid = UUID.fromString(id);
+            byte[] paymentId = UUIDUtil.uuidToBytes(uuid);
+
+            PaymentRecords record = paymentRecordsMapper.findByPaymentId(paymentId);
+            if (record == null) {
+                return Result.error("支付记录不存在");
+            }
+
+            if (!TO_BE_PAID.equals(record.getStatus())) {
+                return Result.error("当前状态不允许取消支付");
+            }
+
+            // 设置为取消
+            record.setStatus(PAY_FAILED);
+            record.setUpdatedTime(LocalDateTime.now());
+            paymentRecordsMapper.updateById(record);
+
+            // 同步订单状态为 CANCELED
+            String type = record.getPayType();
+            byte[] orderId = record.getOrderId();
+
+            if (TICKET.equals(type)) {
+                TicketsOrders order = ticketOrdersMapper.selectById(orderId);
+                order.setPayStatus(PAY_CANCELED);
+                ticketOrdersMapper.updateById(order);
+            } else if (HOTEL.equals(type)) {
+                HotelOrders order = hotelOrderMapper.selectById(orderId);
+                order.setPayStatus(PAY_CANCELED);
+                hotelOrderMapper.updateById(order);
+            } else if (FOOD.equals(type)) {
+                FoodOrders order = foodOrdersMapper.selectById(orderId);
+                order.setPayStatus(PAY_CANCELED);
+                foodOrdersMapper.updateById(order);
+            }
+
+            return Result.success("支付已取消");
+
+        } catch (IllegalArgumentException e) {
+            return Result.error("无效的支付 ID");
+        } catch (Exception e) {
+            log.error("取消支付异常", e);
+            return Result.error("取消支付异常：" + e.getMessage());
+        }
+    }
+
 }

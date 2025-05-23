@@ -37,4 +37,15 @@ public class PaymentController {
     public Result completePayment(@PathVariable String paymentId){
         return paymentService.completePay(paymentId);
     }
+
+    /**
+     * 取消支付
+     * @param paymentId
+     * @return
+     */
+    @PostMapping("/cancel/{paymentId}")
+    public Result cancelPayment(@PathVariable String paymentId) {
+        return paymentService.cancelPayment(paymentId);
+    }
+
 }
