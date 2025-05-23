@@ -37,6 +37,8 @@ public class HotelController {
      * @param numberofPeople 入住人数
      * @param pageNum 展示页数,默认为1
      * @param pageSize 一页展示多少项,默认为10
+     * @param sortBy 排列规则
+     * @param sortOrder 排列顺序
      * @return 酒店信息列表
      */
     @GetMapping("/search")
@@ -47,7 +49,9 @@ public class HotelController {
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkoutDate,
         @RequestParam(required = false) Integer numberOfPeople,
         @RequestParam(defaultValue = "1") int pageNum,
-        @RequestParam(defaultValue = "10") int pageSize
+        @RequestParam(defaultValue = "10") int pageSize,
+        @RequestParam(required = false) String sortBy,
+        @RequestParam(required = false) String sortOrder
     ) {
         HotelSearchRequest request = new HotelSearchRequest();
         request.setLocation(location);
@@ -57,6 +61,8 @@ public class HotelController {
         request.setNumberOfPeople(numberOfPeople);
         request.setPageNum(pageNum);
         request.setPageSize(pageSize);
+        request.setSortBy(sortBy);
+        request.setSortOrder(sortOrder);
 
         try {
             IPage<HotelSummaryOutput> results = hotelService.searchAvailableHotels(request);

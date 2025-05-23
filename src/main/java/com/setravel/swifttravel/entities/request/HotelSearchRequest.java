@@ -19,4 +19,7 @@ public class HotelSearchRequest {
     // 分页参数(假设的)
     private int pageNum = 1;
     private int pageSize = 10; 
+    // 排序规则
+    private String sortBy; // "price" or "rating"
+    private String sortOrder; // "asc" or "desc"
 }
