@@ -835,8 +835,9 @@ $info: #3b82f6;
 
     label {
       display: block;
-      margin-bottom: 0.5rem;
+      margin-bottom: 1.4rem;
       font-weight: 500;
+      font-size: 1.2rem;
       color: $text;
     }
 
@@ -845,7 +846,7 @@ $info: #3b82f6;
       padding: 0.8rem 1rem;
       border-radius: 8px;
       border: 1px solid rgba($text-light, 0.3);
-      font-size: 1rem;
+      font-size: 1.4rem;
       transition: all 0.2s ease;
       outline: none;
 
@@ -885,7 +886,7 @@ $info: #3b82f6;
 
   .form-note {
     margin-top: 1rem;
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     color: $text-light;
     font-style: italic;
   }
@@ -959,19 +960,20 @@ $info: #3b82f6;
     gap: 1rem;
 
     .empty-icon {
+      margin-top: 4rem;
       font-size: 4rem;
       color: rgba($text-light, 0.5);
     }
 
     p {
       margin: 0;
-      font-size: 1.2rem;
+      font-size: 2rem;
       color: $text;
       font-weight: 500;
     }
 
     .empty-subtext {
-      font-size: 0.95rem;
+      font-size: 1.2rem;
       color: $text-light;
     }
   }

@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 
-const images = import.meta.glob('../assets/pic/popularCity/*.jpg', {
+const images = import.meta.glob('../assets/pic/popularCity/*.webp', {
     eager: true,
     import: 'default'
 })
@@ -11,7 +11,7 @@ const popularDestinations = ref([
     { id: 1, name: '北京', image: images['../assets/pic/popularCity/Beijing.webp'], tag: '热门' },
     { id: 2, name: '上海', image: images['../assets/pic/popularCity/Shanghai.webp'], tag: '商务' },
     { id: 3, name: '广州', image: images['../assets/pic/popularCity/Guangzhou.webp'], tag: '美食' },
-    { id: 4, name: '深圳', image: images['../assets/pic/popularCity/ShenZhen.webp'], tag: '科技' },
+    { id: 4, name: '深圳', image: images['../assets/pic/popularCity/Shenzhen.webp'], tag: '科技' },
     { id: 5, name: '杭州', image: images['../assets/pic/popularCity/Hangzhou.webp'], tag: '风景' },
     { id: 6, name: '成都', image: images['../assets/pic/popularCity/Chengdu.webp'], tag: '休闲' }
 ])
@@ -68,7 +68,7 @@ $bg-card: #ffffff;
 
     .destination-cards {
         display: flex;
-        gap: 2rem;
+        gap: 4rem;
         flex-wrap: wrap;
         justify-content: center;
 
