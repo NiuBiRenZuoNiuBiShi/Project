@@ -7,6 +7,9 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Set;
+
 import org.springframework.data.util.Pair;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -38,11 +41,21 @@ public class JWTInterceptor implements HandlerInterceptor {
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String RENEWED_TOKEN_HEADER = "X-Renewed-Token";
 
+    @SuppressWarnings("unused")
+    private static final Set<String> EXCLUDED_PATHS = Set.of("/api/user/login", "/api/user/register",
+            "/api/user/register/sendEmail");
+
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
             @NonNull Object handler) throws Exception {
         String requestURI = request.getRequestURI();
+        System.out.println(requestURI);
         log.debug("Intercepting request: {}", requestURI);
+
+        if (EXCLUDED_PATHS.contains(requestURI)) {
+            log.debug("Request to {} is excluded from authentication", requestURI);
+            return true;
+        }
 
         String authHeader = request.getHeader(AUTH_HEADER);
         String token = null;

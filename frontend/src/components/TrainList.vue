@@ -30,7 +30,7 @@
 import { ref, watch, computed, onMounted } from 'vue';
 import TrainTicketItem from './TrainTicketItem.vue';
 import TrainTicketTransferItem from './TrainTicketTransferItem.vue';
-import { useCarriageStore } from '@/repo/carriageStore';
+import { useCarriageStore } from '@/store/carriageStore';
 
 const emit = defineEmits(['buyTicket']);
 const store = useCarriageStore();

@@ -22,7 +22,7 @@ public class CityController {
     @GetMapping("/api/city/search")
     public Result getCityList(@RequestParam("input") String input) {
         try {
-            if (input.isEmpty() || input.isBlank())
+            if (input.isBlank())
                 return Result.success(cityService.getRandomCities());
             return Result.success(cityService.searchCity(input));
         } catch (Exception e) {

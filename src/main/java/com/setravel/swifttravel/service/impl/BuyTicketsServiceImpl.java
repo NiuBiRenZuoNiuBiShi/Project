@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -32,7 +33,7 @@ public class BuyTicketsServiceImpl implements BuyTicketsService {
     @Resource
     private CarriagesMapper carriagesMapper;
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     @Override
     public Result buyTickets(BuyTicketsRequest request) throws SeatVersionException {
         List<byte[]> seatIdList = request.getSeatIdList().stream().map(Base64.getDecoder()::decode)
@@ -54,10 +55,10 @@ public class BuyTicketsServiceImpl implements BuyTicketsService {
             if (seat == null) {
                 throw new IllegalArgumentException("Seat not found");
             }
-            if (!carriageId.equals(seat.getTrainNumber())) {
+            if (!java.util.Arrays.equals(carriageId, seat.getTrainNumber())) {
                 throw new IllegalArgumentException("Seat does not belong to the specified carriage");
             }
-            if (seat.getVersion() != request.getVersionList().get(i)) {
+            if (!seat.getVersion().equals(request.getVersionList().get(i))) {
                 throw new SeatVersionException("Seat version mismatch");
             }
         }
@@ -105,5 +106,4 @@ public class BuyTicketsServiceImpl implements BuyTicketsService {
                         .setMessage("Purchase successful, total amount: " + totalMoney)
                         .setContactIdList(request.getContactIdList()));
     }
-
 }

@@ -1,5 +1,4 @@
 <script setup>
-import { ref } from 'vue';
 import QueryBox from '@/components/QueryBox.vue';
 import BrandingSection from '@/components/BrandingSection.vue';
 import PopularDestinations from '@/components/PopularDestinations.vue';
@@ -9,7 +8,7 @@ import FooterSection from '@/components/FooterSection.vue';
 import router from '@/router/router';
 
 import { searchTrainTicketsApi } from '@/api/TrainTicketApi';
-import { useCarriageStore } from '@/repo/carriageStore';
+import { useCarriageStore } from '@/store/carriageStore';
 
 import { ElLoading, ElMessage } from 'element-plus';
 const carriageStore = useCarriageStore();
