@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 /**
  * Rest controller for handling food-related operations in the Swift Travel application.
  * Provides endpoints for adding, deleting, retrieving, and purchasing food items.
- * 
+ * <p>
  * The controller interfaces with {@link FoodService} to process all food-related requests.
  */
 @RestController
