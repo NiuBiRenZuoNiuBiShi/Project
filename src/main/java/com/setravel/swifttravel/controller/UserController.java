@@ -5,9 +5,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.setravel.swifttravel.entities.Result;
 import com.setravel.swifttravel.entities.Users;
 import com.setravel.swifttravel.entities.request.ChangePasswordOutsideRequest;
+import com.setravel.swifttravel.entities.request.EmailRequest;
 import com.setravel.swifttravel.entities.request.ForgetPasswordSendEmailRequest;
 import com.setravel.swifttravel.entities.request.LoginRequest;
 import com.setravel.swifttravel.entities.request.RegisterRequest;
+import com.setravel.swifttravel.entities.request.UserTokenRequest;
 import com.setravel.swifttravel.service.UserService;
 
 import jakarta.annotation.Resource;
@@ -34,18 +36,18 @@ public class UserController {
     }
 
     @PostMapping("/api/user/register/sendEmail")
-    public Result userRegisterSendEmail(@RequestBody String email) {
-        return userService.registerSendEmail(email);
+    public Result userRegisterSendEmail(@RequestBody EmailRequest email) {
+        return userService.registerSendEmail(email.getEmail());
     }
 
     @PostMapping("/api/user/login")
     public Result userLogin(@RequestBody LoginRequest loginRequest) {
-        return userService.userLogin(loginRequest.getUserName(), loginRequest.getPassword());
+        return userService.userLogin(loginRequest.getUsername(), loginRequest.getPassword());
     }
 
     @PostMapping("/api/user/logout")
-    public Result userLogout(@RequestBody String token) {
-        return userService.userLogout(token);
+    public Result userLogout(@RequestBody UserTokenRequest token) {
+        return userService.userLogout(token.getToken());
     }
 
     @GetMapping("/api/user/info")

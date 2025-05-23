@@ -148,6 +148,7 @@ public class MailServiceImpl implements MailService {
             javaMailSender.send(message);
             return Result.success("验证码已发送，请查收邮件");
         } catch (Exception e) {
+            log.error("发送邮箱验证码失败: {}", e.getMessage(), e);
             return Result.error("发送验证码失败，请稍后重试");
         }
     }
