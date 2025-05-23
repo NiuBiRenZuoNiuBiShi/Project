@@ -19,9 +19,19 @@ const routes = [
         component: () => import('@/views/SearchView.vue')
     },
     {
+        path: '/register',
+        name: 'register',
+        component: () => import('@/views/Register.vue')
+    },
+    {
         path: '/login',
         name: 'login',
         component: () => import('@/views/Login.vue')
+    },
+    {
+        path: '/about',
+        name: 'about',
+        component: () => import('@/views/About.vue')
     },
     {
         path: '/trains/:pathMatch(.*)*',
@@ -37,6 +47,11 @@ const routes = [
         path: '/test',
         name: 'test',
         component: () => import('@/views/TestView.vue')
+    },
+    {
+        path: '/user',
+        name: 'user',
+        component: () => import('@/views/UserManagementView.vue')
     }
 ];
 

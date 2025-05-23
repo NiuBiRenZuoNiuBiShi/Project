@@ -3,6 +3,7 @@ package com.setravel.swifttravel.entities;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.Version;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,6 +34,10 @@ public class Carriages extends Model<Carriages> {
 
     @TableId("id")
     private byte[] id;
+
+    public byte[] getId() {
+        return id;
+    }
 
     /**
      * eg. G5151
@@ -120,6 +125,10 @@ public class Carriages extends Model<Carriages> {
     @TableField("del")
     private Boolean del;
 
+    @TableField("version")
+    @Version
+    private Integer version;
+
     public static final String ID = "id";
 
     public static final String TRAIN_NUMBER = "train_number";
@@ -160,4 +169,5 @@ public class Carriages extends Model<Carriages> {
     public Serializable pkVal() {
         return this.id;
     }
+
 }
