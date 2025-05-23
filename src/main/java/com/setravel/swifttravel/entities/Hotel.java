@@ -3,6 +3,7 @@ package com.setravel.swifttravel.entities;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.Version;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Getter;
 import lombok.Setter;
@@ -47,6 +48,10 @@ public class Hotel extends Model<Hotel> {
     @TableField("pic_url")
     private String picUrl;
 
+    @Version 
+    @TableField("version")
+    private Integer version;
+
     @TableField("del")
     private Boolean del;
 
@@ -61,6 +66,8 @@ public class Hotel extends Model<Hotel> {
     public static final String DESCRIPTION = "description";
 
     public static final String PIC_URL = "pic_url";
+
+    public static final String VERSION = "version";
 
     public static final String DEL = "del";
 

@@ -29,7 +29,7 @@ public class ReservationController {
 
     /*
      * 创建预订订单
-     * 
+     * POST /api/v1/reservations
      */
     @PostMapping
     public Result createReservation(@RequestBody HotelReserveRequest request) {
@@ -54,6 +54,7 @@ public class ReservationController {
     
     /**
      * 查询当前用户的预订历史
+     * GET /api/v1/reservations/my-history?pageNum=1&pageSize=10
      */
     @GetMapping("/my-history")
     public Result getMyReservations(
@@ -62,12 +63,12 @@ public class ReservationController {
         @RequestParam(defaultValue = "1") int pageNum,
         @RequestParam(defaultValue = "10") int pageSize
     ) {
-        // 禁止查询不属于本人的预订记录
+        // TODO:禁止查询不属于本人的预订记录
 
         try {
             IPage<HotelReserveOutput> reservations = reservationService.getUserReservations(userIdString, pageNum, pageSize);
             if (reservations == null || reservations.getRecords().isEmpty()) {
-                 return Result.success("未找到任何预订记录。", reservations); // 或者返回一个空的data
+                return Result.success("未找到任何预订记录。", reservations);
             }
             return Result.success(reservations);
         } catch (Exception e) {
@@ -75,10 +76,33 @@ public class ReservationController {
             return Result.error("查询预订历史失败，请稍后再试。");
         }
     }
+    
+    /**
+     * 获取单个预订详情 (属于当前用户)
+     * GET /api/v1/reservations/{reservationIdString}
+     */
+    @GetMapping("/{reservationIdString}")
+    public Result getReservationDetails(
+            @PathVariable String reservationIdString,
+            // @AuthenticationPrincipal MyUserDetails userDetails // Example
+            @RequestParam String userIdString // TODO: Replace with authenticated user ID for validation
+    ) {
+        // String currentUserIdString = IdUtils.bytesToUrlSafeString(userDetails.getId());
+        try{
+            HotelReserveOutput reservation = reservationService.getReservationDetails(reservationIdString, userIdString);
+            if (reservation == null) {
+                return Result.success("未找到任何预订记录。", reservation);
+            }
+            return Result.success(reservation);
+        } catch (Exception e) {
+            return Result.error("查询预订订单失败，请稍后再试。");
+        }
+    }
+
 
     /**
      * 取消预订
-     * 
+     * DELETE /api/v1/reservations/{reservationIdString}
      */
 
     @DeleteMapping("/{reservationIdString}")

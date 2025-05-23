@@ -56,6 +56,7 @@ public class Reservation extends Model<Reservation> {
     private LocalDateTime bookingTime;
 
     @Version
+    @TableField("version")
     private Integer version;
 
     @TableField("del")
