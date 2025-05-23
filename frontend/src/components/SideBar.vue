@@ -13,9 +13,8 @@
         </div>
 
         <div class="menu-container">
-            <div v-for="(item, index) in menuItems" :key="item.text"
-                :class="['sidebar-item', { active: activeItem === index }]" 
-                @click.prevent="activateItem(index)">
+            <div v-for="(item, index) in visibleMenuItems" :key="item.text"
+                :class="['sidebar-item', { active: activeItem === index }]" @click.prevent="activateItem(index)">
                 <a :href="item.href">
                     <div class="item-icon">
                         <i :class="item.icon"></i>
@@ -30,15 +29,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, nextTick, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useAuthStore } from '@/store/auth.js';
 
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
+
 const isExpanded = ref(window.innerWidth > 768);
 const activeItem = ref(null); // Start with null to avoid initial flashing
 
-const emit = defineEmits(['sidebar-toggle']);
+const emit = defineEmits(['sidebar-toggle', 'showLogin']);
 
 watch(isExpanded, (newValue) => {
     emit('sidebar-toggle', !newValue);
@@ -52,12 +54,19 @@ const expandSidebar = () => {
     if (!isExpanded.value) isExpanded.value = true;
 };
 
-const activateItem = (index) => {
-    const item = menuItems[index];
+const activateItem = async (index) => {
+    const item = visibleMenuItems.value[index];
+
+    if (item.action) {
+        // 执行特殊操作（如登出、登录）
+        await item.action();
+        return;
+    }
+
     if (item.href && item.href !== '#') {
         // Immediately set active item for smoother transition
         activeItem.value = index;
-        
+
         // Use router.push instead of link navigation when possible
         if (item.href.startsWith('/')) {
             // Prevent default navigation and use router instead
@@ -66,18 +75,52 @@ const activateItem = (index) => {
     } else {
         activeItem.value = index;
     }
-    
+
     if (!isExpanded.value) isExpanded.value = true;
 };
 
-const menuItems = [
-    { icon: 'fa-solid fa-house', text: 'Home', href: '/home' },
-    { icon: 'fa-solid fa-train', text: 'Travel', href: '/search?form=Train'},
-    { icon: 'fa-solid fa-hotel', text: 'Hotel', href: '/search?form=Hotel' },
-    { icon: 'fa-solid fa-user', text: 'Profile', href: '/user' },
-    { icon: 'fa-solid fa-circle-info', text: 'Support', href: '/home' },
-    { icon: 'fa-solid fa-right-from-bracket', text: 'Logout', href: '#' },
+// 处理登出
+const handleLogout = async () => {
+    try {
+        await authStore.logout();
+        router.push('/home');
+    } catch (error) {
+        console.error('Logout failed:', error);
+    }
+};
+
+// 处理登录点击
+const handleLoginClick = () => {
+    emit('showLogin');
+};
+
+// 所有菜单项
+const allMenuItems = [
+    { icon: 'fa-solid fa-house', text: 'Home', href: '/home', requireAuth: false },
+    { icon: 'fa-solid fa-train', text: 'Travel', href: '/search?form=Train', requireAuth: false },
+    { icon: 'fa-solid fa-hotel', text: 'Hotel', href: '/search?form=Hotel', requireAuth: false },
+    { icon: 'fa-solid fa-user', text: 'Profile', href: '/user', requireAuth: true },
+    { icon: 'fa-solid fa-circle-info', text: 'Support', href: '/home', requireAuth: false },
+    { icon: 'fa-solid fa-utensils', text: 'Order Food', href: '/orderFood', requireAuth: true },
+    { icon: 'fa-solid fa-right-from-bracket', text: 'Logout', href: '#', requireAuth: true, action: handleLogout },
+    { icon: 'fa-solid fa-right-to-bracket', text: 'Login', href: '#', requireAuth: false, loginOnly: true, action: handleLoginClick },
 ];
+
+// 根据登录状态过滤菜单项
+const visibleMenuItems = computed(() => {
+    return allMenuItems.filter(item => {
+        if (item.loginOnly) {
+            // 只有未登录时显示登录按钮
+            return !authStore.isLoggedIn;
+        }
+        if (item.requireAuth) {
+            // 需要登录的菜单项只在登录时显示
+            return authStore.isLoggedIn;
+        }
+        // 不需要登录的菜单项总是显示
+        return true;
+    });
+});
 
 // Enhanced mapping from URL patterns to menu indices
 const urlToMenuItemMap = {
@@ -105,11 +148,11 @@ const updateActiveItemFromRoute = () => {
     const currentPath = route.path.toLowerCase(); // Normalize path to lowercase
     const currentQuery = route.query;
     let matched = false;
-    
+
     // First check for exact route name matches
     if (currentRouteName && urlToMenuItemMap[currentRouteName]) {
         const mapping = urlToMenuItemMap[currentRouteName];
-        
+
         // If it's an object with params mapping
         if (typeof mapping === 'object' && mapping.params) {
             // Check for query parameters match
@@ -132,18 +175,18 @@ const updateActiveItemFromRoute = () => {
             matched = true;
         }
     }
-    
+
     // If no match by route name, check path prefixes
     if (!matched) {
         // Sort path prefixes by length (descending) for more specific matches first
         const pathPrefixes = Object.keys(urlToMenuItemMap)
             .filter(key => typeof urlToMenuItemMap[key] === 'number')
             .sort((a, b) => b.length - a.length);
-            
+
         for (const prefix of pathPrefixes) {
             // Skip entries that are likely route names (e.g., 'home', 'search')
             if (prefix === 'home' || prefix === 'Home' || prefix === 'search') continue;
-            
+
             // Check if the current path contains this prefix
             if (currentPath.includes(prefix.toLowerCase())) {
                 activeItem.value = urlToMenuItemMap[prefix];
@@ -152,7 +195,7 @@ const updateActiveItemFromRoute = () => {
             }
         }
     }
-    
+
     // Default to Home if no match is found
     if (!matched) {
         activeItem.value = 0;
@@ -178,7 +221,7 @@ const handleResize = () => {
 onMounted(() => {
     // Update active item on page load
     updateActiveItemFromRoute();
-    
+
     window.addEventListener('resize', handleResize);
 });
 
@@ -354,7 +397,7 @@ $shadow: rgba(50, 112, 233, 0.08);
                 }
             }
 
-            &:nth-last-child(2){
+            &:nth-last-child(2) {
                 margin-top: auto;
             }
         }

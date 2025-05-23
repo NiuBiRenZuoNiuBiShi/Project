@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.setravel.swifttravel.mapper.FoodMapper">
+
+    <!-- 悲观锁查询 -->
+    <select id="selectFoodsForUpdate" parameterType="java.util.List" resultType="Food">
+    SELECT * FROM food 
+    WHERE id IN
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+        #{id}
+        </foreach>
+    FOR UPDATE
+    </select>
+
+    <!-- 带库存检查的扣减 -->
+    <update id="decreaseFoodsWithCheck" parameterType="java.util.List">
+    UPDATE food
+    SET number = number - 
+        CASE id 
+        <foreach collection="list" item="food" separator="">
+            WHEN #{food.id} THEN #{food.number}
+        </foreach>
+        END
+    WHERE id IN
+        <foreach collection="list" item="food" separator="," open="(" close=")">
+        #{food.id}
+        </foreach>
+    AND 
+        <foreach collection="list" item="food" separator=" AND ">
+        (id = #{food.id} AND number >= #{food.number})
+        </foreach>
+    </update>
+</mapper>

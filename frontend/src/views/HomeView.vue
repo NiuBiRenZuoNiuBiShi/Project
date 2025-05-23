@@ -1,11 +1,5 @@
 <template>
   <div class="home-view">
-    <div class="auth-buttons">
-    <button @click="showLoginModal = true" class="auth-button login-button">Login</button>
-    <button @click="showRegisterModal = true" class="auth-button register-button">Register</button>
-      <button @click="goToAbout" class="auth-button about-button">About</button>
-      <!-- Hero Section with 3D effects and morphing background -->
-    </div>
     <section class="hero-section">
       <div class="animated-bg"></div>
       <div class="gradient-orbs">
@@ -14,15 +8,6 @@
         <div class="orb orb-3"></div>
       </div>
       <div class="home-page">
-        <!-- 你的主页内容 -->
-        <!-- 登录按钮 -->
-        <RegisterModal
-            v-if="showRegisterModal"
-            @close="showRegisterModal = false"
-            @switch-to-login="switchToLogin"
-        />
-        <!-- 登录弹窗 -->
-        <LoginModal v-if="showLoginModal" @close="showLoginModal = false" />
       </div>
       <div class="hero-content">
         <h1 class="hero-title">
@@ -343,86 +328,7 @@ $shadow: rgba(67, 97, 238, 0.15);
 $glass-bg: rgba(255, 255, 255, 0.6);
 
 
-// Base styles
-.auth-buttons {
-  position: fixed;
-  top: 20px; /* 设置按钮顶部距离 */
-  right: 20px; /* 设置按钮右侧距离 */
-  display: flex;
-  flex-direction: column;
-  gap: 15px; /* 按钮之间的间距 */
-  z-index: 1000; /* 确保按钮位于页面最上层 */
-  font-family: 'Poppins', sans-serif;
 
-  .auth-button {
-    padding: 12px 24px; /* 按钮内边距 */
-    border: none;
-    border-radius: 50px; /* 按钮圆角 */
-    font-weight: 600;
-    font-size: 1.4rem;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* 平滑过渡动画 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 阴影效果 */
-    text-transform: uppercase;
-    width: 150px; /* 按钮宽度 */
-    text-align: center;
-
-    &:focus {
-      outline: none; /* 去除聚焦时的默认边框 */
-    }
-
-    &:hover {
-      transform: translateY(-3px); /* 悬停时按钮轻微上浮 */
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* 悬停时阴影加深 */
-    }
-
-    &.login-button {
-      background: linear-gradient(135deg, #a3d2ca, #5eaaa8); /* 登录按钮渐变背景 */
-      color: white;
-
-      &:hover {
-        background: linear-gradient(135deg, #5eaaa8, #a3d2ca); /* 悬停时改变渐变方向 */
-      }
-    }
-
-    &.register-button {
-      background: white; /* 注册按钮背景 */
-      color: #5eaaa8; /* 注册按钮文本颜色 */
-      border: 2px solid #a3d2ca; /* 注册按钮边框 */
-
-      &:hover {
-        background-color: #e9ecef; /* 注册按钮悬停时背景色 */
-        border-color: #5eaaa8; /* 注册按钮悬停时边框颜色 */
-        color: #5eaaa8; /* 注册按钮悬停时文本颜色 */
-      }
-    }
-
-    &.about-button {
-      background: linear-gradient(135deg, #a3d2ca, #5eaaa8); /* About 按钮渐变背景 */
-      color: white;
-
-      &:hover {
-        background: linear-gradient(135deg, #5eaaa8, #a3d2ca); /* 悬停时改变渐变方向 */
-      }
-    }
-  }
-
-
-  @media (max-width: 768px) {
-    top: 15px;
-    right: 15px;
-    flex-direction: row; /* 在移动设备上按钮排成一行 */
-    gap: 10px;
-
-    .auth-button {
-      padding: 10px 18px;
-      font-size: 1.2rem; /* 在小屏设备上减小按钮大小 */
-    }
-  }
-}
 
 .home-view {
   padding-bottom: 5rem;

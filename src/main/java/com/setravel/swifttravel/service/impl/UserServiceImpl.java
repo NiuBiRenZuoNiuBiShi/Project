@@ -11,10 +11,12 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.setravel.swifttravel.entities.Result;
 import com.setravel.swifttravel.entities.Users;
 import com.setravel.swifttravel.entities.DTO.MailDTO;
+import com.setravel.swifttravel.entities.output.LoginOutput;
 import com.setravel.swifttravel.mapper.UserMapper;
 import com.setravel.swifttravel.security.UserContext;
 import com.setravel.swifttravel.service.UserService;
 import com.setravel.swifttravel.utils.JWTUtils;
+import com.setravel.swifttravel.utils.UUIDUtil;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +59,9 @@ public class UserServiceImpl implements UserService {
     // Regular expressions for validation
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
     private static final String PHONE_REGEX = "^1[3-9]\\d{9}$"; // Chinese phone number pattern
-    private static final String ID_CARD_REGEX = "(^\\d{15}$)|(^\\d{18}$)|(^\\d{17}(\\d|X|x)$)"; // Chinese ID card
+    private static final String ID_CARD_REGEX = "(^\\d{15}$)|(^\\d{18}$)|(^\\d{17}(\\d|X|x)$)";
+    private static final String USERNAME_REGEX = "^[a-zA-Z0-9._-]{3,}$";
+    private static final String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
     // pattern
 
     @Override
@@ -98,12 +102,14 @@ public class UserServiceImpl implements UserService {
         }
 
         // 检查邮箱是否已被注册
-        LambdaQueryWrapper<Users> emailQuery = new LambdaQueryWrapper<Users>().eq(Users::getEmail, user.getEmail())
-                .eq(Users::getDel, false);
-        Users emailUser = userMapper.selectOne(emailQuery);
-        if (emailUser != null) {
-            return Result.error("该邮箱已被注册");
-        }
+        // ! beacause we are in Dev mode, so we don't need to check the email
+        // LambdaQueryWrapper<Users> emailQuery = new
+        // LambdaQueryWrapper<Users>().eq(Users::getEmail, user.getEmail())
+        // .eq(Users::getDel, false);
+        // Users emailUser = userMapper.selectOne(emailQuery);
+        // if (emailUser != null) {
+        // return Result.error("该邮箱已被注册");
+        // }
 
         try {
             // Password hashing
@@ -113,6 +119,7 @@ public class UserServiceImpl implements UserService {
             user.setCreatedAt(LocalDateTime.now());
             // Set default deletion status
             user.setDel(false);
+            user.setId(UUIDUtil.generateUUIDBytes());
             // Insert user into database
             int rows = userMapper.insert(user);
 
@@ -154,7 +161,7 @@ public class UserServiceImpl implements UserService {
 
             // Generate JWT token
             String token = jwtUtils.generateToken(username);
-            return Result.success(token);
+            return Result.success(new LoginOutput().setUser(user).setToken(token));
         } catch (Exception e) {
             log.error("Error during user login: {}", e.getMessage(), e);
             return Result.error("An error occurred during login");
@@ -312,7 +319,7 @@ public class UserServiceImpl implements UserService {
             return Result.error("Username cannot be empty");
         }
 
-        if (user.getUsername().length() < 3 || user.getUsername().length() > 20) {
+        if (StringUtils.hasText(user.getUsername()) && !Pattern.matches(USERNAME_REGEX, user.getUsername())) {
             return Result.error("Username must be between 3 and 20 characters");
         }
 
@@ -321,7 +328,7 @@ public class UserServiceImpl implements UserService {
             return Result.error("Password cannot be empty");
         }
 
-        if (user.getPassword().length() < 8) {
+        if (!Pattern.matches(PASSWORD_REGEX, user.getPassword())) {
             return Result.error("Password must be at least 8 characters long");
         }
 
@@ -418,6 +425,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Result registerSendEmail(String email) {
+        System.out.println(email);
         // 验证邮箱格式
         if (!StringUtils.hasText(email) || !Pattern.matches(EMAIL_REGEX, email)) {
             return Result.error("请提供有效的邮箱地址");

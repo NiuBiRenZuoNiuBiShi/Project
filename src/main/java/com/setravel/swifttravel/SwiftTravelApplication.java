@@ -1,13 +1,12 @@
 package com.setravel.swifttravel;
 
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
 @SpringBootApplication
-@MapperScan("com.setravel.swifttravel.mapper")
+//@MapperScan("com.setravel.swifttravel.mapper")
 public class SwiftTravelApplication {
 
     public static void main(String[] args) {
