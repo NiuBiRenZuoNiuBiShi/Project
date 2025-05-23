@@ -8,7 +8,6 @@ spring:
     password: ${SWIFT_TRAVEL_DB_PASSWORD} # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-
   data:
     redis:
       host: localhost
@@ -18,7 +17,8 @@ spring:
   mail:
     protocol: smtp
     default-encoding: UTF-8
-    host: smtp.163.com
+    host: smtp.office365.com
+    port: 587
     username: ${SWIFT_TRAVEL_EMAIL_USERNAME} # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
     password: ${SWIFT_TRAVEL_EMAIL_AUTHCODE} # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
     properties:
@@ -28,8 +28,8 @@ spring:
           starttls:
             enable: true
             required: true
-          connectiontimeout: 3000
-          timeout: 3000
+          connectiontimeout: 5000
+          timeout: 5000
           writetimeout: 5000
 
 server:
