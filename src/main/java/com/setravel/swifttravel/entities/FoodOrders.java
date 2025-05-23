@@ -10,6 +10,7 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -51,5 +52,9 @@ public class FoodOrders extends Model<FoodOrders> {
     @Override
     public Serializable pkVal() {
         return this.id;
+    }
+
+    public void setFoodOrderItems(List<FoodOrderItems> list) {
+
     }
 }

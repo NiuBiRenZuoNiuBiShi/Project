@@ -3,13 +3,14 @@ package com.setravel.swifttravel.service.impl;
 import java.io.IOException;
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.github.dozermapper.core.Mapper;
 import com.setravel.swifttravel.config.MailConfig;
 import com.setravel.swifttravel.entities.Result;
 import com.setravel.swifttravel.entities.DTO.MailDTO;
@@ -29,9 +30,7 @@ public class MailServiceImpl implements MailService {
     @Resource
     private JavaMailSender javaMailSender;
 
-    /*
-    @Resource
-    private Mapper mapper;*/
+    private static final Logger log = LoggerFactory.getLogger(MailServiceImpl.class);
 
     @Override
     public Result sendSimpleMailMessage(MailDTO mailDTO) {
@@ -72,7 +71,7 @@ public class MailServiceImpl implements MailService {
             javaMailSender.send(message);
             return Result.success("Mail sent successfully");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to send mail", e);
             return Result.error("Failed to send mail");
         }
     }
@@ -92,8 +91,6 @@ public class MailServiceImpl implements MailService {
             helper.setTo(mailDTO.getTo());
             helper.setSubject(mailDTO.getSubject());
 
-            message = helper.getMimeMessage();
-
             MimeBodyPart mimeBodyPart = new MimeBodyPart();
 
             mimeBodyPart.setContent(mailDTO.getText(), "text/html;charset=UTF-8");
@@ -104,17 +101,25 @@ public class MailServiceImpl implements MailService {
             mm.addBodyPart(mimeBodyPart);
 
             // 添加邮件附件
-            for (String filename : mailDTO.getFilenames()) {
-                MimeBodyPart attachPart = new MimeBodyPart();
-                try {
-                    attachPart.attachFile(filename);
-                } catch (IOException e) {
-                    e.printStackTrace();
+            if (mailDTO.getFilenames() != null) {
+                for (String filename : mailDTO.getFilenames()) {
+                    MimeBodyPart attachPart = new MimeBodyPart();
+                    try {
+                        attachPart.attachFile(filename);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    mm.addBodyPart(attachPart);
                 }
-                mm.addBodyPart(attachPart);
             }
+
+            if (StringUtils.hasText(mailDTO.getReplyTo())) {
+                helper.setReplyTo(mailDTO.getReplyTo());
+            }
+
             message.setContent(mm);
             message.saveChanges();
+            message.setSentDate(mailDTO.getSentDate() != null ? mailDTO.getSentDate() : new Date());
 
         } catch (Exception e) {
             return Result.error("Failed to send mail" + e.getMessage());
@@ -123,7 +128,6 @@ public class MailServiceImpl implements MailService {
         javaMailSender.send(message);
         return Result.success("Mail sent successfully");
     }
-
 
     @Override
     public Result sendVerificationEmail(MailDTO mailDTO) {

@@ -115,3 +115,11 @@ ALTER TABLE Carriages
     ADD COLUMN
         (version INT NOT NULL DEFAULT 0 COMMENT '乐观锁'
         );
+
+/*
+2025-05-22
+*/
+ALTER TABLE Food
+    ADD COLUMN
+        (number INT NOT NULL DEFAULT 0 COMMENT '食物数量'
+        );
