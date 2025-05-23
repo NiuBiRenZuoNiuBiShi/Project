@@ -14,8 +14,8 @@ import { fab } from '@fortawesome/free-brands-svg-icons'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 
-
 import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 library.add(fas, fab);
 
@@ -23,7 +23,8 @@ const pinia = createPinia();
 
 const app = createApp(App);
 app.use(router);
-app.use(pinia)
-app.use(ElementPlus)
+pinia.use(piniaPluginPersistedstate);
+app.use(pinia);
+app.use(ElementPlus);
 app.component('font-awesome-icon', FontAwesomeIcon);
 app.mount('#app');

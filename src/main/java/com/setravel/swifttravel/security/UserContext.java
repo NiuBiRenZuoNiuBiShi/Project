@@ -2,7 +2,6 @@ package com.setravel.swifttravel.security;
 
 import java.util.List;
 
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.setravel.swifttravel.entities.Contacts;
 import com.setravel.swifttravel.entities.Users;
@@ -65,8 +64,8 @@ public class UserContext {
         }
         List<Contacts> contactsList;
         try {
-            contactsList = contactMapper.selectList(new LambdaQueryWrapper<Contacts>()
-                    .eq(Contacts::getUserId, userId).eq(Contacts::getDel, false));
+            contactsList = contactMapper.selectList(
+                    new LambdaQueryWrapper<Contacts>().eq(Contacts::getUserId, userId).eq(Contacts::getDel, false));
         } catch (Exception e) {
             throw new RuntimeException("Failed to retrieve contacts: " + e.getMessage(), e);
         }
