@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.setravel.swifttravel.mapper.UserMapper;
+import com.setravel.swifttravel.security.UserContext;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +42,9 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
     @Resource
     private HotelMapper hotelMapper;
 
+    @Resource
+    private UserMapper userMapper;
+
     @Override
     @Transactional
     public HotelReserveOutput createReservation(HotelReserveRequest request) {
@@ -64,6 +69,9 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
 
         // 检查指定房型在整个日期范围内的可用性
         List<Room> dailyRoomRecords = roomMapper.findAvailableRooms(hotelIDBytes, request.getCheckinDate(), request.getCheckoutDate(), request.getNumberPeople());
+        if (dailyRoomRecords.isEmpty()) {
+            throw new RuntimeException("没有符合您要求的房型");
+        }
         // 按日期分组，并且只选取特定房型和当前可用的房间
         Map<LocalDate, List<Room>> roomsByDateForType = dailyRoomRecords.stream()
             // 只选取当前可用的房间
@@ -248,6 +256,7 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
         hro.setId(UUIDUtil.bytesToString(reservation.getId()));
         hro.setUserId(UUIDUtil.bytesToString(reservation.getUserId()));
         hro.setHotelId(UUIDUtil.bytesToString(reservation.getHotelId()));
+        hro.setUserName(UserContext.getCurrentUser(userMapper).getUsername());
         hro.setHotelName(hotelName);
         hro.setRoomType(roomType);
         hro.setCheckinDate(reservation.getCheckinDate());

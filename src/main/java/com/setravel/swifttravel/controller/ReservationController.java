@@ -43,9 +43,7 @@ public class ReservationController {
             // 从认证信息中获取用户id
             request.setUserId(UUIDUtil.bytesToString(UserContext.getCurrentUserId(userMapper)));
             HotelReserveOutput reservation = reservationService.createReservation(request);
-            // 注意：之前使用 ResponseEntity.status(HttpStatus.CREATED) 返回 201
-            // 直接返回 Result 时，HTTP 状态码通常为 200 OK。
-            // 可以在 Result.success 中指明操作成功且资源已创建的消息。
+            reservation.setUserName(UserContext.getCurrentUser(userMapper).getUsername());
             return Result.success("预订创建成功", reservation);
         } catch (OptimisticLockingFailureException e) {
             //logger.warn("创建预订时发生乐观锁冲突: {}", e.getMessage());

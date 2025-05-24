@@ -79,6 +79,9 @@ public class HotelReviewController {
         String userIdString = UUIDUtil.bytesToString(UserContext.getCurrentUserId(userMapper));
         try {
             IPage<ReviewOutput> reviewPage = hotelReviewService.getReviewsByUserId(userIdString, pageNum, pageSize);
+            for (ReviewOutput review : reviewPage.getRecords()) {
+                review.setUserName(userMapper.selectById(review.getUserId()).getUsername());
+            }
             return Result.success(reviewPage);
         } catch (Exception e) {
             return Result.error("获取用户评价列表失败: " + e.getMessage());

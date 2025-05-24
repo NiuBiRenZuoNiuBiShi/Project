@@ -1,11 +1,14 @@
 package com.setravel.swifttravel.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import com.setravel.swifttravel.mapper.UserMapper;
+import com.setravel.swifttravel.security.UserContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +42,9 @@ public class HotelReviewServiceImpl extends ServiceImpl<HotelReviewMapper, Hotel
 
     @Resource
     private HotelReviewMapper hotelReviewMapper;
+
+    @Resource
+    private UserMapper userMapper;
 
     @Override
     @Transactional
@@ -164,7 +170,7 @@ public class HotelReviewServiceImpl extends ServiceImpl<HotelReviewMapper, Hotel
         }
 
         // 权限校验：确保是用户自己的评价才能删除
-        if (!Objects.equals(review.getUserId(), userIdBytes)) {
+        if (!Arrays.equals(review.getUserId(), userIdBytes)) {
             // 也可以允许管理员删除，那需要额外的角色判断逻辑
             throw new SecurityException("无权删除该评价。");
         }
@@ -186,7 +192,7 @@ public class HotelReviewServiceImpl extends ServiceImpl<HotelReviewMapper, Hotel
         output.setReviewId(UUIDUtil.bytesToString(review.getId()));
         output.setHotelId(UUIDUtil.bytesToString(review.getHotelId()));
         output.setUserId(UUIDUtil.bytesToString(review.getUserId()));
-        // output.setUserName() 看看怎么设置用户名
+        output.setUserName(UserContext.getCurrentUser(userMapper).getUsername());
         return output;
     }
 
@@ -197,10 +203,11 @@ public class HotelReviewServiceImpl extends ServiceImpl<HotelReviewMapper, Hotel
                 .isNotNull(HotelReview::getRating) // 确保评分不为null
                 .eq(HotelReview::getDel, false));
 
+        // 如果酒店的评价都被删除，使用默认的评分
         if (reviews.isEmpty()) {
             Hotel hotel = hotelMapper.selectById(hotelIdBytes);
             if (hotel != null) {
-                hotel.setRating(BigDecimal.ZERO);
+                hotel.setRating(BigDecimal.valueOf(1.0));
                 hotelMapper.updateById(hotel);
             }
             return;
@@ -209,10 +216,10 @@ public class HotelReviewServiceImpl extends ServiceImpl<HotelReviewMapper, Hotel
         // 计算平均分并保留一位小数（最终结果为 BigDecimal 类型）
         BigDecimal averageRating = reviews.stream()
             .map(HotelReview::getRating)
-            .filter(rating -> rating != BigDecimal.ZERO) // 过滤可能的 0 值
+            .filter(rating -> !Objects.equals(rating, BigDecimal.ZERO)) // 过滤可能的 0 值
             .reduce(BigDecimal.ZERO, BigDecimal::add) // 累加评分
             .divide(
-                new BigDecimal(Math.max(reviews.size(), 1)), // 避免除以 0
+                new BigDecimal(reviews.size()), // 避免除以 0
                 1, // 保留一位小数
                 RoundingMode.HALF_UP // 四舍五入
             );

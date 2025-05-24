@@ -1,6 +1,5 @@
 package com.setravel.swifttravel.controller;
 
-import com.setravel.swifttravel.entities.Hotel;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,7 +34,7 @@ public class HotelController {
      * @param hotelName 酒店名
      * @param checkinDate 入住日期
      * @param checkoutDate 退房日期
-     * @param numberofPeople 入住人数
+     * @param numberOfPeople 入住人数
      * @param pageNum 展示页数,默认为1
      * @param pageSize 一页展示多少项,默认为10
      * @param sortBy 排列规则
@@ -46,13 +45,13 @@ public class HotelController {
     public Result searchHotels(
         @RequestParam(required = false) String location,
         @RequestParam(required = false) String hotelName,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkinDate,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkoutDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkinDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkoutDate,
         @RequestParam(required = false) Integer numberOfPeople,
         @RequestParam(defaultValue = "1") int pageNum,
         @RequestParam(defaultValue = "10") int pageSize,
-        @RequestParam(required = false) String sortBy,
-        @RequestParam(required = false) String sortOrder
+        @RequestParam(defaultValue = "rating") String sortBy,
+        @RequestParam(defaultValue = "desc") String sortOrder
     ) {
         HotelSearchRequest request = new HotelSearchRequest();
         request.setLocation(location);

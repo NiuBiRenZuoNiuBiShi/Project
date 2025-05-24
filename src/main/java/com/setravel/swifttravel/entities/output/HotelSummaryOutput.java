@@ -8,10 +8,11 @@ import java.math.BigDecimal;
  */
 @Data
 public class HotelSummaryOutput {
-    private String id; // 应该不需要HotelID吧
+    private String id;
     private String name;
     private String address;
     private BigDecimal rating;
     private String picUrl;
-    private BigDecimal minPrice; // 该酒店在指定日期范围内的最低可用房间价格
+    // 该酒店在指定日期范围内的最低可用房间价格
+    private BigDecimal minPrice;
 }

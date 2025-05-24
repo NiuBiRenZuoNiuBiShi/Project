@@ -10,10 +10,8 @@ import lombok.Data;
 
 @Data
 public class CreateReviewRequest {
-    // 酒店ID
     //@NotBlank(message = "酒店ID不能为空")
-    private String hotelId; 
-    // userIdString 从认证信息中获取，而不是由客户端传递
+    private String hotelId;
     // @NotBlank(message = "用户ID不能为空")
     private String userId;
     // 关联的预订ID

@@ -1,7 +1,6 @@
 package com.setravel.swifttravel.service.impl;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -64,17 +63,28 @@ public class HotelServiceImpl extends ServiceImpl<HotelMapper, Hotel> implements
             Page<Hotel> hotelPageRequest = new Page<>(request.getPageNum(), request.getPageSize());
             IPage<Hotel> resultHotelPage = this.page(hotelPageRequest, hotelQuery);
 
-            return resultHotelPage.convert(hotel -> {
-                HotelSummaryOutput hotelOutput = convertToSummaryOutput(hotel);
-                // 为酒店计算时间范围内可选的房间最低价
-                if (request.getCheckinDate() != null && request.getCheckoutDate() != null) {
-                    BigDecimal minPrice = calculateMinPriceForHotel(hotel, request.getCheckinDate(), request.getCheckoutDate(), request.getNumberOfPeople());
-                    if (minPrice != null) {
-                        hotelOutput.setMinPrice(minPrice);
+            List<HotelSummaryOutput> filteredOutputs = resultHotelPage.getRecords().stream()
+                .map(hotel -> {
+                    HotelSummaryOutput hotelOutput = convertToSummaryOutput(hotel);
+                    if (request.getCheckinDate() != null && request.getCheckoutDate() != null) {
+                        BigDecimal minPrice = calculateMinPriceForHotel(hotel, request.getCheckinDate(), request.getCheckoutDate(), request.getNumberOfPeople());
+                        if (minPrice != null) {
+                            hotelOutput.setMinPrice(minPrice);
+                            return hotelOutput; // 只有minPrice不为null才返回output
+                        } else {
+                            return null; // 没有可用房间，返回null以便过滤
+                        }
+                    } else {
+                        // 如果没有日期，视为不可用来过滤
+                        return hotelOutput;
                     }
-                }
-                return hotelOutput;
-            });
+                })
+                .filter(Objects::nonNull) // 过滤掉那些因为minPrice为null而返回null的项
+                .collect(Collectors.toList());
+
+            IPage<HotelSummaryOutput> finalPage = new Page<>(resultHotelPage.getCurrent(), resultHotelPage.getSize(), resultHotelPage.getTotal());
+            finalPage.setRecords(filteredOutputs);
+            return finalPage;
 
         } else if ("price".equalsIgnoreCase(sortBy)) {
             // 获取所有匹配基础条件的酒店列表
@@ -176,18 +186,19 @@ public class HotelServiceImpl extends ServiceImpl<HotelMapper, Hotel> implements
             Map<String, List<Room>> roomsByType = availableRooms.stream().collect(Collectors.groupingBy(Room::getRoomType));
             
             //筛选出在整个入住期间每天都有库存的房型
-            List<RoomInformationOutput> availableRoomTypes = roomsByType.entrySet().stream()
+            List<RoomInformationOutput> availableRoomTypes = roomsByType.values().stream()
                 // 过滤：确保该房型在整个日期范围内每天都有记录       
-                .filter(entry -> entry.getValue().size() >= nights)
+                .filter(rooms -> rooms.size() >= nights)
                 // 映射：将满足条件的房型条目转换为 RoomInformationOutput 对象
-                .map(entry -> {
+                .map(rooms -> {
                     // 获取该房型在入住第一天的房间信息作为代表(实际上看到的价格都一样)
-                    Room typicalRoom = entry.getValue().get(0);
+                    Room typicalRoom = rooms.getFirst();
                     RoomInformationOutput roomInfo = new RoomInformationOutput();
                     //这个房间id一定需要吗?
-                    roomInfo.setId(UUIDUtil.bytesToString(typicalRoom.getId())); 
+                    roomInfo.setId(UUIDUtil.bytesToString(typicalRoom.getId()));
                     roomInfo.setRoomType(typicalRoom.getRoomType());
                     roomInfo.setPrice(typicalRoom.getPrice());
+                    roomInfo.setCapacity(typicalRoom.getCapacity());
 
                     return roomInfo;
                 }).collect(Collectors.toList()); // 将处理后的对象都放到一个列表中
@@ -247,7 +258,7 @@ public class HotelServiceImpl extends ServiceImpl<HotelMapper, Hotel> implements
                 // 过滤：筛选出那些在整个入住期间每天都有可用房间记录的房型
                 .filter(dailyRoomList -> dailyRoomList.size() >= finalNights)
                 // 映射：对于满足条件的房型，取第一晚的价格
-                .map(dailyRoomList -> dailyRoomList.get(0).getPrice())
+                .map(dailyRoomList -> dailyRoomList.getFirst().getPrice())
                 // 聚合：从所有符合条件的房型中找出最低的那一个
                 .min(BigDecimal::compareTo);
 
