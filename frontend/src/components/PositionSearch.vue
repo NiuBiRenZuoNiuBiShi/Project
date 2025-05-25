@@ -43,7 +43,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import axios from 'axios';
+import api from "@/api/Api.js";
 
 const props = defineProps({
   label: {
@@ -93,12 +93,12 @@ const handleSearch = async () => {
 
       // 并行请求城市和车站数据
       const [cityResponse, stationResponse] = await Promise.all([
-        axios.get('/api/city/search', {
+        api.get('/api/city/search', {
           params: {
             input: inputValue.value
           }
         }),
-        axios.get('/api/station/search', {
+        api.get('/api/station/search', {
           params: {
             input: inputValue.value
           }
@@ -154,8 +154,8 @@ const selectItem = (item, type) => {
 const loadInitialData = async () => {
   try {
     const [cityResponse, stationResponse] = await Promise.all([
-      axios.get('/api/city/search', { params: { input: '' } }),
-      axios.get('/api/station/search', { params: { input: '' } })
+      api.get('/api/city/search', { params: { input: '' } }),
+      api.get('/api/station/search', { params: { input: '' } })
     ]);
 
     cityResults.value = cityResponse.data.data || [];
