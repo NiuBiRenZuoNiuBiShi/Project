@@ -8,6 +8,7 @@ spring:
     password: ${SWIFT_TRAVEL_DB_PASSWORD} # 这部分由于涉及到个人隐私，需要根据各自电脑进行修改
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+
   data:
     redis:
       host: localhost
@@ -27,7 +28,7 @@ spring:
           auth: true
           starttls:
             enable: true
-            required: true
+#            required: true
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000

@@ -6,6 +6,8 @@ import com.setravel.swifttravel.mapper.CarriagesMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.setravel.swifttravel.entities.Carriages;
 import jakarta.annotation.Resource;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -13,6 +15,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Base64;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class CarriagesService {
@@ -22,6 +25,9 @@ public class CarriagesService {
 
     @Resource
     private TrainNumberService trainNumberService;
+
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     public List<Carriages> getCarriagesByCC(String depCity, String arrCity, String depDate) {
         QueryWrapper<Carriages> queryWrapper = new QueryWrapper<>();
@@ -181,7 +187,36 @@ public class CarriagesService {
         return carriageTransfers;
     }
 
+//    public List<CarriageTransfer> getCarriageTransfer(String depCity, String arrCity, String depDate) {
+//        List<Carriages> firstCarriages = getCarriagesByStartCity(depCity, depDate);
+//        List<Carriages> secondCarriages = getCarriagesByEndCity(arrCity, depDate);
+//        List<Carriages> firstCarriagesFiltered = new ArrayList<>();
+//        List<Carriages> secondCarriagesFiltered = new ArrayList<>();
+//        for (Carriages firstCarriage : firstCarriages) {
+//            for (Carriages secondCarriage : secondCarriages) {
+//                if (firstCarriage.getArrCity().equals(secondCarriage.getDepCity()) &&
+//                        firstCarriage.getDepTime().isBefore(secondCarriage.getDepTime())) {
+//                    firstCarriagesFiltered.add(firstCarriage);
+//                    secondCarriagesFiltered.add(secondCarriage);
+//                }
+//            }
+//        }
+//        return getCarriageTransferByCarriages(firstCarriagesFiltered, secondCarriagesFiltered);
+//    }
+
     public List<CarriageTransfer> getCarriageTransfer(String depCity, String arrCity, String depDate) {
+        // 生成缓存键
+        String cacheKey = "carriageTransfer:" + depCity + ":" + arrCity + ":" + depDate;
+
+        // 从 Redis 获取缓存数据
+        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
+        List<CarriageTransfer> cachedResult = (List<CarriageTransfer>) valueOperations.get(cacheKey);
+
+        if (cachedResult != null) {
+            return cachedResult; // 如果缓存命中，直接返回
+        }
+
+        // 缓存未命中，查询数据库
         List<Carriages> firstCarriages = getCarriagesByStartCity(depCity, depDate);
         List<Carriages> secondCarriages = getCarriagesByEndCity(arrCity, depDate);
         List<Carriages> firstCarriagesFiltered = new ArrayList<>();
@@ -189,13 +224,18 @@ public class CarriagesService {
         for (Carriages firstCarriage : firstCarriages) {
             for (Carriages secondCarriage : secondCarriages) {
                 if (firstCarriage.getArrCity().equals(secondCarriage.getDepCity()) &&
-                        firstCarriage.getDepTime().isBefore(secondCarriage.getDepTime())) {
+                    firstCarriage.getDepTime().isBefore(secondCarriage.getDepTime())) {
                     firstCarriagesFiltered.add(firstCarriage);
                     secondCarriagesFiltered.add(secondCarriage);
                 }
             }
         }
-        return getCarriageTransferByCarriages(firstCarriagesFiltered, secondCarriagesFiltered);
+        List<CarriageTransfer> result = getCarriageTransferByCarriages(firstCarriagesFiltered, secondCarriagesFiltered);
+
+        // 将结果存入 Redis，设置过期时间（例如 1 小时）
+        valueOperations.set(cacheKey, result, 1, TimeUnit.HOURS);
+
+        return result;
     }
 
     public Carriages getCarriageByTrainId(String trainId) {

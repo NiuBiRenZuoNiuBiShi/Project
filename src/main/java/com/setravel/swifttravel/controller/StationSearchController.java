@@ -42,7 +42,7 @@ public class StationSearchController {
     /**
      * 根据城市名称模糊查询车站
      * 
-     * @param input CituNameInput
+     * @param input CityNameInput
      * @return StationList
      */
     @GetMapping("/api/station/city_search")

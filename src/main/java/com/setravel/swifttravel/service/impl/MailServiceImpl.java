@@ -145,6 +145,9 @@ public class MailServiceImpl implements MailService {
 
         try {
             // 发送邮件
+
+            System.out.println("SWIFT_TRAVEL_EMAIL_USERNAME: " + System.getenv("SWIFT_TRAVEL_EMAIL_USERNAME"));
+            System.out.println("SWIFT_TRAVEL_EMAIL_AUTHCODE: " + System.getenv("SWIFT_TRAVEL_EMAIL_AUTHCODE"));
             javaMailSender.send(message);
             return Result.success("验证码已发送，请查收邮件");
         } catch (Exception e) {

@@ -29,10 +29,15 @@ const routes = [
         component: () => import('@/views/TrainListView.vue')
     },
     {
-        path: '/trainfood/:id',
+        path: '/orderfood',
         name: 'orderFood',
         component: () => import('@/views/FoodOrderView.vue')
     },
+    // {
+    //     path: '/trainfood/:id',
+    //     name: 'orderFood',
+    //     component: () => import('@/views/FoodOrderView.vue')
+    // },
     {
         path: '/test',
         name: 'test',
